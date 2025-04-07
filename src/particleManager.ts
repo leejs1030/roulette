@@ -19,4 +19,8 @@ export class ParticleManager {
       this._particles.push(new Particle(x, y));
     }
   }
+
+  clear() {
+    this._particles = [];
+  }
 }

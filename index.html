@@ -465,40 +465,29 @@
     window.roullete.setMarbles(names);
     ready = names.length > 0;
     localStorage.setItem('mbr_names', names.join(','));
-    switch (winnerType) {
-      case 'first':
-        setWinnerRank(1);
-        break;
-      case 'last':
-        const total = window.roullete.getCount();
-        setWinnerRank(total);
-        break;
-    }
+    // Removed winnerType and setWinnerRank calls from here
+    // Update UI directly based on current options/state if needed
+    updateWinnerButtonsUI();
   }
 
-  function setWinnerRank(rank) {
-    document.querySelector('#in_winningRank').value = rank;
-    window.options.winningRank = rank - 1;
-    window.roullete.setWinningRank(window.options.winningRank);
+  // Removed setWinnerRank function entirely
 
-    if (winnerType === 'first') {
-      document.querySelector('.btn-first-winner').classList.toggle('active', true);
-      document.querySelector('.btn-last-winner').classList.toggle('active', false);
-      document.querySelector('#in_winningRank').classList.toggle('active', false);
-    } else if (winnerType === 'last') {
-      document.querySelector('.btn-first-winner').classList.toggle('active', false);
-      document.querySelector('.btn-last-winner').classList.toggle('active', true);
-      document.querySelector('#in_winningRank').classList.toggle('active', false);
-    } else if (winnerType === 'custom') {
-      document.querySelector('.btn-first-winner').classList.toggle('active', false);
-      document.querySelector('.btn-last-winner').classList.toggle('active', false);
-      document.querySelector('#in_winningRank').classList.toggle('active', true);
-    }
+  function updateWinnerButtonsUI() {
+    const rankInput = document.querySelector('#in_winningRank');
+    const firstBtn = document.querySelector('.btn-first-winner');
+    const lastBtn = document.querySelector('.btn-last-winner');
+    const currentWinnerType = window.options.winnerType || 'first'; // Assuming options stores this preference
+
+    rankInput.value = window.options.winningRank + 1; // Display 1-based rank
+
+    firstBtn.classList.toggle('active', currentWinnerType === 'first');
+    lastBtn.classList.toggle('active', currentWinnerType === 'last');
+    rankInput.classList.toggle('active', currentWinnerType === 'custom');
   }
 
 
   let ready = false;
-  let winnerType = 'first';
+  // let winnerType = 'first'; // Removed winnerType global variable
 
   document.addEventListener('DOMContentLoaded', () => {
     initialize();
@@ -560,41 +549,63 @@
       gtag && gtag('event', 'start', {
         'event_category': 'roulette',
         'event_label': 'start',
-        'value': window.roullete.getCount(),
+        'value': window.roullete.getCount(), // Keep getCount if needed for analytics
       });
-      window.roullete.start();
+      // Send 'start' input to the server instead of calling local start
+      if (window.sendInput) {
+        window.sendInput({ type: 'start' });
+      } else {
+        console.error("sendInput function not found");
+      }
       document.querySelector('#settings').classList.add('hide');
       document.querySelector('#donate').classList.add('hide');
     });
 
     document.querySelector('#chkAutoRecording').addEventListener('change', (e) => {
       window.options.autoRecording = e.target.matches(':checked');
-      window.roullete.setAutoRecording(window.options.autoRecording);
+      // Removed window.roullete.setAutoRecording call
     });
 
     document.querySelector('#chkSkill').addEventListener('change', (e) => {
       window.options.useSkills = e.target.matches(':checked');
-      window.roullete.setWinningRank(window.options.winningRank);
+      // Removed window.roullete.setWinningRank call
+      // Skill enabling/disabling might need server communication or be handled differently
     });
 
     document.querySelector('#in_winningRank').addEventListener('change', (e) => {
       const v = parseInt(e.target.value, 10);
-      winnerType = 'custom';
-      setWinnerRank(isNaN(v) ? 0 : v);
+      window.options.winnerType = 'custom'; // Store preference in options
+      window.options.winningRank = (isNaN(v) || v < 1 ? 0 : v - 1); // Store 0-based rank
+      updateWinnerButtonsUI();
+      // TODO: Notify server about rank change if necessary
     });
 
     document.querySelector('.btn-last-winner').addEventListener('click', () => {
-      const total = window.roullete.getCount();
-      winnerType = 'last';
-      setWinnerRank(total);
+      window.options.winnerType = 'last';
+      // Rank calculation might happen on server, just update UI preference
+      // window.options.winningRank = window.roullete.getCount() - 1; // Or get count from server state?
+      updateWinnerButtonsUI();
+      // TODO: Notify server about rank change if necessary
     });
     document.querySelector('.btn-first-winner').addEventListener('click', () => {
-      winnerType = 'first';
-      setWinnerRank(1);
+      window.options.winnerType = 'first';
+      window.options.winningRank = 0; // First winner is rank 0
+      updateWinnerButtonsUI();
+      // TODO: Notify server about rank change if necessary
     });
 
     document.querySelector('#btnShake').addEventListener('click', () => {
-      window.roullete.shake();
+      // Send 'shake' input to the server
+      if (window.sendInput && window.roullete) {
+        const marbleId = window.roullete.getFirstMarbleId();
+        if (marbleId !== undefined) {
+          window.sendInput({ type: 'shake', marbleId: marbleId });
+        } else {
+          console.warn("No marble available to shake.");
+        }
+      } else {
+         console.error("sendInput or roullete instance not found");
+      }
       gtag('event', 'shake', {
         'event_category': 'roulette',
         'event_label': 'shake',

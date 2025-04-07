@@ -15,4 +15,8 @@ export interface UIObject {
   onMouseMove?(e?: { x: number; y: number }): void;
   onMouseDown?(e: { x: number; y: number }): void;
   onMouseUp?(e: { x: number; y: number }): void;
+
+  // Optional methods for server state updates and reset
+  updateData?(gameState: any, marbles: any[]): void; // Use 'any' for simplicity in interface, implementers use specific types
+  reset?(): void;
 }

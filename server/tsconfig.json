@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2016", // Node.js 환경에 적합한 타겟 설정
+    "module": "CommonJS", // ts-node 기본 동작과 호환되도록 CommonJS 명시
+    "moduleResolution": "node", // 표준 Node.js 모듈 해석 방식 사용
+    "outDir": "./dist", // 빌드 출력 디렉토리 (빌드 스크립트용)
+    "rootDir": "./src", // 소스 파일 루트 디렉토리
+    "strict": true, // 엄격한 타입 검사 활성화
+    "esModuleInterop": true, // CommonJS 모듈에서 default import 허용
+    "skipLibCheck": true, // 선언 파일 타입 검사 건너뛰기
+    "forceConsistentCasingInFileNames": true, // 파일 이름 대소문자 일관성 강제
+    "resolveJsonModule": true // JSON 모듈 import 허용
+  },
+  "include": ["src/**/*"], // src 디렉토리의 모든 파일 포함
+  "exclude": ["node_modules"] // node_modules 디렉토리 제외
+}

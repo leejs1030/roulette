@@ -1,9 +1,20 @@
-import { Skills, STUCK_DELAY } from './data/constants';
+import { Skills } from './data/constants';
 import { rad } from './utils/utils';
 import options from './options';
-import { VectorLike } from './types/VectorLike';
-import { Vector } from './utils/Vector';
-import { IPhysics } from './IPhysics';
+// Removed VectorLike, Vector, IPhysics imports
+
+// Define MarbleState interface locally matching roulette.ts
+// TODO: Move to a shared types directory
+interface MarbleState {
+  id: number;
+  x: number;
+  y: number;
+  angle: number;
+  name?: string;
+  weight?: number;
+  skill?: Skills;
+  isActive?: boolean;
+}
 
 export class Marble {
   type = 'marble' as const;
@@ -11,112 +22,85 @@ export class Marble {
   size: number = 0.5;
   color: string = 'red';
   hue: number = 0;
-  impact: number = 0;
+  impact: number = 0; // Keep for visual effect? Or remove if server handles effects
   weight: number = 1;
-  skill: Skills = Skills.None;
-  isActive: boolean = false;
+  skill: Skills = Skills.None; // Updated by server state
+  isActive: boolean = false; // Updated by server state
 
-  private _skillRate = 0.0005;
-  private _coolTime = 5000;
-  private _maxCoolTime = 5000;
-  private _stuckTime = 0;
-  private lastPosition: VectorLike = { x: 0, y: 0 };
-
-  private physics: IPhysics;
+  // --- Local state for rendering/animation ---
+  private _x: number = 0;
+  private _y: number = 0;
+  private _angle: number = 0;
+  // private _coolTime = 0; // Cooldown visualization might be local or driven by server state
+  // private _maxCoolTime = 5000; // If local, needs initialization
+  // private _stuckTime = 0; // Stuck visualization might be local or driven by server state
 
   id: number;
 
+  // --- Getters for position based on local state ---
   get position() {
-    return this.physics.getMarblePosition(this.id) || { x: 0, y: 0, angle: 0 };
+    return { x: this._x, y: this._y, angle: this._angle };
   }
 
   get x() {
-    return this.position.x;
-  }
-
-  set x(v: number) {
-    this.position.x = v;
+    return this._x;
   }
 
   get y() {
-    return this.position.y;
-  }
-
-  set y(v: number) {
-    this.position.y = v;
+    return this._y;
   }
 
   get angle() {
-    return this.position.angle;
+    return this._angle;
   }
 
+  // Simplified constructor, no physics interaction
   constructor(
-    physics: IPhysics,
-    order: number,
-    max: number,
+    id: number,
     name?: string,
     weight: number = 1,
+    // Removed order, max parameters as positioning is done by server
   ) {
-    this.name = name || `M${order}`;
-    this.weight = weight;
-    this.physics = physics;
+    this.id = id;
+    this.name = name || `M${id}`;
+    this.weight = weight; // Keep weight if used for rendering/UI
 
-    this._maxCoolTime = 1000 + (1 - this.weight) * 4000;
-    this._coolTime = this._maxCoolTime * Math.random();
-    this._skillRate = 0.2 * this.weight;
-
-    const maxLine = Math.ceil(max / 10);
-    const line = Math.floor(order / 10);
-    const lineDelta = -Math.max(0, Math.ceil(maxLine - 5));
-    this.hue = (360 / max) * order;
+    // Initialize color based on ID or name hash
+    // Simple hash function for demonstration
+    let hash = 0;
+    for (let i = 0; i < this.name.length; i++) {
+        hash = this.name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    this.hue = hash % 360;
     this.color = `hsl(${this.hue} 100% 70%)`;
-    this.id = order;
 
-    physics.createMarble(
-      order,
-      10.25 + (order % 10) * 0.6,
-      maxLine - line + lineDelta,
-    );
+    // Initialize position to something default, server will update
+    this._x = 0;
+    this._y = -1000; // Start off-screen until server update
+    this._angle = 0;
+    this.isActive = false; // Start inactive
+
+    // Initialize local visualization state if needed
+    // this._maxCoolTime = 1000 + (1 - this.weight) * 4000;
+    // this._coolTime = this._maxCoolTime * Math.random();
   }
 
-  update(deltaTime: number) {
-    if (
-      this.isActive &&
-      Vector.lenSq(Vector.sub(this.lastPosition, this.position)) < 0.00001
-    ) {
-      this._stuckTime += deltaTime;
-
-      if (this._stuckTime > STUCK_DELAY) {
-        this.physics.shakeMarble(this.id);
-        this._stuckTime = 0;
-      }
-    } else {
-      this._stuckTime = 0;
-    }
-    this.lastPosition = { x: this.position.x, y: this.position.y };
-
-    this.skill = Skills.None;
-    if (this.impact) {
-      this.impact = Math.max(0, this.impact - deltaTime);
-    }
-    if (!this.isActive) return;
-    if (options.useSkills) {
-      this._updateSkillInformation(deltaTime);
-    }
+  // Method to update marble state based on data from the server
+  updateState(state: MarbleState) {
+    this._x = state.x;
+    this._y = state.y;
+    this._angle = state.angle;
+    this.isActive = state.isActive ?? this.isActive; // Update if server sends it
+    this.skill = state.skill ?? this.skill; // Update if server sends it
+    // Update name/weight if they can change or are sent initially
+    if (state.name) this.name = state.name;
+    if (state.weight) this.weight = state.weight;
   }
 
-  private _updateSkillInformation(deltaTime: number) {
-    if (this._coolTime > 0) {
-      this._coolTime -= deltaTime;
-    }
+  // Removed local update logic (physics interaction, stuck check, skill cooldown)
+  // update(deltaTime: number) { ... }
 
-    if (this._coolTime <= 0) {
-      this.skill =
-        Math.random() < this._skillRate ? Skills.Impact : Skills.None;
-      this._coolTime = this._maxCoolTime;
-    }
-  }
-
+  // Rendering logic remains mostly the same, using local _x, _y, _angle
   render(
     ctx: CanvasRenderingContext2D,
     zoom: number,
@@ -141,8 +125,8 @@ export class Marble {
   private _drawMarbleBody(ctx: CanvasRenderingContext2D, isMinimap: boolean) {
     ctx.beginPath();
     ctx.arc(
-      this.x,
-      this.y,
+      this._x, // Use local state
+      this._y, // Use local state
       isMinimap ? this.size : this.size / 2,
       0,
       Math.PI * 2,
@@ -156,18 +140,17 @@ export class Marble {
     outline: boolean,
     skin?: CanvasImageSource,
   ) {
+    // Use local state for rendering position
     ctx.fillStyle = `hsl(${this.hue} 100% ${70 + 25 * Math.min(1, this.impact / 500)}%`;
-    if (this._stuckTime > 0) {
-      ctx.fillStyle = `hsl(${this.hue} 100% ${70 + 25 * Math.min(1, this._stuckTime / STUCK_DELAY)}%`;
-    }
+    // if (this._stuckTime > 0) { ... } // Removed stuck visualization for now
 
     ctx.shadowColor = this.color;
     ctx.shadowBlur = zoom / 2;
     if (skin) {
       const hs = this.size / 2;
       ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
+      ctx.translate(this._x, this._y); // Use local state
+      ctx.rotate(this._angle); // Use local state
       ctx.drawImage(skin, -hs, -hs, hs * 2, hs * 2);
       ctx.restore();
     } else {
@@ -182,15 +165,14 @@ export class Marble {
       this._drawOutline(ctx, 2 / zoom);
     }
 
-    if (options.useSkills) {
-      this._renderCooltime(ctx, zoom);
-    }
-    // this._renderStuck(ctx, zoom); // for debug
+    // if (options.useSkills) {
+    //   this._renderCooltime(ctx, zoom); // Keep or remove cooldown visualization
+    // }
   }
 
   private _drawName(ctx: CanvasRenderingContext2D, zoom: number) {
     ctx.save();
-    ctx.translate(this.x, this.y + 0.25);
+    ctx.translate(this._x, this._y + 0.25); // Use local state
     ctx.scale(1 / zoom, 1 / zoom);
     ctx.font = `12pt sans-serif`;
     ctx.strokeStyle = 'black';
@@ -207,36 +189,12 @@ export class Marble {
     ctx.beginPath();
     ctx.strokeStyle = 'white';
     ctx.lineWidth = lineWidth;
-    ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+    ctx.arc(this._x, this._y, this.size / 2, 0, Math.PI * 2); // Use local state
     ctx.stroke();
     ctx.restore();
   }
 
-  private _renderCooltime(ctx: CanvasRenderingContext2D, zoom: number) {
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 1 / zoom;
-    ctx.beginPath();
-    ctx.arc(
-      this.x,
-      this.y,
-      this.size / 2 + 2 / zoom,
-      rad(270),
-      rad(270 + (360 * this._coolTime) / this._maxCoolTime),
-    );
-    ctx.stroke();
-  }
-
-  private _renderStuck(ctx: CanvasRenderingContext2D, zoom: number) {
-    ctx.strokeStyle = 'green';
-    ctx.lineWidth = 1 / zoom;
-    ctx.beginPath();
-    ctx.arc(
-      this.x,
-      this.y,
-      this.size / 2 + 3 / zoom,
-      rad(270),
-      rad(270 + 360 * (1 - this._stuckTime / STUCK_DELAY)),
-    );
-    ctx.stroke();
-  }
+  // Removed _renderCooltime and _renderStuck for simplicity, can be added back if needed
+  // private _renderCooltime(ctx: CanvasRenderingContext2D, zoom: number) { ... }
+  // private _renderStuck(ctx: CanvasRenderingContext2D, zoom: number) { ... }
 }

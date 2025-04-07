@@ -1,56 +1,72 @@
 import { Marble } from './marble';
-import { initialZoom, Skills, zoomThreshold } from './data/constants';
+import { initialZoom, Skills, zoomThreshold } from './data/constants'; // Re-added zoomThreshold
 import { ParticleManager } from './particleManager';
 import { StageDef, stages } from './data/maps';
-import { parseName } from './utils/utils';
+// import { parseName } from './utils/utils'; // Name parsing might happen on server or be simplified
 import { Camera } from './camera';
 import { RouletteRenderer } from './rouletteRenderer';
 import { SkillEffect } from './skillEffect';
 import { GameObject } from './gameObject';
-import options from './options';
+import options from './options'; // Keep options if needed for rendering/UI
 import { bound } from './utils/bound.decorator';
 import { UIObject } from './UIObject';
 import { RankRenderer } from './rankRenderer';
 import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
-import { IPhysics } from './IPhysics';
-import { Box2dPhysics } from './physics-box2d';
+// Removed IPhysics and Box2dPhysics imports
+
+// Define GameState interfaces locally matching index.ts (or import from shared location later)
+interface MarbleState {
+  id: number;
+  x: number;
+  y: number;
+  angle: number;
+  // Add other properties sent by server if needed (e.g., name, color, skill state)
+  name?: string;
+  weight?: number;
+  skill?: Skills;
+  isActive?: boolean; // To know if the marble is visually active
+}
+interface MapEntityState {
+  x: number;
+  y: number;
+  angle: number;
+  shape: any; // Keep shape for rendering
+  life: number;
+  // Add other properties sent by server if needed
+}
+interface GameState {
+  marbles: MarbleState[];
+  entities: MapEntityState[];
+  gamePhase?: 'waiting' | 'playing' | 'finished';
+  timer?: number;
+  // Potentially add winner info directly from server state
+  winnerId?: number;
+}
+
 
 export class Roulette extends EventTarget {
-  private _marbles: Marble[] = [];
+  // --- State primarily driven by server ---
+  private _marbles: Map<number, Marble> = new Map(); // Use Map for easier lookup by ID
+  private _entities: MapEntityState[] = [];
+  private _gamePhase: 'waiting' | 'playing' | 'finished' = 'waiting';
+  private _winner: Marble | null = null; // Determined by server state
+  private _winners: Marble[] = []; // List of winners if server sends ordered list or needed for UI
 
-  private _lastTime: number = 0;
-  private _elapsed: number = 0;
-  private _noMoveDuration: number = 0;
-  private _shakeAvailable: boolean = false;
-
-  private _updateInterval = 10;
-  private _timeScale = 1;
-  private _speed = 1;
-
-  private _winners: Marble[] = [];
+  // --- Rendering and UI ---
   private _particleManager = new ParticleManager();
-  private _stage: StageDef | null = null;
-
+  private _stage: StageDef | null = null; // Current map definition
   private _camera: Camera = new Camera();
   private _renderer: RouletteRenderer = new RouletteRenderer();
-
-  private _effects: GameObject[] = [];
-
-  private _winnerRank = 0;
-  private _totalMarbleCount = 0;
-  private _goalDist: number = Infinity;
-  private _isRunning: boolean = false;
-  private _winner: Marble | null = null;
-
+  private _effects: GameObject[] = []; // Local visual effects
   private _uiObjects: UIObject[] = [];
+  private _recorder!: VideoRecorder; // Keep recorder if needed
 
-  private _autoRecording: boolean = false;
-  private _recorder!: VideoRecorder;
+  // --- Other local state ---
+  private _winnerRank = 0; // Still needed for RankRenderer? Or get from server? Assume needed for now.
+  private _totalMarbleCount = 0; // Might get from server state
+  private _isReady: boolean = false; // Indicates if renderer is ready
 
-  private physics!: IPhysics;
-
-  private _isReady: boolean = false;
   get isReady() {
     return this._isReady;
   }
@@ -58,185 +74,19 @@ export class Roulette extends EventTarget {
   constructor() {
     super();
     this._renderer.init().then(() => {
-      this._init().then(() => {
-        this._isReady = true;
-        this._update();
-      });
+      this._initLocalComponents(); // Initialize components not dependent on physics/server loop
+      this._isReady = true;
+      // No automatic update loop start
+      this._render(); // Initial render
     });
   }
 
-  public getZoom() {
-    return initialZoom * this._camera.zoom;
-  }
-
-  private addUiObject(obj: UIObject) {
-    this._uiObjects.push(obj);
-    if (obj.onWheel) {
-      this._renderer.canvas.addEventListener('wheel', obj.onWheel);
-    }
-  }
-
-  @bound
-  private _update() {
-    if (!this._lastTime) this._lastTime = Date.now();
-    const currentTime = Date.now();
-
-    this._elapsed += (currentTime - this._lastTime) * this._speed;
-    if (this._elapsed > 100) {
-      this._elapsed %= 100;
-    }
-    this._lastTime = currentTime;
-
-    const interval = (this._updateInterval / 1000) * this._timeScale;
-
-    while (this._elapsed >= this._updateInterval) {
-      this.physics.step(interval);
-      this._updateMarbles(this._updateInterval);
-      this._particleManager.update(this._updateInterval);
-      this._updateEffects(this._updateInterval);
-      this._elapsed -= this._updateInterval;
-      this._uiObjects.forEach((obj) => obj.update(this._updateInterval));
-    }
-
-    if (this._marbles.length > 1) {
-      this._marbles.sort((a, b) => b.y - a.y);
-    }
-
-    if (this._stage) {
-      this._camera.update({
-        marbles: this._marbles,
-        stage: this._stage,
-        needToZoom: this._goalDist < zoomThreshold,
-        targetIndex:
-          this._winners.length > 0
-            ? this._winnerRank - this._winners.length
-            : 0,
-      });
-
-      if (
-        this._isRunning &&
-        this._marbles.length > 0 &&
-        this._noMoveDuration > 3000
-      ) {
-        this._changeShakeAvailable(true);
-      } else {
-        this._changeShakeAvailable(false);
-      }
-    }
-
-    this._render();
-    window.requestAnimationFrame(this._update);
-  }
-
-  private _updateMarbles(deltaTime: number) {
-    if (!this._stage) return;
-
-    for (let i = 0; i < this._marbles.length; i++) {
-      const marble = this._marbles[i];
-      marble.update(deltaTime);
-      if (marble.skill === Skills.Impact) {
-        this._effects.push(new SkillEffect(marble.x, marble.y));
-        this.physics.impact(marble.id);
-      }
-      if (marble.y > this._stage.goalY) {
-        this._winners.push(marble);
-        if (this._isRunning && this._winners.length === this._winnerRank + 1) {
-          this.dispatchEvent(
-            new CustomEvent('goal', { detail: { winner: marble.name } }),
-          );
-          this._winner = marble;
-          this._isRunning = false;
-          this._particleManager.shot(
-            this._renderer.width,
-            this._renderer.height,
-          );
-          setTimeout(() => {
-            this._recorder.stop();
-          }, 1000);
-        } else if (
-          this._isRunning &&
-          this._winnerRank === this._winners.length &&
-          this._winnerRank === this._totalMarbleCount - 1
-        ) {
-          this.dispatchEvent(
-            new CustomEvent('goal', {
-              detail: { winner: this._marbles[i + 1].name },
-            }),
-          );
-          this._winner = this._marbles[i + 1];
-          this._isRunning = false;
-          this._particleManager.shot(
-            this._renderer.width,
-            this._renderer.height,
-          );
-          setTimeout(() => {
-            this._recorder.stop();
-          }, 1000);
-        }
-        setTimeout(() => {
-          this.physics.removeMarble(marble.id);
-        }, 500);
-      }
-    }
-
-    const targetIndex = this._winnerRank - this._winners.length;
-    const topY = this._marbles[targetIndex] ? this._marbles[targetIndex].y : 0;
-    this._goalDist = Math.abs(this._stage.zoomY - topY);
-    this._timeScale = this._calcTimeScale();
-
-    this._marbles = this._marbles.filter(
-      (marble) => marble.y <= this._stage!.goalY,
-    );
-  }
-
-  private _calcTimeScale(): number {
-    if (!this._stage) return 1;
-    const targetIndex = this._winnerRank - this._winners.length;
-    if (
-      this._winners.length < this._winnerRank + 1 &&
-      this._goalDist < zoomThreshold
-    ) {
-      if (
-        this._marbles[targetIndex].y >
-        this._stage.zoomY - zoomThreshold * 1.2 &&
-        (this._marbles[targetIndex - 1] || this._marbles[targetIndex + 1])
-      ) {
-        return Math.max(0.2, this._goalDist / zoomThreshold);
-      }
-    }
-    return 1;
-  }
-
-  private _updateEffects(deltaTime: number) {
-    this._effects.forEach((effect) => effect.update(deltaTime));
-    this._effects = this._effects.filter((effect) => !effect.isDestroy);
-  }
-
-  private _render() {
-    if (!this._stage) return;
-    const renderParams = {
-      camera: this._camera,
-      stage: this._stage,
-      entities: this.physics.getEntities(),
-      marbles: this._marbles,
-      winners: this._winners,
-      particleManager: this._particleManager,
-      effects: this._effects,
-      winnerRank: this._winnerRank,
-      winner: this._winner,
-      size: { x: this._renderer.width, y: this._renderer.height },
-    };
-    this._renderer.render(renderParams, this._uiObjects);
-  }
-
-  private async _init() {
+  // Initialize components that don't rely on the old game loop or physics
+  private _initLocalComponents() {
     this._recorder = new VideoRecorder(this._renderer.canvas);
 
-    this.physics = new Box2dPhysics();
-    await this.physics.init();
-
+    // Initialize UI Objects
     this.addUiObject(new RankRenderer());
-    this.attachEvent();
     const minimap = new Minimap();
     minimap.onViewportChange((pos) => {
       if (pos) {
@@ -247,8 +97,126 @@ export class Roulette extends EventTarget {
       }
     });
     this.addUiObject(minimap);
+
+    // Load default map locally for rendering background etc.
     this._stage = stages[0];
-    this._loadMap();
+    // No physics stage creation here
+
+    this.attachEvent(); // Attach UI events
+
+    // Start a simple rendering loop
+    this._animationFrameLoop();
+  }
+
+  // Main method to update state based on server data
+  public updateFromServer(gameState: GameState) {
+    if (!this._isReady || !this._stage) return;
+
+    this._gamePhase = gameState.gamePhase || 'waiting';
+    this._entities = gameState.entities; // Update entities directly
+
+    // --- Update Marbles ---
+    const receivedMarbleIds = new Set(gameState.marbles.map(m => m.id));
+    // Remove marbles that are no longer in the server state
+    for (const id of this._marbles.keys()) {
+        if (!receivedMarbleIds.has(id)) {
+            this._marbles.delete(id);
+        }
+    }
+    // Add/Update marbles based on server state
+    gameState.marbles.forEach(marbleState => {
+        let marble = this._marbles.get(marbleState.id);
+        if (!marble) {
+            // Create a new Marble instance - Marble class needs simplification
+            // It should not interact with physics anymore
+            // Pass necessary info like name, weight if available in marbleState
+            marble = new Marble(marbleState.id, marbleState.name || `Marble ${marbleState.id}`, marbleState.weight || 1);
+            this._marbles.set(marbleState.id, marble);
+        }
+        // Update marble properties based on server state
+        marble.updateState(marbleState); // Marble class needs this method
+    });
+
+    // --- Update Winners ---
+    // This logic depends on how the server sends winner info.
+    // Option 1: Server sends winnerId
+    this._winner = gameState.winnerId !== undefined ? this._marbles.get(gameState.winnerId) ?? null : null;
+    // Option 2: Server sends ordered list of winners (less likely with physics removal)
+    // Option 3: Determine winners locally based on Y position (less reliable without physics)
+    // Let's stick with Option 1 for now, assuming server sends winnerId when game is finished.
+    // We might need a separate 'winners' array in GameState if multiple winners are ranked.
+    // For now, just handle the main winner.
+    this._winners = this._winner ? [this._winner] : []; // Simplified winner handling
+
+    // --- Update Camera ---
+    // Sort marbles by y-coordinate to find the leader
+    const sortedMarbles = Array.from(this._marbles.values()).sort((a, b) => a.y - b.y); // Sort ascending by y
+    const leader = sortedMarbles[0]; // The marble with the smallest y is the leader
+    const goalDist = this._winner ? 0 : (this._stage && leader ? Math.abs(this._stage.zoomY - leader.y) : Infinity);
+
+    this._camera.update({
+      marbles: sortedMarbles, // Pass sorted marbles
+      stage: this._stage,
+      needToZoom: goalDist < zoomThreshold, // Keep zoom logic
+      targetIndex: 0, // Always target the leader (index 0 after sorting)
+    });
+
+    // --- Update UI Objects ---
+    // UI Objects might need data from the new state
+    // Use optional chaining for updateData
+    this._uiObjects.forEach(obj => obj.updateData?.(gameState, Array.from(this._marbles.values())));
+
+    // --- Handle Game Phase Changes ---
+    // Removed hasActiveParticles check, shoot particles immediately on finish if not already shot
+    if (this._gamePhase === 'finished' /* && !alreadyShotParticles */) {
+        this._particleManager.shot(this._renderer.width, this._renderer.height);
+        // Add a flag or check particle count if needed to prevent multiple shots
+        // Handle recording stop if needed
+        // if (this._autoRecording) setTimeout(() => this._recorder.stop(), 1000);
+    }
+
+    // No physics step, no local marble update logic needed here
+
+    // Rendering is handled by the _animationFrameLoop
+  }
+
+  // Simple loop for rendering and local animations (like effects)
+  @bound
+  private _animationFrameLoop() {
+      this._updateLocalEffects(16); // Approximate delta time
+      this._render();
+      window.requestAnimationFrame(this._animationFrameLoop);
+  }
+
+  private _updateLocalEffects(deltaTime: number) {
+    this._effects.forEach((effect) => effect.update(deltaTime));
+    this._effects = this._effects.filter((effect) => !effect.isDestroy);
+    this._particleManager.update(deltaTime); // Update particles locally
+  }
+
+  private _render() {
+    if (!this._stage || !this._isReady) return;
+
+    const renderParams = {
+      camera: this._camera,
+      stage: this._stage,
+      entities: this._entities, // Use server-provided entities
+      marbles: Array.from(this._marbles.values()), // Pass array of marbles
+      winners: this._winners,
+      particleManager: this._particleManager,
+      effects: this._effects,
+      winnerRank: this._winnerRank, // Still needed?
+      winner: this._winner,
+      size: { x: this._renderer.width, y: this._renderer.height },
+    };
+    this._renderer.render(renderParams, this._uiObjects);
+  }
+
+  private addUiObject(obj: UIObject) {
+    this._uiObjects.push(obj);
+    if (obj.onWheel) {
+      this._renderer.canvas.addEventListener('wheel', obj.onWheel);
+    }
   }
 
   private attachEvent() {
@@ -275,135 +243,43 @@ export class Roulette extends EventTarget {
     });
   }
 
-  private _loadMap() {
-    if (!this._stage) {
-      throw new Error('No map has been selected');
-    }
+  // --- Methods potentially called by UI or index.ts ---
 
-    this.physics.createStage(this._stage);
+  // Method for index.ts to get a marble ID for 'shake' input
+  public getFirstMarbleId(): number | undefined {
+      return this._marbles.keys().next().value;
   }
 
-  public clearMarbles() {
-    this.physics.clearMarbles();
+  // Set marbles might just initialize names/count locally, server confirms actual state
+  public setMarbles(names: string[]) {
+    this.resetLocalState(); // Clear local state before setting new names
+    this._totalMarbleCount = names.length; // Basic count, server state is source of truth
+    // Optionally create placeholder marbles here, but updateFromServer will overwrite
+    console.log("Marble names received, waiting for server state:", names);
+    // Maybe trigger a 'ready' event or signal server?
+  }
+
+  // Resets local state, doesn't interact with physics/server directly
+  public resetLocalState() {
+    this._marbles.clear();
+    this._entities = [];
     this._winner = null;
     this._winners = [];
-    this._marbles = [];
+    this._gamePhase = 'waiting';
+    this._effects = [];
+    this._particleManager.clear?.(); // Use optional chaining for clear
+    // Reset camera?
+    // this._camera.reset();
+    // Reset UI Objects?
+    this._uiObjects.forEach(obj => obj.reset?.()); // Optional chaining already used
   }
 
-  public start() {
-    this._isRunning = true;
-    this._winnerRank = options.winningRank;
-    if (this._winnerRank >= this._marbles.length) {
-      this._winnerRank = this._marbles.length - 1;
-    }
-    if (this._autoRecording) {
-      this._recorder.start().then(() => {
-        this.physics.start();
-        this._marbles.forEach((marble) => (marble.isActive = true));
-      });
-    } else {
-      this.physics.start();
-      this._marbles.forEach((marble) => (marble.isActive = true));
-    }
-  }
-
-  public setSpeed(value: number) {
-    if (value <= 0) {
-      throw new Error('Speed multiplier must larger than 0');
-    }
-    this._speed = value;
-  }
-
-  public getSpeed() {
-    return this._speed;
-  }
-
-  public setWinningRank(rank: number) {
-    this._winnerRank = rank;
-  }
-
-  public setAutoRecording(value: boolean) {
-    this._autoRecording = value;
-  }
-
-  public setMarbles(names: string[]) {
-    this.reset();
-    const arr = names.slice();
-
-    let maxWeight = -Infinity;
-    let minWeight = Infinity;
-
-    const members = arr
-      .map((nameString) => {
-        const result = parseName(nameString);
-        if (!result) return null;
-        const { name, weight, count } = result;
-        if (weight > maxWeight) maxWeight = weight;
-        if (weight < minWeight) minWeight = weight;
-        return { name, weight, count };
-      })
-      .filter((member) => !!member);
-
-    const gap = maxWeight - minWeight;
-
-    let totalCount = 0;
-    members.forEach((member) => {
-      if (member) {
-        member.weight = 0.1 + (gap ? (member.weight - minWeight) / gap : 0);
-        totalCount += member.count;
-      }
-    });
-
-    const orders = Array(totalCount)
-      .fill(0)
-      .map((_, i) => i)
-      .sort(() => Math.random() - 0.5);
-    members.forEach((member) => {
-      if (member) {
-        for (let j = 0; j < member.count; j++) {
-          const order = orders.pop() || 0;
-          this._marbles.push(
-            new Marble(
-              this.physics,
-              order,
-              totalCount,
-              member.name,
-              member.weight,
-            ),
-          );
-        }
-      }
-    });
-    this._totalMarbleCount = totalCount;
-  }
-
-  private _clearMap() {
-    this.physics.clear();
-    this._marbles = [];
-  }
-
-  public reset() {
-    this.clearMarbles();
-    this._clearMap();
-    this._loadMap();
-    this._goalDist = Infinity;
+  public getZoom() {
+    return initialZoom * this._camera.zoom;
   }
 
   public getCount() {
-    return this._marbles.length;
-  }
-
-  private _changeShakeAvailable(v: boolean) {
-    if (this._shakeAvailable !== v) {
-      this._shakeAvailable = v;
-      this.dispatchEvent(
-        new CustomEvent('shakeAvailableChanged', { detail: v }),
-      );
-    }
-  }
-
-  public shake() {
-    if (!this._shakeAvailable) return;
+    return this._marbles.size;
   }
 
   public getMaps() {
@@ -415,12 +291,19 @@ export class Roulette extends EventTarget {
     });
   }
 
+  // Setting map might involve telling the server or just updating local stage for rendering
   public setMap(index: number) {
     if (index < 0 || index > stages.length - 1) {
       throw new Error('Incorrect map number');
     }
-    const names = this._marbles.map((marble) => marble.name);
     this._stage = stages[index];
-    this.setMarbles(names);
+    this.resetLocalState(); // Reset local state when map changes
+    // TODO: Potentially notify the server about the map change if needed
+    console.log(`Map set to: ${this._stage.title}. Waiting for server state.`);
+    // Re-render with new map background?
+    this._render();
   }
+
+  // Removed methods: start, shake, setSpeed, getSpeed, setWinningRank, setAutoRecording, _clearMap, clearMarbles (use resetLocalState)
+  // Removed properties: _lastTime, _elapsed, _noMoveDuration, _shakeAvailable, _updateInterval, _timeScale, _speed, _goalDist
 }
