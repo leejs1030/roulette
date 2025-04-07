@@ -40,21 +40,34 @@ function startGame() {
     console.error("No default map found!");
   }
 
+  // TODO: Get actual marble names/count from client input or configuration
+  // For now, using placeholder names/count for initial position calculation
+  const placeholderNames = ['Marble 1', 'Marble 2', 'Marble 3', 'Marble 4', 'Marble 5']; // Example
+  const totalMarbles = placeholderNames.length; // Use actual count when available
 
-  // Example: Create initial marbles (replace with actual logic)
-  const initialMarbles = [
-    { id: 1, x: 5, y: 2 },
-    { id: 2, x: 10, y: 2 },
-    // Add more marbles as needed
-  ];
+  // Calculate initial marble positions based on original logic
+  const initialMarblesData: { id: number; x: number; y: number; name: string }[] = [];
+  const maxLine = Math.ceil(totalMarbles / 10);
+  const lineDelta = -Math.max(0, Math.ceil(maxLine - 5));
 
-  initialMarbles.forEach(m => physics.createMarble(m.id, m.x, m.y));
+  for (let i = 0; i < totalMarbles; i++) {
+      const order = i; // Use index as order/id
+      const line = Math.floor(order / 10);
+      const x = 10.25 + (order % 10) * 0.6;
+      const y = maxLine - line + lineDelta;
+      initialMarblesData.push({ id: order, x, y, name: placeholderNames[i] || `Marble ${order}` });
+  }
+
+
+  // Create marbles in physics engine using calculated positions
+  initialMarblesData.forEach(m => physics.createMarble(m.id, m.x, m.y));
   physics.start(); // Activate marbles in physics engine
 
-  currentGameState.marbles = initialMarbles.map(m => ({
+  // Set initial game state with calculated positions
+  currentGameState.marbles = initialMarblesData.map(m => ({
     id: m.id,
-    x: m.x,
-    y: m.y,
+    x: m.x, // Use calculated x
+    y: m.y, // Use calculated y
     angle: 0, // Initial angle
   }));
   currentGameState.gamePhase = 'playing';
