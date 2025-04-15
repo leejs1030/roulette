@@ -6,7 +6,7 @@ import { Container, Form, Input, Button, Title, ErrorMessage } from '../styles/c
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState<LoginCredentials>({
-    email: '',
+    username: '',
     password: '',
   });
   const [error, setError] = useState<string>('');
@@ -43,10 +43,10 @@ const LoginPage: React.FC = () => {
         <Title>로그인</Title>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <Input
-          type="email"
-          name="email"
-          placeholder="이메일"
-          value={credentials.email}
+          type="text"
+          name="username"
+          placeholder="사용자 이름"
+          value={credentials.username}
           onChange={handleChange}
           required
         />

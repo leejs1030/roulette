@@ -3,21 +3,20 @@ import axios from 'axios';
 const API_URL = 'http://localhost:3000';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface RegisterData {
-  email: string;
   password: string;
   username: string;
+  nickname: string;
 }
 
 export interface AuthResponse {
   access_token: string;
   user: {
     id: number;
-    email: string;
     username: string;
   };
 }

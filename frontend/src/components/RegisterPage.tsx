@@ -6,9 +6,9 @@ import { Container, Form, Input, Button, Title, ErrorMessage } from '../styles/c
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterData>({
-    email: '',
     password: '',
     username: '',
+    nickname: '',
   });
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,10 +52,10 @@ const RegisterPage: React.FC = () => {
           required
         />
         <Input
-          type="email"
-          name="email"
-          placeholder="이메일"
-          value={formData.email}
+          type="text"
+          name="nickname"
+          placeholder="닉네임"
+          value={formData.nickname}
           onChange={handleChange}
           required
         />
