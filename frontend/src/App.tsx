@@ -1,19 +1,18 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
-import { GlobalStyle } from './styles/GlobalStyle';
-import { theme } from './styles/theme';
-import RouletteGame from './components/RouletteGame';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<RouletteGame />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
-    </ThemeProvider>
+    </BrowserRouter>
   );
 };
 
-export default App; 
+export default App;
