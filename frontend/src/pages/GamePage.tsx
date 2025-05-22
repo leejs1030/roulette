@@ -18,9 +18,8 @@ declare global {
     options?: typeof options;
     // updateMapSelector 는 GamePage 내부에서 socketService.onAvailableMapsUpdate를 통해 처리
     dataLayer?: any[];
-    gtag?: (...args: any[]) => void;
     translateElement?: (element: HTMLElement) => void;
-  }
+      }
 }
 
 const GamePage: React.FC = () => {
@@ -52,69 +51,69 @@ const GamePage: React.FC = () => {
   const { user } = useAuth(); // AuthContext에서 사용자 정보 가져오기
 
   // Helper function to fetch game details and initialize UI (moved inside GamePage component)
-  const fetchGameDetailsAndInitializeUI = (
+  const fetchGameDetailsAndInitializeUI = async (
     numericRoomId: number,
     btnStartEl: HTMLButtonElement | null,
     btnShuffleEl: HTMLButtonElement | null,
   ) => {
-    getRoomGameDetails(numericRoomId)
-      .then((fetchedGameDetails) => {
-        setGameDetails(fetchedGameDetails); // Update gameDetails state
+    try {
+      const fetchedGameDetails = await getRoomGameDetails(numericRoomId);
+      setGameDetails(fetchedGameDetails); // Update gameDetails state
 
-        if (fetchedGameDetails) {
-          if (fetchedGameDetails.status === GameStatus.FINISHED) {
-            getGameRanking(numericRoomId)
-              .then((rankingData) => {
-                setFinalRanking(rankingData.rankings);
-                if (rankingData.rankings && rankingData.rankings.length > 0) setShowRankingModal(true);
-              })
-              .catch((rankingError) => console.error('GamePage: Failed to fetch game ranking:', rankingError));
+      if (fetchedGameDetails) {
+        if (fetchedGameDetails.status === GameStatus.FINISHED) {
+          try {
+            const rankingData = await getGameRanking(numericRoomId);
+            setFinalRanking(rankingData.rankings);
+            if (rankingData.rankings && rankingData.rankings.length > 0) setShowRankingModal(true);
+          } catch (rankingError) {
+            console.error('GamePage: Failed to fetch game ranking:', rankingError);
+          }
 
-            if (btnStartEl) {
-              btnStartEl.disabled = true;
-              btnStartEl.innerText = 'Game Finished';
-            }
-            if (btnShuffleEl) btnShuffleEl.disabled = true;
-            if (inNamesRef.current) inNamesRef.current.disabled = true;
-            if (inWinningRankRef.current) inWinningRankRef.current.disabled = true;
-            if (sltMapRef.current) sltMapRef.current.disabled = true;
-            if (chkSkillRef.current) chkSkillRef.current.disabled = true;
-          } else if (
-            fetchedGameDetails.status === GameStatus.WAITING ||
-            fetchedGameDetails.status === GameStatus.IN_PROGRESS
-          ) {
-            if (inNamesRef.current && fetchedGameDetails.marbles && fetchedGameDetails.marbles.length > 0) {
-              inNamesRef.current.value = fetchedGameDetails.marbles.join(',');
-            }
-            if (inWinningRankRef.current && fetchedGameDetails.winningRank !== null) {
-              inWinningRankRef.current.value = fetchedGameDetails.winningRank.toString();
-              if (fetchedGameDetails.winningRank === 1) {
-                setWinnerSelectionType('first');
-              } else {
-                setWinnerSelectionType('custom');
-              }
-            }
-            if (sltMapRef.current && fetchedGameDetails.mapIndex !== null) {
-              sltMapRef.current.value = fetchedGameDetails.mapIndex.toString();
-            }
-            if (window.options && fetchedGameDetails.speed !== null) {
-              window.options.speed = fetchedGameDetails.speed;
-            }
-            if (fetchedGameDetails.status === GameStatus.IN_PROGRESS && btnStartEl) {
-              btnStartEl.disabled = true;
-              btnStartEl.innerText = 'Game In Progress';
-              if (btnShuffleEl) btnShuffleEl.disabled = true;
-              if (inNamesRef.current) inNamesRef.current.disabled = true;
+          if (btnStartEl) {
+            btnStartEl.disabled = true;
+            btnStartEl.innerText = 'Game Finished';
+          }
+          if (btnShuffleEl) btnShuffleEl.disabled = true;
+          if (inNamesRef.current) inNamesRef.current.disabled = true;
+          if (inWinningRankRef.current) inWinningRankRef.current.disabled = true;
+          if (sltMapRef.current) sltMapRef.current.disabled = true;
+          if (chkSkillRef.current) chkSkillRef.current.disabled = true;
+        } else if (
+          fetchedGameDetails.status === GameStatus.WAITING ||
+          fetchedGameDetails.status === GameStatus.IN_PROGRESS
+        ) {
+          if (inNamesRef.current && fetchedGameDetails.marbles && fetchedGameDetails.marbles.length > 0) {
+            inNamesRef.current.value = fetchedGameDetails.marbles.join(',');
+          }
+          if (inWinningRankRef.current && fetchedGameDetails.winningRank !== null) {
+            inWinningRankRef.current.value = fetchedGameDetails.winningRank.toString();
+            if (fetchedGameDetails.winningRank === 1) {
+              setWinnerSelectionType('first');
+            } else {
+              setWinnerSelectionType('custom');
             }
           }
+          if (sltMapRef.current && fetchedGameDetails.mapIndex !== null) {
+            sltMapRef.current.value = fetchedGameDetails.mapIndex.toString();
+          }
+          if (window.options && fetchedGameDetails.speed !== null) {
+            window.options.speed = fetchedGameDetails.speed;
+          }
+          if (fetchedGameDetails.status === GameStatus.IN_PROGRESS && btnStartEl) {
+            btnStartEl.disabled = true;
+            btnStartEl.innerText = 'Game In Progress';
+            if (btnShuffleEl) btnShuffleEl.disabled = true;
+            if (inNamesRef.current) inNamesRef.current.disabled = true;
+          }
         }
-      })
-      .catch((apiError) => {
-        console.error('GamePage: Failed to fetch game details after joining:', apiError);
-      });
+      }
+    } catch (apiError) {
+      console.error('GamePage: Failed to fetch game details after joining:', apiError);
+    }
   };
 
-  const handlePasswordJoin = () => {
+  const handlePasswordJoin = async () => {
     if (!roomId) {
       setJoinError('Room ID is missing.');
       return;
@@ -131,7 +130,8 @@ const GamePage: React.FC = () => {
       return;
     }
 
-    socketService.joinRoom(roomId, passwordInput, (response) => {
+    try {
+      const response = await socketService.joinRoom(roomId, passwordInput);
       if (response.success) {
         setShowPasswordModal(false);
         setPasswordInput('');
@@ -152,7 +152,10 @@ const GamePage: React.FC = () => {
           navigate(-1);
         }
       }
-    });
+    } catch (error) {
+      console.error('Error joining room with password:', error);
+      setJoinError('방 참여 중 오류가 발생했습니다.');
+    }
   };
 
   useEffect(() => {
@@ -164,6 +167,15 @@ const GamePage: React.FC = () => {
       passwordInputRef.current.focus();
     }
   }, [showPasswordModal]);
+
+  // isManager 상태를 user와 roomDetails에 따라 업데이트하는 별도의 useEffect
+  useEffect(() => {
+    if (user && roomDetails) {
+      setIsManager(roomDetails.managerId === user.id);
+    } else {
+      setIsManager(false);
+    }
+  }, [user, roomDetails]);
 
   useEffect(() => {
     let rouletteInstance: Roulette | null = null;
@@ -276,7 +288,6 @@ const GamePage: React.FC = () => {
         alert('참여자가 없습니다. 참여자를 추가해주세요.');
         return;
       }
-      window.gtag?.('event', 'start', { event_category: 'roulette', event_label: 'start', value: 1 });
       socketService.startGame();
       document.querySelector('#settings')?.classList.add('hide');
     };
@@ -311,13 +322,6 @@ const GamePage: React.FC = () => {
     };
 
     window.options = options;
-    window.dataLayer = window.dataLayer || [];
-    function gtagForPage(...args: any[]) {
-      window.dataLayer!.push(args);
-    }
-    window.gtag = gtagForPage;
-    gtagForPage('js', new Date());
-    gtagForPage('config', 'G-5899C1DJM0');
 
     const defaultLoc: TranslatedLanguages = 'en';
     let pageLocale: TranslatedLanguages | undefined;
@@ -344,7 +348,7 @@ const GamePage: React.FC = () => {
     };
     setPageLoc(getBrowserLoc());
 
-    const setupGameInteractions = () => {
+    const setupGameInteractions = async () => {
       inNamesEl = inNamesRef.current;
       sltMapEl = sltMapRef.current;
       chkAutoRecordingElFromRef = chkAutoRecordingRef.current;
@@ -363,36 +367,39 @@ const GamePage: React.FC = () => {
           return;
         }
 
-        getRoomDetails(numericRoomId)
-          .then((fetchedRoomBasicDetails) => {
-            setRoomDetails(fetchedRoomBasicDetails);
-            setRoomName(fetchedRoomBasicDetails.name);
-            const currentUser = user;
-            setIsManager(!!(currentUser && fetchedRoomBasicDetails.managerId === currentUser.id));
-            return socketService.connect(roomId).then(() => ({ fetchedRoomBasicDetails }));
-          })
-          .then(({ fetchedRoomBasicDetails }) => {
+        try {
+          const fetchedRoomBasicDetails = await getRoomDetails(numericRoomId);
+          setRoomDetails(fetchedRoomBasicDetails);
+          setRoomName(fetchedRoomBasicDetails.name);
+          // isManager 설정 로직은 별도의 useEffect로 분리되었으므로 여기서는 제거
+          // const currentUser = user;
+          // setIsManager(!!(currentUser && fetchedRoomBasicDetails.managerId === currentUser.id));
+          // 이미 연결되어 있고 현재 방 ID와 일치하면 다시 연결하지 않음
+          if (!socketService.isConnected() || socketService.getCurrentRoomId() !== roomId) {
+            await socketService.connect(roomId);
             console.log(`GamePage: Successfully connected to socket for room ${roomId}`);
-            if (fetchedRoomBasicDetails.isPasswordRequired) {
-              setShowPasswordModal(true);
+          } else {
+            console.log(`GamePage: Socket already connected to room ${roomId}. Skipping reconnect.`);
+          }
+
+          if (fetchedRoomBasicDetails.isPasswordRequired) {
+            setShowPasswordModal(true);
+          } else {
+            const joinResponse = await socketService.joinRoom(roomId, undefined);
+            if (joinResponse.success) {
+              if (joinResponse.gameState && rouletteInstance) {
+                rouletteInstance.updateStateFromServer(joinResponse.gameState);
+              }
+              fetchGameDetailsAndInitializeUI(numericRoomId, btnStartEl, btnShuffleEl);
             } else {
-              socketService.joinRoom(roomId, undefined, (joinResponse) => {
-                if (joinResponse.success) {
-                  if (joinResponse.gameState && rouletteInstance) {
-                    rouletteInstance.updateStateFromServer(joinResponse.gameState);
-                  }
-                  fetchGameDetailsAndInitializeUI(numericRoomId, btnStartEl, btnShuffleEl);
-                } else {
-                  alert(joinResponse.message || '방 입장에 실패했습니다. 이전 페이지로 돌아갑니다.');
-                  navigate(-1);
-                }
-              });
+              alert(joinResponse.message || '방 입장에 실패했습니다. 이전 페이지로 돌아갑니다.');
+              navigate(-1);
             }
-          })
-          .catch((error: any) => {
-            alert(error.message || '방 정보를 가져오거나 연결에 실패했습니다. 이전 페이지로 돌아갑니다.');
-            navigate(-1);
-          });
+          }
+        } catch (error: any) {
+          alert(error.message || '방 정보를 가져오거나 연결에 실패했습니다. 이전 페이지로 돌아갑니다.');
+          navigate(-1);
+        }
       } else {
         alert('잘못된 접근입니다. 방 ID가 없습니다.');
         navigate('/');
@@ -432,7 +439,7 @@ const GamePage: React.FC = () => {
       }
 
       if (rouletteInstance) {
-        unsubscribeGameState = socketService.onGameStateUpdate((gameState) => {
+        unsubscribeGameState = socketService.onGameStateUpdate(async (gameState) => {
           if (!gameState) {
             console.warn('GamePage: Received null or undefined gameState from socketService.onGameStateUpdate');
             return;
@@ -471,28 +478,22 @@ const GamePage: React.FC = () => {
               if (roomId) {
                 const numericRoomId = parseInt(roomId, 10);
                 if (!isNaN(numericRoomId)) {
-                  getRoomGameDetails(numericRoomId)
-                    .then((authoritativeGameDetails) => {
-                      setGameDetails(authoritativeGameDetails);
-                      if (authoritativeGameDetails.status === GameStatus.FINISHED) {
-                        return getGameRanking(numericRoomId);
+                  try {
+                    const authoritativeGameDetails = await getRoomGameDetails(numericRoomId);
+                    setGameDetails(authoritativeGameDetails);
+                    if (authoritativeGameDetails.status === GameStatus.FINISHED) {
+                      const rankingData = await getGameRanking(numericRoomId);
+                      setFinalRanking(rankingData.rankings);
+                      if (rankingData.rankings && rankingData.rankings.length > 0) {
+                        setShowRankingModal(true);
                       }
-                      return null;
-                    })
-                    .then((rankingData) => {
-                      if (rankingData) {
-                        setFinalRanking(rankingData.rankings);
-                        if (rankingData.rankings && rankingData.rankings.length > 0) {
-                          setShowRankingModal(true);
-                        }
-                      }
-                    })
-                    .catch((error) => {
-                      console.error(
-                        'GamePage: Error fetching authoritative game details or ranking on game end (socket event):',
-                        error,
-                      );
-                    });
+                    }
+                  } catch (error) {
+                    console.error(
+                      'GamePage: Error fetching authoritative game details or ranking on game end (socket event):',
+                      error,
+                    );
+                  }
                 }
               }
             }
@@ -516,9 +517,13 @@ const GamePage: React.FC = () => {
 
         try {
           await rouletteInstance.initialize(rouletteCanvasContainerRef.current);
-          setupGameInteractions();
+          if (roomId) { // user 객체 유무와 관계없이 roomId만 있으면 상호작용 설정
+            setupGameInteractions();
+          } else {
+            console.log('GamePage: 방 ID를 기다리는 중입니다.'); // 로그 메시지 변경
+          }
         } catch (error) {
-          console.error('[GamePage] Roulette initialization failed:', error);
+          console.error('[GamePage] 룰렛 초기화 실패:', error);
           alert('게임 엔진 초기화에 실패했습니다. 페이지를 새로고침 해주세요.');
         }
       } else {
@@ -550,7 +555,7 @@ const GamePage: React.FC = () => {
       document.documentElement.lang = originalDocumentLang;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, user]);
+  }, [roomId]); // user 의존성 제거
 
   return (
     <>
