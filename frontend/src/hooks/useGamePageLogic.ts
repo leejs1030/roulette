@@ -29,6 +29,7 @@ export const useGamePageLogic = () => {
     gameDetails?.marbles?.join(',') || '',
   );
 
+  const marbleCount = gameState?.totalMarbleCount || 0;
   const {
     mapIndex,
     useSkills,
@@ -42,7 +43,7 @@ export const useGamePageLogic = () => {
     selectFirstWinner,
     selectLastWinner,
     startGame,
-  } = useGameSettings(gameDetails, rouletteInstance);
+  } = useGameSettings(gameDetails, rouletteInstance, marbleCount);
 
   const { selectedSkill, handleSkillSelect, handleCanvasClick } = useSkillHandler(
     rouletteInstance,
