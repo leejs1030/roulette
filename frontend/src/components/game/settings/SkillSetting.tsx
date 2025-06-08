@@ -7,6 +7,7 @@ interface SkillSettingProps {
 }
 
 const SkillSetting: FC<SkillSettingProps> = ({ useSkills, onSkillChange, disabled }) => {
+  return;
   return (
     <div className="row">
       <label htmlFor="chkSkill">
