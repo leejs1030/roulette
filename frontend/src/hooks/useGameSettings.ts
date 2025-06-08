@@ -73,6 +73,9 @@ export const useGameSettings = (
       alert('Please add participants.');
       return;
     }
+    if (rouletteInstance) {
+      rouletteInstance.startRecording();
+    }
     socketService.startGame();
   }, [rouletteInstance]);
 

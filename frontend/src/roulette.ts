@@ -234,10 +234,17 @@ export class Roulette extends EventTarget {
     }
   }
 
-  public start() {
+  public startRecording() {
     console.log('Start requested (handled by socketService)');
     if (this._autoRecording) {
       this._recorder.start();
+    }
+  }
+
+  public stopRecording() {
+    console.log('Stop requested (handled by socketService)');
+    if (this._autoRecording) {
+      this._recorder.stop();
     }
   }
 

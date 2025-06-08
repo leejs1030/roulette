@@ -139,6 +139,7 @@ export const useSocketManager = (roomId: string | undefined, rouletteInstance: R
         }
         return prevDetails;
       });
+      rouletteInstance.stopRecording()
     });
 
     return () => {
