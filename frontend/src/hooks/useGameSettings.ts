@@ -18,7 +18,7 @@ export const useGameSettings = (
     if (gameDetails) {
       setMapIndex(gameDetails.mapIndex ?? 0);
       setUseSkills(gameDetails.useSkills);
-      setAutoRecording(gameDetails.autoRecording);
+      setAutoRecording(!!gameDetails.autoRecording);
       if (gameDetails.winningRank !== null) {
         setWinningRank(gameDetails.winningRank + 1);
         setWinnerSelectionType(gameDetails.winningRank === 0 ? 'first' : 'custom');
@@ -44,8 +44,8 @@ export const useGameSettings = (
   }, []);
 
   const handleAutoRecordingChange = useCallback((enabled: boolean) => {
-    setAutoRecording(enabled);
-    rouletteInstance?.setAutoRecording(enabled);
+    setAutoRecording(!!enabled);
+    rouletteInstance?.setAutoRecording(!!enabled);
   }, [rouletteInstance]);
 
   const handleWinningRankChange = useCallback((rank: number) => {
