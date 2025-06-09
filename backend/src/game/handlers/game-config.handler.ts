@@ -1,11 +1,10 @@
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, WsException } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { User } from '@prisma/client';
 import { prefixGameRoomId } from '../utils/roomId.util';
 import { GameSessionService } from '../game-session.service';
 import { RoomsService } from '../../rooms/rooms.service';
-import { ManagerOnlyGuard } from '../guards';
 import { SetMarblesDto } from '../dto/set-marbles.dto';
 import { SetWinningRankDto } from '../dto/set-winning-rank.dto';
 import { SetMapDto } from '../dto/set-map.dto';
@@ -20,7 +19,6 @@ export class GameConfigHandler {
     private readonly roomsService: RoomsService,
   ) {}
 
-  @UseGuards(ManagerOnlyGuard)
   async handleSetMarbles(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SetMarblesDto,
@@ -48,7 +46,6 @@ export class GameConfigHandler {
     }
   }
 
-  @UseGuards(ManagerOnlyGuard)
   async handleSetWinningRank(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SetWinningRankDto,
@@ -75,13 +72,7 @@ export class GameConfigHandler {
     }
   }
 
-  @UseGuards(ManagerOnlyGuard)
-  async handleSetMap(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: SetMapDto,
-    user: User,
-    server: Server,
-  ) {
+  async handleSetMap(@ConnectedSocket() client: Socket, @MessageBody() data: SetMapDto, user: User, server: Server) {
     const { roomId, mapIndex } = data;
     const prefixedRoomId = prefixGameRoomId(roomId);
 
@@ -102,7 +93,6 @@ export class GameConfigHandler {
     }
   }
 
-  @UseGuards(ManagerOnlyGuard)
   async handleSetSpeed(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SetSpeedDto,

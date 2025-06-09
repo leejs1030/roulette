@@ -22,7 +22,6 @@ export class GameControlHandler {
     private readonly roomsService: RoomsService,
   ) {}
 
-  @UseGuards(ManagerOnlyGuard)
   async handleStartGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: StartGameDto,
@@ -49,7 +48,6 @@ export class GameControlHandler {
     }
   }
 
-  @UseGuards(ManagerOnlyGuard)
   async handleResetGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: ResetGameDto,

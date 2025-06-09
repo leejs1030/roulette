@@ -31,6 +31,7 @@ import { UseSkillDto } from './dto/use-skill.dto';
 import { GameConnectionHandler, GameConfigHandler, GameControlHandler, GameSkillHandler } from './handlers';
 import { GlobalWsExceptionFilter } from './filters'; // GlobalWsExceptionFilter 임포트
 import { GameSessionService } from './game-session.service'; // GameSessionService 임포트
+import { ManagerOnlyGuard } from './guards/manager-only.guard';
 
 @WebSocketGateway({
   cors: {
@@ -80,6 +81,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @UseGuards(WsUserAttachedGuard)
+  @UseGuards(ManagerOnlyGuard)
   @SubscribeMessage('set_marbles')
   async handleSetMarbles(
     @ConnectedSocket() client: Socket,
@@ -90,6 +92,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @UseGuards(WsUserAttachedGuard)
+  @UseGuards(ManagerOnlyGuard)
   @SubscribeMessage('set_winning_rank')
   async handleSetWinningRank(
     @ConnectedSocket() client: Socket,
@@ -101,6 +104,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @UseGuards(WsUserAttachedGuard)
   @SubscribeMessage('set_map')
+  @UseGuards(ManagerOnlyGuard)
   async handleSetMap(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SetMapDto,
@@ -111,6 +115,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @UseGuards(WsUserAttachedGuard)
   @SubscribeMessage('set_speed')
+  @UseGuards(ManagerOnlyGuard)
   async handleSetSpeed(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: SetSpeedDto,
@@ -120,6 +125,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @UseGuards(WsUserAttachedGuard)
+  @UseGuards(ManagerOnlyGuard)
   @SubscribeMessage('start_game')
   async handleStartGame(
     @ConnectedSocket() client: Socket,
