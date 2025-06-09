@@ -1,0 +1,48 @@
+name: Deploy Frontend (Yarn)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'yarn' # Yarn 캐싱 활성화
+          cache-dependency-path: frontend/yarn.lock # 캐시 키로 사용할 파일 경로
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install dependencies (Frontend)
+        working-directory: ./frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Build (Frontend)
+        working-directory: ./frontend
+        run: yarn build
+        env:
+          REACT_APP_API_URL: http://${{ secrets.EC2_HOST_BACKEND }}:3000
+
+      - name: Deploy to S3
+        working-directory: ./frontend
+        run: aws s3 sync ./build s3://${{ secrets.S3_BUCKET_FRONTEND }} --delete # React는 build, Vue는 dist 등 확인
+
+      - name: Invalidate CloudFront Cache
+        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_FRONTEND != '' }}
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_FRONTEND }} --paths "/*"
