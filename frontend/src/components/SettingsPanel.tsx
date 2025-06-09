@@ -12,9 +12,7 @@ import GameActions from './game/settings/GameActions';
 
 const SettingsPanel: React.FC = () => {
   const { isManager, gameDetails, rouletteInstance, availableMaps, gameState } = useGame();
-  const { namesInput, handleNamesChange, shuffleNames } = useParticipantManager(
-    gameDetails?.marbles?.join(',') || '',
-  );
+  const { namesInput, handleNamesChange, shuffleNames } = useParticipantManager(gameDetails?.marbles?.join(',') || '');
   const marbleCount = gameState?.totalMarbleCount || 0;
   const {
     mapIndex,
@@ -31,8 +29,11 @@ const SettingsPanel: React.FC = () => {
     startGame,
   } = useGameSettings(gameDetails, rouletteInstance, marbleCount);
 
+  if (!isManager) {
+    return null;
+  }
+
   const settingsDisabled = !!(
-    !isManager ||
     (gameDetails && gameDetails.status === GameStatus.FINISHED) ||
     (gameDetails && gameDetails.status === GameStatus.IN_PROGRESS)
   );
