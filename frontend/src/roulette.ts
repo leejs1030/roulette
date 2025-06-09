@@ -3,7 +3,6 @@ import { ParticleManager } from './particleManager';
 import { StageDef, stages } from 'common';
 import { Camera } from './camera';
 import { RouletteRenderer } from './rouletteRenderer';
-import { GameObject } from './gameObject';
 import { bound } from './utils/bound.decorator';
 import { UIObject } from './UIObject';
 import { RankRenderer } from './rankRenderer';
@@ -37,7 +36,6 @@ export class Roulette extends EventTarget {
 
   private _updateInterval = 10; // Keep for potential timing use? Or remove? Remove for now.
   private _timeScale = 1; // No longer calculated locally
-  private _speed = 1; // Keep for local particle/effect speed? Or controlled by server? Assume local for now.
 
   // private _winners: Marble[] = []; // Replaced by MarbleState version
   private _particleManager = new ParticleManager();
@@ -47,7 +45,6 @@ export class Roulette extends EventTarget {
   private _renderer: RouletteRenderer = new RouletteRenderer();
   private _coordinateManager: CoordinateManager;
 
-  private _effects: GameObject[] = []; // Keep local visual effects
   private _activeSkillEffects: FrontendSkillEffectWrapper[] = []; // 활성 스킬 이펙트 목록
 
   // private _winnerRank = 0; // State comes from server
@@ -161,7 +158,7 @@ export class Roulette extends EventTarget {
     if (!this._lastTime) this._lastTime = Date.now();
     const currentTime = Date.now();
 
-    this._elapsed += (currentTime - this._lastTime) * this._speed;
+    this._elapsed += currentTime - this._lastTime;
     if (this._elapsed > 100) {
       this._elapsed %= 100;
     }
@@ -199,8 +196,8 @@ export class Roulette extends EventTarget {
       this._camera.update({
         marbles: this._marbles, // Pass MarbleState[]
         stage: this._stage,
-        needToZoom: false, // Set explicitly to false
         targetIndex: this._winnerRank - this._winners.length, // Use server state for target index
+        deltaTime: currentTime - this._lastTime,
       });
 
       // Shake available logic is driven by server state (_shakeAvailable property)
@@ -230,10 +227,6 @@ export class Roulette extends EventTarget {
   // 스킬 이펙트 업데이트 및 만료된 이펙트 제거
   private _updateEffects(deltaTime: number) {
     const now = Date.now();
-    // 기존 _effects (GameObject) 업데이트 로직 유지
-    this._effects.forEach((effect) => effect.update(deltaTime));
-    this._effects = this._effects.filter((effect) => !effect.isDestroy);
-
     // 스킬 이펙트 업데이트 및 만료된 이펙트 제거
     this._activeSkillEffects = this._activeSkillEffects.filter((effect) => {
       return now - effect.startTime < effect.duration;
@@ -251,7 +244,6 @@ export class Roulette extends EventTarget {
       marbles: this._marbles, // Use marble state from server
       winners: this._winners, // Use winner state from server
       particleManager: this._particleManager,
-      effects: this._effects, // 기존 GameObject 이펙트
       skillEffects: this._activeSkillEffects, // 새로운 스킬 이펙트
       winnerRank: this._winnerRank,
       winner: this._winner, // Use winner state from server
@@ -318,13 +310,6 @@ export class Roulette extends EventTarget {
     // Maybe load map visual assets if needed by renderer? Assume renderer handles this based on stage def.
   }
 
-  // This method is likely no longer needed as state is overwritten by server
-  // public clearMarbles() {
-  //   this._winner = null;
-  //   this._winners = [];
-  //   this._marbles = [];
-  // }
-
   // --- Public methods now mostly act as interfaces for index.html, actual logic is server-driven ---
 
   public start() {
@@ -335,20 +320,6 @@ export class Roulette extends EventTarget {
       this._recorder.start(); // Start recording locally
     }
     // Note: UI changes like hiding settings should be triggered by server events ('game_started')
-  }
-
-  public setSpeed(value: number) {
-    // Don't change local state, request server via socketService (handled in index.html)
-    console.log(`Set speed requested: ${value} (handled by socketService)`);
-    // Keep local _speed if needed for local animations/effects? Or remove? Remove for now.
-    // this._speed = value;
-  }
-
-  public getSpeed() {
-    // This should ideally return speed from server state if needed
-    // return this._speed; // Returning potentially stale local value
-    console.warn('getSpeed() called, returning potentially stale local value or default.');
-    return 1; // Return default or value from server state if stored
   }
 
   public setWinningRank(rank: number) {
@@ -371,10 +342,6 @@ export class Roulette extends EventTarget {
     // The parsing logic is duplicated in index.html blur handler, maybe centralize? Keep as is for now.
   }
 
-  // private _clearMap() {
-  // this._marbles = []; // State managed by server
-  // }
-
   public reset() {
     // Request server reset via socketService (handled in index.html)
     console.log('Reset requested (handled by socketService)');
@@ -392,14 +359,8 @@ export class Roulette extends EventTarget {
     return this._totalMarbleCount;
   }
 
-  // private _changeShakeAvailable(v: boolean) { ... } // REMOVED - Handled by server state
-
   public shake() {
-    // Keep local shake effect if purely visual? Or trigger server action?
-    // Assume purely visual for now, triggered by button in index.html
-    console.log('Local shake effect triggered.');
-    // Add visual shake logic here if needed, independent of server state.
-    // if (!this._shakeAvailable) return; // Check local state? Or always allow visual shake?
+    this._camera.shake(500);
   }
 
   public getMaps() {
