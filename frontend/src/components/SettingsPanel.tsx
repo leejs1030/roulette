@@ -11,10 +11,11 @@ import NamesInput from './game/settings/NamesInput';
 import GameActions from './game/settings/GameActions';
 
 const SettingsPanel: React.FC = () => {
-  const { isManager, gameDetails, rouletteInstance, availableMaps } = useGame();
+  const { isManager, gameDetails, rouletteInstance, availableMaps, gameState } = useGame();
   const { namesInput, handleNamesChange, shuffleNames } = useParticipantManager(
     gameDetails?.marbles?.join(',') || '',
   );
+  const marbleCount = gameState?.totalMarbleCount || 0;
   const {
     mapIndex,
     useSkills,
@@ -28,7 +29,7 @@ const SettingsPanel: React.FC = () => {
     selectFirstWinner,
     selectLastWinner,
     startGame,
-  } = useGameSettings(gameDetails, rouletteInstance);
+  } = useGameSettings(gameDetails, rouletteInstance, marbleCount);
 
   const settingsDisabled = !!(
     !isManager ||
