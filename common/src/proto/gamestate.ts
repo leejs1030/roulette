@@ -14,16 +14,11 @@ export interface ProtoMarbleState {
 }
 
 export interface ProtoMapEntityState {
-  id: number;
-  type: string;
   x: number;
   y: number;
-  width: number;
-  height: number;
   angle: number;
-  isActive: boolean;
-  color: string;
-  vertices: number[];
+  shape: string; // EntityShape를 JSON 문자열로 직렬화
+  life: number;
 }
 
 export interface ProtoServerSkillEffect {
@@ -64,16 +59,11 @@ message MarbleState {
 }
 
 message MapEntityState {
-  int32 id = 1;
-  string type = 2;
-  double x = 3;
-  double y = 4;
-  double width = 5;
-  double height = 6;
-  double angle = 7;
-  bool isActive = 8;
-  string color = 9;
-  repeated double vertices = 10;
+  double x = 1;
+  double y = 2;
+  double angle = 3;
+  string shape = 4;
+  double life = 5;
 }
 
 message ServerSkillEffect {
@@ -149,16 +139,11 @@ export function serializeGameState(gameState: any): Uint8Array {
       radius: gameState.winner.radius,
     } : undefined,
     entities: gameState.entities.map((entity: any) => ({
-      id: entity.id,
-      type: entity.type,
       x: entity.x,
       y: entity.y,
-      width: entity.width,
-      height: entity.height,
       angle: entity.angle,
-      isActive: entity.isActive,
-      color: entity.color,
-      vertices: entity.vertices || [],
+      shape: JSON.stringify(entity.shape),
+      life: entity.life,
     })),
     isRunning: gameState.isRunning,
     winnerRank: gameState.winnerRank,
@@ -199,7 +184,7 @@ export function deserializeGameState(buffer: Uint8Array): any {
       skill: marble.skill === 'None' ? null : marble.skill,
       radius: marble.radius,
     })),
-    winners: protoData.winners.map(marble => ({
+    winners: (protoData.winners ?? []).map(marble => ({
       id: marble.id,
       name: marble.name,
       x: marble.x,
@@ -221,17 +206,12 @@ export function deserializeGameState(buffer: Uint8Array): any {
       skill: protoData.winner.skill === 'None' ? null : protoData.winner.skill,
       radius: protoData.winner.radius,
     } : null,
-    entities: protoData.entities.map(entity => ({
-      id: entity.id,
-      type: entity.type,
+    entities: (protoData.entities || []).map(entity => ({
       x: entity.x,
       y: entity.y,
-      width: entity.width,
-      height: entity.height,
       angle: entity.angle,
-      isActive: entity.isActive,
-      color: entity.color,
-      vertices: entity.vertices,
+      shape: JSON.parse(entity.shape),
+      life: entity.life,
     })),
     isRunning: protoData.isRunning,
     winnerRank: protoData.winnerRank,

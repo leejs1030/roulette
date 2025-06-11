@@ -149,7 +149,7 @@ class SocketService {
         // 리스너들에게 전달
         this.gameStateListeners.forEach((listener) => listener(gameState));
         
-        console.debug('Received and processed protobuf game state');
+        // console.debug('Received and processed protobuf game state');
       } catch (error) {
         console.error('Failed to deserialize protobuf game state:', error);
       }
