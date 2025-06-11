@@ -5,6 +5,13 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "build": "yarn proto:gen && tsup src/index.ts --format cjs,esm --dts",
+    "proto:gen": "mkdir -p src/generated && pbjs -t static-module -w commonjs -o src/generated/game_state.js src/proto/game_state.proto && pbts -o src/generated/game_state.d.ts src/generated/game_state.js"
+  },
+  "dependencies": {
+    "protobufjs": "^7.5.3"
+  },
+  "devDependencies": {
+    "protobufjs-cli": "^1.1.3"
   }
 }
