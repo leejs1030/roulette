@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { prefixGameRoomId } from '../utils/roomId.util';
 import { GameSessionService } from '../game-session.service';
 import { GameEngineService } from '../game-engine.service';
+import { GameStateBroadcastService } from '../game-state-broadcast.service';
 import { RoomsService } from '../../rooms/rooms.service';
 import { ManagerOnlyGuard } from '../guards';
 import { StartGameDto } from '../dto/start-game.dto';
@@ -19,6 +20,7 @@ export class GameControlHandler {
   constructor(
     private readonly gameSessionService: GameSessionService,
     private readonly gameEngineService: GameEngineService,
+    private readonly gameStateBroadcastService: GameStateBroadcastService,
     private readonly roomsService: RoomsService,
   ) {}
 
@@ -68,7 +70,7 @@ export class GameControlHandler {
 
       const gameState = this.gameSessionService.getGameState(roomId);
       server.to(prefixedRoomId).emit('game_reset');
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
 
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 게임 리셋 by ${user.nickname} (${client.id})`);
       return { success: true };

@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { User } from '@prisma/client';
 import { prefixGameRoomId } from '../utils/roomId.util';
 import { GameSessionService } from '../game-session.service';
+import { GameStateBroadcastService } from '../game-state-broadcast.service';
 import { RoomsService } from '../../rooms/rooms.service';
 import { SetMarblesDto } from '../dto/set-marbles.dto';
 import { SetWinningRankDto } from '../dto/set-winning-rank.dto';
@@ -16,6 +17,7 @@ export class GameConfigHandler {
 
   constructor(
     private readonly gameSessionService: GameSessionService,
+    private readonly gameStateBroadcastService: GameStateBroadcastService,
     private readonly roomsService: RoomsService,
   ) {}
 
@@ -36,7 +38,7 @@ export class GameConfigHandler {
     try {
       await this.gameSessionService.setMarbles(roomId, names);
       const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 마블 설정 변경 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {
@@ -63,7 +65,7 @@ export class GameConfigHandler {
     try {
       this.gameSessionService.setWinningRank(roomId, rank);
       const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 우승 순위 ${rank}로 설정 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {
@@ -84,7 +86,7 @@ export class GameConfigHandler {
     try {
       await this.gameSessionService.setMap(roomId, mapIndex);
       const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 맵 ${mapIndex}로 설정 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {
@@ -109,7 +111,8 @@ export class GameConfigHandler {
 
     try {
       this.gameSessionService.setSpeed(roomId, speed);
-      server.to(prefixedRoomId).emit('speed_changed', { speed });
+      const gameState = this.gameSessionService.getGameState(roomId);
+      this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 속도 ${speed}로 설정 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {

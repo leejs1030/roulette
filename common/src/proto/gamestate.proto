@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package gamestate;
+
+message MarbleState {
+  int32 id = 1;
+  string name = 2;
+  double x = 3;
+  double y = 4;
+  double angle = 5;
+  string color = 6;
+  bool isActive = 7;
+  string skill = 8; // Skills enum as string
+  double radius = 9;
+}
+
+message MapEntityState {
+  int32 id = 1;
+  string type = 2;
+  double x = 3;
+  double y = 4;
+  double width = 5;
+  double height = 6;
+  double angle = 7;
+  bool isActive = 8;
+  string color = 9;
+  repeated double vertices = 10; // for polyline shapes
+}
+
+message ServerSkillEffect {
+  string type = 1;
+  double x = 2;
+  double y = 3;
+  string extra = 4; // JSON string for extra data
+}
+
+message GameState {
+  repeated MarbleState marbles = 1;
+  repeated MarbleState winners = 2;
+  MarbleState winner = 3;
+  repeated MapEntityState entities = 4;
+  bool isRunning = 5;
+  int32 winnerRank = 6;
+  int32 totalMarbleCount = 7;
+  bool shakeAvailable = 8;
+  repeated ServerSkillEffect skillEffects = 9;
+}

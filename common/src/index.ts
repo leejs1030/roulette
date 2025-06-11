@@ -7,3 +7,4 @@ export * from './types/game-status.type';
 export * from './types/user.type';
 export * from './types/requests.type';
 export * from './types/game.type';
+export * from './proto/gamestate';

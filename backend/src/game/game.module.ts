@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { GameSessionService } from './game-session.service'; // GameSessionService 임포트
 import { GameEngineService } from './game-engine.service';
+import { GameStateBroadcastService } from './game-state-broadcast.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RoomsModule } from '../rooms/rooms.module'; // RoomsModule 임포트 추가
 import { AuthModule } from 'src/auth/auth.module';
@@ -22,6 +23,7 @@ import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
     GameGateway,
     GameSessionService,
     GameEngineService,
+    GameStateBroadcastService,
     GamePersistenceService,
     GameConnectionHandler,
     GameConfigHandler,

@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, BadRequestException } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { GameSessionService } from './game-session.service';
+import { GameStateBroadcastService } from './game-state-broadcast.service';
 import { prefixGameRoomId } from './utils/roomId.util';
 import { SkillType, SkillPosition, SkillExtra } from './types/skill.type';
 import { GameRoom } from './game-room';
@@ -16,6 +17,7 @@ export class GameEngineService implements OnModuleDestroy {
 
   constructor(
     private readonly gameSessionService: GameSessionService,
+    private readonly gameStateBroadcastService: GameStateBroadcastService,
     impactSkillStrategy: ImpactSkillStrategy,
     dummyMarbleSkillStrategy: DummyMarbleSkillStrategy,
   ) {
@@ -80,7 +82,8 @@ export class GameEngineService implements OnModuleDestroy {
       room.game.update();
     }
     const gameState = room.game.getGameState();
-    server.to(prefixedRoomId).emit('game_state', gameState);
+    // protobuf로 브로드캐스트
+    this.gameStateBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
   }
 
   private async _checkAndHandleGameEnd(room: GameRoom, prefixedRoomId: string, server: Server) {

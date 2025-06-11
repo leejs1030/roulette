@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { GameState, MapInfo } from '../types/gameTypes';
+import { initProtobuf, deserializeGameState } from 'common';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -28,6 +29,7 @@ class SocketService {
   private joinedRooms: Set<string> = new Set();
   private isConnecting: boolean = false;
   private latestAvailableMaps: MapInfo[] | null = null;
+  private protobufInitialized: boolean = false;
 
   private gameStateListeners: Array<(gameState: GameState) => void> = [];
   private availableMapsListeners: Array<(maps: MapInfo[]) => void> = [];
@@ -37,6 +39,19 @@ class SocketService {
   private gameResetListeners: Array<() => void> = [];
   private gameOverListeners: Array<(data: GameOverData) => void> = [];
   private speedChangedListeners: Array<(data: SpeedChangedData) => void> = [];
+
+  // protobuf 초기화
+  private async initializeProtobuf(): Promise<void> {
+    if (this.protobufInitialized) return;
+
+    try {
+      await initProtobuf();
+      this.protobufInitialized = true;
+      console.log('Protobuf initialized successfully in SocketService');
+    } catch (error) {
+      console.error('Failed to initialize protobuf in SocketService:', error);
+    }
+  }
 
   public connect(roomId: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -71,9 +86,13 @@ class SocketService {
         },
       });
 
-      this.socket.on('connect', () => {
+      this.socket.on('connect', async () => {
         console.log(`Socket connected: ${this.socket?.id}`);
         this.currentRoomId = roomId;
+        
+        // protobuf 초기화
+        await this.initializeProtobuf();
+        
         this.setupEventListeners();
 
         console.log(`Socket connected for room ${roomId}. Ready for explicit joinRoom call.`);
@@ -111,6 +130,29 @@ class SocketService {
 
     this.socket.off('game_state').on('game_state', (gameState: GameState) => {
       this.gameStateListeners.forEach((listener) => listener(gameState));
+    });
+
+    // protobuf로 전송된 게임 상태 처리
+    this.socket.off('game_state_proto').on('game_state_proto', (base64Data: string) => {
+      if (!this.protobufInitialized) {
+        console.warn('Protobuf not initialized, skipping protobuf game state');
+        return;
+      }
+
+      try {
+        // base64 디코딩
+        const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        
+        // protobuf 역직렬화
+        const gameState = deserializeGameState(buffer);
+        
+        // 리스너들에게 전달
+        this.gameStateListeners.forEach((listener) => listener(gameState));
+        
+        console.debug('Received and processed protobuf game state');
+      } catch (error) {
+        console.error('Failed to deserialize protobuf game state:', error);
+      }
     });
 
     this.socket.off('available_maps').on('available_maps', (maps: MapInfo[]) => {
