@@ -15,8 +15,6 @@ import {
 import { ManagerOnlyGuard } from './guards';
 import { ImpactSkillStrategy } from './strategies/impact.strategy';
 import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
-import { ProtobufService } from './protobuf.service';
-import { GameBroadcastService } from './game-broadcast.service';
 
 @Module({
   imports: [PrismaModule, RoomsModule, AuthModule],
@@ -32,8 +30,6 @@ import { GameBroadcastService } from './game-broadcast.service';
     ManagerOnlyGuard,
     ImpactSkillStrategy,
     DummyMarbleSkillStrategy,
-    ProtobufService,
-    GameBroadcastService,
   ],
   exports: [GameSessionService],
 })

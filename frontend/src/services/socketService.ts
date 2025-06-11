@@ -1,7 +1,5 @@
 import { io, Socket } from 'socket.io-client';
 import { GameState, MapInfo } from '../types/gameTypes';
-import { game } from 'common/src/generated/game_state';
-import { Buffer } from 'buffer';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -111,14 +109,8 @@ class SocketService {
     }
     console.log('socketService: Setting up event listeners.');
 
-    this.socket.off('game_state').on('game_state', (data: Buffer) => {
-      try {
-        const decoded = game.GameState.decode(new Uint8Array(data));
-        const gameState = decoded.toJSON() as GameState;
-        this.gameStateListeners.forEach((listener) => listener(gameState));
-      } catch (error) {
-        console.error('Failed to decode game state:', error);
-      }
+    this.socket.off('game_state').on('game_state', (gameState: GameState) => {
+      this.gameStateListeners.forEach((listener) => listener(gameState));
     });
 
     this.socket.off('available_maps').on('available_maps', (maps: MapInfo[]) => {

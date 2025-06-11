@@ -4,10 +4,9 @@ import { GameSessionService } from './game-session.service';
 import { prefixGameRoomId } from './utils/roomId.util';
 import { SkillType, SkillPosition, SkillExtra } from './types/skill.type';
 import { GameRoom } from './game-room';
-import { SkillStrategy } from './strategies/skill.strategy';
+import { SkillStrategy, SkillExtraMap } from './strategies/skill.strategy';
 import { ImpactSkillStrategy } from './strategies/impact.strategy';
 import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
-import { GameBroadcastService } from './game-broadcast.service';
 
 @Injectable()
 export class GameEngineService implements OnModuleDestroy {
@@ -17,7 +16,6 @@ export class GameEngineService implements OnModuleDestroy {
 
   constructor(
     private readonly gameSessionService: GameSessionService,
-    private readonly gameBroadcastService: GameBroadcastService,
     impactSkillStrategy: ImpactSkillStrategy,
     dummyMarbleSkillStrategy: DummyMarbleSkillStrategy,
   ) {
@@ -82,7 +80,7 @@ export class GameEngineService implements OnModuleDestroy {
       room.game.update();
     }
     const gameState = room.game.getGameState();
-    this.gameBroadcastService.broadcastGameState(server, prefixedRoomId, gameState);
+    server.to(prefixedRoomId).emit('game_state', gameState);
   }
 
   private async _checkAndHandleGameEnd(room: GameRoom, prefixedRoomId: string, server: Server) {
