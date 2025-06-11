@@ -37,7 +37,7 @@ jobs:
         working-directory: ./frontend
         run: yarn build
         env:
-          REACT_APP_API_URL: http://${{ secrets.EC2_HOST_BACKEND }}:3000
+          REACT_APP_API_URL: https://${{ secrets.EC2_HOST_BACKEND }}
 
       - name: Deploy to S3
         working-directory: ./frontend
