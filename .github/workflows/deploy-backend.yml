@@ -1,0 +1,98 @@
+name: Deploy Backend to EC2 (with .env file)
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때 실행
+    paths:
+      - 'backend/**' # backend 폴더 또는 하위 파일 변경 시
+      - '.github/workflows/deploy-backend.yml' # 워크플로우 파일 변경 시
+
+env:
+  # Docker Hub 정보
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_REPO_NAME: capstone-roulette-back # Docker Hub 리포지토리 이름 (예: yourusername/my-backend-app의 my-backend-app 부분)
+  
+  # EC2에서 실행될 컨테이너 정보
+  CONTAINER_NAME: capstone-roulette-back # EC2에서 실행될 컨테이너 이름
+  
+  # EC2 내 .env 파일 경로 (EC2_USER_BACKEND 값에 따라 경로 조정 필요)
+  # 예시: /home/ubuntu/my-backend-app/.env 또는 /home/ec2-user/my-backend-app/.env
+  EC2_ENV_FILE_PATH: /home/${{ secrets.EC2_USER_BACKEND }}/app/.env
+
+jobs:
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        if: env.DOCKERHUB_USERNAME # DOCKERHUB_USERNAME이 설정된 경우에만 실행
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: build-image
+        if: env.DOCKERHUB_USERNAME
+        working-directory: ./backend # Dockerfile이 있는 디렉토리
+        run: |
+          IMAGE_TAG_SHA="${{ github.sha }}" # 현재 커밋 SHA로 태그
+          IMAGE_TAG_LATEST="latest"         # latest 태그
+          
+          # Docker Hub 리포지토리 전체 이름 (username/repo_name)
+          FULL_REPO_NAME="$DOCKERHUB_USERNAME/$DOCKERHUB_REPO_NAME"
+          
+          # 이미지 빌드
+          docker build -t "$FULL_REPO_NAME:$IMAGE_TAG_SHA" .
+          
+          # latest 태그 추가
+          docker tag "$FULL_REPO_NAME:$IMAGE_TAG_SHA" "$FULL_REPO_NAME:$IMAGE_TAG_LATEST"
+          
+          # Docker Hub로 푸시 (SHA 태그와 latest 태그 모두)
+          docker push "$FULL_REPO_NAME:$IMAGE_TAG_SHA"
+          docker push "$FULL_REPO_NAME:$IMAGE_TAG_LATEST"
+          
+          # 다음 단계에서 사용할 이미지 이름 설정 (latest 태그 사용)
+          echo "image_to_pull=$FULL_REPO_NAME:$IMAGE_TAG_LATEST" >> $GITHUB_ENV
+
+      - name: Deploy to EC2
+        if: steps.build-image.conclusion == 'success' # 빌드 및 푸시 성공 시에만 실행
+        uses: appleboy/ssh-action@v1.0.3 # 또는 최신 안정 버전
+        with:
+          host: ${{ secrets.EC2_HOST_BACKEND }}
+          username: ${{ secrets.EC2_USER_BACKEND }}
+          key: ${{ secrets.EC2_SSH_KEY_BACKEND }}
+          script: |
+            set -e # 명령어 실패 시 즉시 중단
+            
+            echo "Deployment started on EC2: ${{ env.image_to_pull }}"
+            
+            # 최신 Docker 이미지 가져오기
+            docker pull ${{ env.image_to_pull }}
+            
+            # 기존 컨테이너 중지 및 삭제 (오류 무시)
+            echo "Stopping and removing existing container: ${{ env.CONTAINER_NAME }}"
+            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker rm ${{ env.CONTAINER_NAME }} || true
+            
+            # 새 컨테이너 실행
+            echo "Starting new container: ${{ env.CONTAINER_NAME }}"
+            # --network="host": 컨테이너가 호스트의 네트워크를 공유. .env의 DB_HOST=localhost 사용 가능
+            # --env-file: EC2에 저장된 .env 파일을 참조하여 환경변수 로드
+            # .env 파일 내 PORT 환경변수에 따라 포트 매핑 (예: 3000:3000)
+            # (만약 .env 파일에 PORT가 없다면 Dockerfile의 EXPOSE 포트와 여기에 명시한 포트 사용)
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              -p $(grep -oP 'PORT=\K\d+' ${{ env.EC2_ENV_FILE_PATH }} || echo 3000):$(grep -oP 'PORT=\K\d+' ${{ env.EC2_ENV_FILE_PATH }} || echo 3000) \
+              --network="host" \
+              --env-file ${{ env.EC2_ENV_FILE_PATH }} \
+              --restart unless-stopped \
+              ${{ env.image_to_pull }}
+            
+            echo "Cleaning up old Docker images (optional)..."
+            docker image prune -af || true
+            
+            echo "Deployment to EC2 finished successfully!"
