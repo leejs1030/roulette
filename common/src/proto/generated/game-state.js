@@ -1,22 +1,20 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-"use strict";
-
-var $protobuf = require("protobufjs/minimal");
+import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
-var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
 // Exported root namespace
-var $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
+const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
 
-$root.gamestate = (function() {
+export const gamestate = $root.gamestate = (() => {
 
     /**
      * Namespace gamestate.
      * @exports gamestate
      * @namespace
      */
-    var gamestate = {};
+    const gamestate = {};
 
     /**
      * SkillType enum.
@@ -26,7 +24,7 @@ $root.gamestate = (function() {
      * @property {number} SKILL_TYPE_DUMMY_MARBLE=1 SKILL_TYPE_DUMMY_MARBLE value
      */
     gamestate.SkillType = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
+        const valuesById = {}, values = Object.create(valuesById);
         values[valuesById[0] = "SKILL_TYPE_IMPACT"] = 0;
         values[valuesById[1] = "SKILL_TYPE_DUMMY_MARBLE"] = 1;
         return values;
@@ -52,7 +50,7 @@ $root.gamestate = (function() {
          */
         function Position(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -131,9 +129,9 @@ $root.gamestate = (function() {
         Position.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.Position();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.Position();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -200,7 +198,7 @@ $root.gamestate = (function() {
         Position.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.Position)
                 return object;
-            var message = new $root.gamestate.Position();
+            let message = new $root.gamestate.Position();
             if (object.x != null)
                 message.x = Number(object.x);
             if (object.y != null)
@@ -220,7 +218,7 @@ $root.gamestate = (function() {
         Position.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.x = 0;
                 object.y = 0;
@@ -270,7 +268,7 @@ $root.gamestate = (function() {
      * @property {number} ENTITY_SHAPE_POLYLINE=2 ENTITY_SHAPE_POLYLINE value
      */
     gamestate.EntityShapeType = (function() {
-        var valuesById = {}, values = Object.create(valuesById);
+        const valuesById = {}, values = Object.create(valuesById);
         values[valuesById[0] = "ENTITY_SHAPE_BOX"] = 0;
         values[valuesById[1] = "ENTITY_SHAPE_CIRCLE"] = 1;
         values[valuesById[2] = "ENTITY_SHAPE_POLYLINE"] = 2;
@@ -299,7 +297,7 @@ $root.gamestate = (function() {
          */
         function EntityBoxShape(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -398,9 +396,9 @@ $root.gamestate = (function() {
         EntityBoxShape.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityBoxShape();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityBoxShape();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -487,7 +485,7 @@ $root.gamestate = (function() {
         EntityBoxShape.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.EntityBoxShape)
                 return object;
-            var message = new $root.gamestate.EntityBoxShape();
+            let message = new $root.gamestate.EntityBoxShape();
             switch (object.type) {
             default:
                 if (typeof object.type === "number") {
@@ -529,7 +527,7 @@ $root.gamestate = (function() {
         EntityBoxShape.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.type = options.enums === String ? "ENTITY_SHAPE_BOX" : 0;
                 object.width = 0;
@@ -596,7 +594,7 @@ $root.gamestate = (function() {
          */
         function EntityCircleShape(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -675,9 +673,9 @@ $root.gamestate = (function() {
         EntityCircleShape.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityCircleShape();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityCircleShape();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -750,7 +748,7 @@ $root.gamestate = (function() {
         EntityCircleShape.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.EntityCircleShape)
                 return object;
-            var message = new $root.gamestate.EntityCircleShape();
+            let message = new $root.gamestate.EntityCircleShape();
             switch (object.type) {
             default:
                 if (typeof object.type === "number") {
@@ -788,7 +786,7 @@ $root.gamestate = (function() {
         EntityCircleShape.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.type = options.enums === String ? "ENTITY_SHAPE_BOX" : 0;
                 object.radius = 0;
@@ -849,7 +847,7 @@ $root.gamestate = (function() {
          */
         function PolylinePoint(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -928,9 +926,9 @@ $root.gamestate = (function() {
         PolylinePoint.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.PolylinePoint();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.PolylinePoint();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -997,7 +995,7 @@ $root.gamestate = (function() {
         PolylinePoint.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.PolylinePoint)
                 return object;
-            var message = new $root.gamestate.PolylinePoint();
+            let message = new $root.gamestate.PolylinePoint();
             if (object.x != null)
                 message.x = Number(object.x);
             if (object.y != null)
@@ -1017,7 +1015,7 @@ $root.gamestate = (function() {
         PolylinePoint.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.x = 0;
                 object.y = 0;
@@ -1080,7 +1078,7 @@ $root.gamestate = (function() {
         function EntityPolylineShape(properties) {
             this.points = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -1138,7 +1136,7 @@ $root.gamestate = (function() {
             if (message.rotation != null && Object.hasOwnProperty.call(message, "rotation"))
                 writer.uint32(/* id 2, wireType 1 =*/17).double(message.rotation);
             if (message.points != null && message.points.length)
-                for (var i = 0; i < message.points.length; ++i)
+                for (let i = 0; i < message.points.length; ++i)
                     $root.gamestate.PolylinePoint.encode(message.points[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
             return writer;
         };
@@ -1170,9 +1168,9 @@ $root.gamestate = (function() {
         EntityPolylineShape.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityPolylineShape();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityPolylineShape();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -1240,8 +1238,8 @@ $root.gamestate = (function() {
             if (message.points != null && message.hasOwnProperty("points")) {
                 if (!Array.isArray(message.points))
                     return "points: array expected";
-                for (var i = 0; i < message.points.length; ++i) {
-                    var error = $root.gamestate.PolylinePoint.verify(message.points[i]);
+                for (let i = 0; i < message.points.length; ++i) {
+                    let error = $root.gamestate.PolylinePoint.verify(message.points[i]);
                     if (error)
                         return "points." + error;
                 }
@@ -1260,7 +1258,7 @@ $root.gamestate = (function() {
         EntityPolylineShape.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.EntityPolylineShape)
                 return object;
-            var message = new $root.gamestate.EntityPolylineShape();
+            let message = new $root.gamestate.EntityPolylineShape();
             switch (object.type) {
             default:
                 if (typeof object.type === "number") {
@@ -1287,7 +1285,7 @@ $root.gamestate = (function() {
                 if (!Array.isArray(object.points))
                     throw TypeError(".gamestate.EntityPolylineShape.points: array expected");
                 message.points = [];
-                for (var i = 0; i < object.points.length; ++i) {
+                for (let i = 0; i < object.points.length; ++i) {
                     if (typeof object.points[i] !== "object")
                         throw TypeError(".gamestate.EntityPolylineShape.points: object expected");
                     message.points[i] = $root.gamestate.PolylinePoint.fromObject(object.points[i]);
@@ -1308,7 +1306,7 @@ $root.gamestate = (function() {
         EntityPolylineShape.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.arrays || options.defaults)
                 object.points = [];
             if (options.defaults) {
@@ -1321,7 +1319,7 @@ $root.gamestate = (function() {
                 object.rotation = options.json && !isFinite(message.rotation) ? String(message.rotation) : message.rotation;
             if (message.points && message.points.length) {
                 object.points = [];
-                for (var j = 0; j < message.points.length; ++j)
+                for (let j = 0; j < message.points.length; ++j)
                     object.points[j] = $root.gamestate.PolylinePoint.toObject(message.points[j], options);
             }
             return object;
@@ -1377,7 +1375,7 @@ $root.gamestate = (function() {
          */
         function EntityShape(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -1407,7 +1405,7 @@ $root.gamestate = (function() {
         EntityShape.prototype.polylineShape = null;
 
         // OneOf field names bound to virtual getters and setters
-        var $oneOfFields;
+        let $oneOfFields;
 
         /**
          * EntityShape shape.
@@ -1480,9 +1478,9 @@ $root.gamestate = (function() {
         EntityShape.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityShape();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.EntityShape();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -1533,11 +1531,11 @@ $root.gamestate = (function() {
         EntityShape.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            var properties = {};
+            let properties = {};
             if (message.boxShape != null && message.hasOwnProperty("boxShape")) {
                 properties.shape = 1;
                 {
-                    var error = $root.gamestate.EntityBoxShape.verify(message.boxShape);
+                    let error = $root.gamestate.EntityBoxShape.verify(message.boxShape);
                     if (error)
                         return "boxShape." + error;
                 }
@@ -1547,7 +1545,7 @@ $root.gamestate = (function() {
                     return "shape: multiple values";
                 properties.shape = 1;
                 {
-                    var error = $root.gamestate.EntityCircleShape.verify(message.circleShape);
+                    let error = $root.gamestate.EntityCircleShape.verify(message.circleShape);
                     if (error)
                         return "circleShape." + error;
                 }
@@ -1557,7 +1555,7 @@ $root.gamestate = (function() {
                     return "shape: multiple values";
                 properties.shape = 1;
                 {
-                    var error = $root.gamestate.EntityPolylineShape.verify(message.polylineShape);
+                    let error = $root.gamestate.EntityPolylineShape.verify(message.polylineShape);
                     if (error)
                         return "polylineShape." + error;
                 }
@@ -1576,7 +1574,7 @@ $root.gamestate = (function() {
         EntityShape.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.EntityShape)
                 return object;
-            var message = new $root.gamestate.EntityShape();
+            let message = new $root.gamestate.EntityShape();
             if (object.boxShape != null) {
                 if (typeof object.boxShape !== "object")
                     throw TypeError(".gamestate.EntityShape.boxShape: object expected");
@@ -1607,7 +1605,7 @@ $root.gamestate = (function() {
         EntityShape.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (message.boxShape != null && message.hasOwnProperty("boxShape")) {
                 object.boxShape = $root.gamestate.EntityBoxShape.toObject(message.boxShape, options);
                 if (options.oneofs)
@@ -1678,7 +1676,7 @@ $root.gamestate = (function() {
          */
         function MapEntityState(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -1787,9 +1785,9 @@ $root.gamestate = (function() {
         MapEntityState.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.MapEntityState();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.MapEntityState();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -1858,7 +1856,7 @@ $root.gamestate = (function() {
                 if (typeof message.angle !== "number")
                     return "angle: number expected";
             if (message.shape != null && message.hasOwnProperty("shape")) {
-                var error = $root.gamestate.EntityShape.verify(message.shape);
+                let error = $root.gamestate.EntityShape.verify(message.shape);
                 if (error)
                     return "shape." + error;
             }
@@ -1879,7 +1877,7 @@ $root.gamestate = (function() {
         MapEntityState.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.MapEntityState)
                 return object;
-            var message = new $root.gamestate.MapEntityState();
+            let message = new $root.gamestate.MapEntityState();
             if (object.x != null)
                 message.x = Number(object.x);
             if (object.y != null)
@@ -1908,7 +1906,7 @@ $root.gamestate = (function() {
         MapEntityState.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.x = 0;
                 object.y = 0;
@@ -1979,7 +1977,7 @@ $root.gamestate = (function() {
          */
         function SkillEffectBase(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -2068,9 +2066,9 @@ $root.gamestate = (function() {
         SkillEffectBase.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.SkillEffectBase();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.SkillEffectBase();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -2149,7 +2147,7 @@ $root.gamestate = (function() {
         SkillEffectBase.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.SkillEffectBase)
                 return object;
-            var message = new $root.gamestate.SkillEffectBase();
+            let message = new $root.gamestate.SkillEffectBase();
             if (object.id != null)
                 message.id = String(object.id);
             switch (object.type) {
@@ -2192,12 +2190,12 @@ $root.gamestate = (function() {
         SkillEffectBase.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.id = "";
                 object.type = options.enums === String ? "SKILL_TYPE_IMPACT" : 0;
                 if ($util.Long) {
-                    var long = new $util.Long(0, 0, false);
+                    let long = new $util.Long(0, 0, false);
                     object.timestamp = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                 } else
                     object.timestamp = options.longs === String ? "0" : 0;
@@ -2264,7 +2262,7 @@ $root.gamestate = (function() {
          */
         function ImpactSkillEffect(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -2353,9 +2351,9 @@ $root.gamestate = (function() {
         ImpactSkillEffect.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.ImpactSkillEffect();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.ImpactSkillEffect();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -2407,12 +2405,12 @@ $root.gamestate = (function() {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.base != null && message.hasOwnProperty("base")) {
-                var error = $root.gamestate.SkillEffectBase.verify(message.base);
+                let error = $root.gamestate.SkillEffectBase.verify(message.base);
                 if (error)
                     return "base." + error;
             }
             if (message.position != null && message.hasOwnProperty("position")) {
-                var error = $root.gamestate.Position.verify(message.position);
+                let error = $root.gamestate.Position.verify(message.position);
                 if (error)
                     return "position." + error;
             }
@@ -2433,7 +2431,7 @@ $root.gamestate = (function() {
         ImpactSkillEffect.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.ImpactSkillEffect)
                 return object;
-            var message = new $root.gamestate.ImpactSkillEffect();
+            let message = new $root.gamestate.ImpactSkillEffect();
             if (object.base != null) {
                 if (typeof object.base !== "object")
                     throw TypeError(".gamestate.ImpactSkillEffect.base: object expected");
@@ -2461,7 +2459,7 @@ $root.gamestate = (function() {
         ImpactSkillEffect.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.base = null;
                 object.position = null;
@@ -2524,7 +2522,7 @@ $root.gamestate = (function() {
          */
         function DummyMarbleSkillEffect(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -2593,9 +2591,9 @@ $root.gamestate = (function() {
         DummyMarbleSkillEffect.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.DummyMarbleSkillEffect();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.DummyMarbleSkillEffect();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -2639,7 +2637,7 @@ $root.gamestate = (function() {
             if (typeof message !== "object" || message === null)
                 return "object expected";
             if (message.base != null && message.hasOwnProperty("base")) {
-                var error = $root.gamestate.SkillEffectBase.verify(message.base);
+                let error = $root.gamestate.SkillEffectBase.verify(message.base);
                 if (error)
                     return "base." + error;
             }
@@ -2657,7 +2655,7 @@ $root.gamestate = (function() {
         DummyMarbleSkillEffect.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.DummyMarbleSkillEffect)
                 return object;
-            var message = new $root.gamestate.DummyMarbleSkillEffect();
+            let message = new $root.gamestate.DummyMarbleSkillEffect();
             if (object.base != null) {
                 if (typeof object.base !== "object")
                     throw TypeError(".gamestate.DummyMarbleSkillEffect.base: object expected");
@@ -2678,7 +2676,7 @@ $root.gamestate = (function() {
         DummyMarbleSkillEffect.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults)
                 object.base = null;
             if (message.base != null && message.hasOwnProperty("base"))
@@ -2735,7 +2733,7 @@ $root.gamestate = (function() {
          */
         function SkillEffect(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -2757,7 +2755,7 @@ $root.gamestate = (function() {
         SkillEffect.prototype.dummyMarbleEffect = null;
 
         // OneOf field names bound to virtual getters and setters
-        var $oneOfFields;
+        let $oneOfFields;
 
         /**
          * SkillEffect effect.
@@ -2828,9 +2826,9 @@ $root.gamestate = (function() {
         SkillEffect.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.SkillEffect();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.SkillEffect();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -2877,11 +2875,11 @@ $root.gamestate = (function() {
         SkillEffect.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            var properties = {};
+            let properties = {};
             if (message.impactEffect != null && message.hasOwnProperty("impactEffect")) {
                 properties.effect = 1;
                 {
-                    var error = $root.gamestate.ImpactSkillEffect.verify(message.impactEffect);
+                    let error = $root.gamestate.ImpactSkillEffect.verify(message.impactEffect);
                     if (error)
                         return "impactEffect." + error;
                 }
@@ -2891,7 +2889,7 @@ $root.gamestate = (function() {
                     return "effect: multiple values";
                 properties.effect = 1;
                 {
-                    var error = $root.gamestate.DummyMarbleSkillEffect.verify(message.dummyMarbleEffect);
+                    let error = $root.gamestate.DummyMarbleSkillEffect.verify(message.dummyMarbleEffect);
                     if (error)
                         return "dummyMarbleEffect." + error;
                 }
@@ -2910,7 +2908,7 @@ $root.gamestate = (function() {
         SkillEffect.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.SkillEffect)
                 return object;
-            var message = new $root.gamestate.SkillEffect();
+            let message = new $root.gamestate.SkillEffect();
             if (object.impactEffect != null) {
                 if (typeof object.impactEffect !== "object")
                     throw TypeError(".gamestate.SkillEffect.impactEffect: object expected");
@@ -2936,7 +2934,7 @@ $root.gamestate = (function() {
         SkillEffect.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (message.impactEffect != null && message.hasOwnProperty("impactEffect")) {
                 object.impactEffect = $root.gamestate.ImpactSkillEffect.toObject(message.impactEffect, options);
                 if (options.oneofs)
@@ -3007,7 +3005,7 @@ $root.gamestate = (function() {
          */
         function MarbleDto(properties) {
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -3166,9 +3164,9 @@ $root.gamestate = (function() {
         MarbleDto.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.MarbleDto();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.MarbleDto();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -3291,7 +3289,7 @@ $root.gamestate = (function() {
         MarbleDto.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.MarbleDto)
                 return object;
-            var message = new $root.gamestate.MarbleDto();
+            let message = new $root.gamestate.MarbleDto();
             if (object.id != null)
                 message.id = object.id | 0;
             if (object.name != null)
@@ -3327,7 +3325,7 @@ $root.gamestate = (function() {
         MarbleDto.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.defaults) {
                 object.id = 0;
                 object.name = "";
@@ -3423,7 +3421,7 @@ $root.gamestate = (function() {
             this.entities = [];
             this.skillEffects = [];
             if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
                         this[keys[i]] = properties[keys[i]];
         }
@@ -3501,7 +3499,7 @@ $root.gamestate = (function() {
         GameStateDto.prototype.skillEffects = $util.emptyArray;
 
         // OneOf field names bound to virtual getters and setters
-        var $oneOfFields;
+        let $oneOfFields;
 
         /**
          * GameStateDto _winner.
@@ -3539,15 +3537,15 @@ $root.gamestate = (function() {
             if (!writer)
                 writer = $Writer.create();
             if (message.marbles != null && message.marbles.length)
-                for (var i = 0; i < message.marbles.length; ++i)
+                for (let i = 0; i < message.marbles.length; ++i)
                     $root.gamestate.MarbleDto.encode(message.marbles[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
             if (message.winners != null && message.winners.length)
-                for (var i = 0; i < message.winners.length; ++i)
+                for (let i = 0; i < message.winners.length; ++i)
                     $root.gamestate.MarbleDto.encode(message.winners[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
             if (message.winner != null && Object.hasOwnProperty.call(message, "winner"))
                 $root.gamestate.MarbleDto.encode(message.winner, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
             if (message.entities != null && message.entities.length)
-                for (var i = 0; i < message.entities.length; ++i)
+                for (let i = 0; i < message.entities.length; ++i)
                     $root.gamestate.MapEntityState.encode(message.entities[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
             if (message.isRunning != null && Object.hasOwnProperty.call(message, "isRunning"))
                 writer.uint32(/* id 5, wireType 0 =*/40).bool(message.isRunning);
@@ -3558,7 +3556,7 @@ $root.gamestate = (function() {
             if (message.shakeAvailable != null && Object.hasOwnProperty.call(message, "shakeAvailable"))
                 writer.uint32(/* id 8, wireType 0 =*/64).bool(message.shakeAvailable);
             if (message.skillEffects != null && message.skillEffects.length)
-                for (var i = 0; i < message.skillEffects.length; ++i)
+                for (let i = 0; i < message.skillEffects.length; ++i)
                     $root.gamestate.SkillEffect.encode(message.skillEffects[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
             return writer;
         };
@@ -3590,9 +3588,9 @@ $root.gamestate = (function() {
         GameStateDto.decode = function decode(reader, length, error) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.GameStateDto();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.gamestate.GameStateDto();
             while (reader.pos < end) {
-                var tag = reader.uint32();
+                let tag = reader.uint32();
                 if (tag === error)
                     break;
                 switch (tag >>> 3) {
@@ -3675,12 +3673,12 @@ $root.gamestate = (function() {
         GameStateDto.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
-            var properties = {};
+            let properties = {};
             if (message.marbles != null && message.hasOwnProperty("marbles")) {
                 if (!Array.isArray(message.marbles))
                     return "marbles: array expected";
-                for (var i = 0; i < message.marbles.length; ++i) {
-                    var error = $root.gamestate.MarbleDto.verify(message.marbles[i]);
+                for (let i = 0; i < message.marbles.length; ++i) {
+                    let error = $root.gamestate.MarbleDto.verify(message.marbles[i]);
                     if (error)
                         return "marbles." + error;
                 }
@@ -3688,8 +3686,8 @@ $root.gamestate = (function() {
             if (message.winners != null && message.hasOwnProperty("winners")) {
                 if (!Array.isArray(message.winners))
                     return "winners: array expected";
-                for (var i = 0; i < message.winners.length; ++i) {
-                    var error = $root.gamestate.MarbleDto.verify(message.winners[i]);
+                for (let i = 0; i < message.winners.length; ++i) {
+                    let error = $root.gamestate.MarbleDto.verify(message.winners[i]);
                     if (error)
                         return "winners." + error;
                 }
@@ -3697,7 +3695,7 @@ $root.gamestate = (function() {
             if (message.winner != null && message.hasOwnProperty("winner")) {
                 properties._winner = 1;
                 {
-                    var error = $root.gamestate.MarbleDto.verify(message.winner);
+                    let error = $root.gamestate.MarbleDto.verify(message.winner);
                     if (error)
                         return "winner." + error;
                 }
@@ -3705,8 +3703,8 @@ $root.gamestate = (function() {
             if (message.entities != null && message.hasOwnProperty("entities")) {
                 if (!Array.isArray(message.entities))
                     return "entities: array expected";
-                for (var i = 0; i < message.entities.length; ++i) {
-                    var error = $root.gamestate.MapEntityState.verify(message.entities[i]);
+                for (let i = 0; i < message.entities.length; ++i) {
+                    let error = $root.gamestate.MapEntityState.verify(message.entities[i]);
                     if (error)
                         return "entities." + error;
                 }
@@ -3726,8 +3724,8 @@ $root.gamestate = (function() {
             if (message.skillEffects != null && message.hasOwnProperty("skillEffects")) {
                 if (!Array.isArray(message.skillEffects))
                     return "skillEffects: array expected";
-                for (var i = 0; i < message.skillEffects.length; ++i) {
-                    var error = $root.gamestate.SkillEffect.verify(message.skillEffects[i]);
+                for (let i = 0; i < message.skillEffects.length; ++i) {
+                    let error = $root.gamestate.SkillEffect.verify(message.skillEffects[i]);
                     if (error)
                         return "skillEffects." + error;
                 }
@@ -3746,12 +3744,12 @@ $root.gamestate = (function() {
         GameStateDto.fromObject = function fromObject(object) {
             if (object instanceof $root.gamestate.GameStateDto)
                 return object;
-            var message = new $root.gamestate.GameStateDto();
+            let message = new $root.gamestate.GameStateDto();
             if (object.marbles) {
                 if (!Array.isArray(object.marbles))
                     throw TypeError(".gamestate.GameStateDto.marbles: array expected");
                 message.marbles = [];
-                for (var i = 0; i < object.marbles.length; ++i) {
+                for (let i = 0; i < object.marbles.length; ++i) {
                     if (typeof object.marbles[i] !== "object")
                         throw TypeError(".gamestate.GameStateDto.marbles: object expected");
                     message.marbles[i] = $root.gamestate.MarbleDto.fromObject(object.marbles[i]);
@@ -3761,7 +3759,7 @@ $root.gamestate = (function() {
                 if (!Array.isArray(object.winners))
                     throw TypeError(".gamestate.GameStateDto.winners: array expected");
                 message.winners = [];
-                for (var i = 0; i < object.winners.length; ++i) {
+                for (let i = 0; i < object.winners.length; ++i) {
                     if (typeof object.winners[i] !== "object")
                         throw TypeError(".gamestate.GameStateDto.winners: object expected");
                     message.winners[i] = $root.gamestate.MarbleDto.fromObject(object.winners[i]);
@@ -3776,7 +3774,7 @@ $root.gamestate = (function() {
                 if (!Array.isArray(object.entities))
                     throw TypeError(".gamestate.GameStateDto.entities: array expected");
                 message.entities = [];
-                for (var i = 0; i < object.entities.length; ++i) {
+                for (let i = 0; i < object.entities.length; ++i) {
                     if (typeof object.entities[i] !== "object")
                         throw TypeError(".gamestate.GameStateDto.entities: object expected");
                     message.entities[i] = $root.gamestate.MapEntityState.fromObject(object.entities[i]);
@@ -3794,7 +3792,7 @@ $root.gamestate = (function() {
                 if (!Array.isArray(object.skillEffects))
                     throw TypeError(".gamestate.GameStateDto.skillEffects: array expected");
                 message.skillEffects = [];
-                for (var i = 0; i < object.skillEffects.length; ++i) {
+                for (let i = 0; i < object.skillEffects.length; ++i) {
                     if (typeof object.skillEffects[i] !== "object")
                         throw TypeError(".gamestate.GameStateDto.skillEffects: object expected");
                     message.skillEffects[i] = $root.gamestate.SkillEffect.fromObject(object.skillEffects[i]);
@@ -3815,7 +3813,7 @@ $root.gamestate = (function() {
         GameStateDto.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
-            var object = {};
+            let object = {};
             if (options.arrays || options.defaults) {
                 object.marbles = [];
                 object.winners = [];
@@ -3830,12 +3828,12 @@ $root.gamestate = (function() {
             }
             if (message.marbles && message.marbles.length) {
                 object.marbles = [];
-                for (var j = 0; j < message.marbles.length; ++j)
+                for (let j = 0; j < message.marbles.length; ++j)
                     object.marbles[j] = $root.gamestate.MarbleDto.toObject(message.marbles[j], options);
             }
             if (message.winners && message.winners.length) {
                 object.winners = [];
-                for (var j = 0; j < message.winners.length; ++j)
+                for (let j = 0; j < message.winners.length; ++j)
                     object.winners[j] = $root.gamestate.MarbleDto.toObject(message.winners[j], options);
             }
             if (message.winner != null && message.hasOwnProperty("winner")) {
@@ -3845,7 +3843,7 @@ $root.gamestate = (function() {
             }
             if (message.entities && message.entities.length) {
                 object.entities = [];
-                for (var j = 0; j < message.entities.length; ++j)
+                for (let j = 0; j < message.entities.length; ++j)
                     object.entities[j] = $root.gamestate.MapEntityState.toObject(message.entities[j], options);
             }
             if (message.isRunning != null && message.hasOwnProperty("isRunning"))
@@ -3858,7 +3856,7 @@ $root.gamestate = (function() {
                 object.shakeAvailable = message.shakeAvailable;
             if (message.skillEffects && message.skillEffects.length) {
                 object.skillEffects = [];
-                for (var j = 0; j < message.skillEffects.length; ++j)
+                for (let j = 0; j < message.skillEffects.length; ++j)
                     object.skillEffects[j] = $root.gamestate.SkillEffect.toObject(message.skillEffects[j], options);
             }
             return object;
@@ -3896,4 +3894,4 @@ $root.gamestate = (function() {
     return gamestate;
 })();
 
-module.exports = $root;
+export { $root as default };

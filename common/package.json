@@ -5,7 +5,7 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "protoc": "pbjs -t static-module -w commonjs -o src/proto/generated/game-state.js src/proto/game-state.proto && pbts -o src/proto/generated/game-state.d.ts src/proto/generated/game-state.js",
+    "protoc": "pbjs -t static-module -w es6 -o src/proto/generated/game-state.js src/proto/game-state.proto && pbts -o src/proto/generated/game-state.d.ts src/proto/generated/game-state.js",
     "prebuild": "mkdir -p src/proto/generated && yarn protoc",
     "build": "tsup src/index.ts --format cjs,esm --dts"
   },
