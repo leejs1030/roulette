@@ -6,5 +6,12 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --build tsconfig.json"
+  },
+  "dependencies": {
+    "protobufjs": "^7.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "protobufjs-cli": "^1.1.3"
   }
 }
