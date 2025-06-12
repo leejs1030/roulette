@@ -4,7 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strictPropertyInitialization": false, // Allow uninitialized properties
-    "composite": true
+    "composite": true,
+    "module": "CommonJS"
   },
   "include": ["src"]
 }
