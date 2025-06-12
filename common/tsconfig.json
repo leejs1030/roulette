@@ -1,17 +1,8 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs", // Node.js typically uses CommonJS
-    "declaration": true, // Generate .d.ts files for the backend library/app
-    "removeComments": true, // Remove comments from compiled output
-    "target": "ES2023", // Backend can use a more modern target
-    "outDir": "./dist", // Backend specific output directory
-    "baseUrl": "./", // Base URL for module resolution
-    "incremental": true, // Enable incremental compilation for faster builds
-
-    "strict": true,
-    "strictPropertyInitialization": false, // Allow uninitialized properties
-    "composite": true
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
   "include": ["src"]
 }
