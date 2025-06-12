@@ -28,15 +28,9 @@ export class GameConfigHandler {
     const { roomId, names } = data;
     const prefixedRoomId = prefixGameRoomId(roomId);
 
-    // const isManager = await this.roomsService.isManager(roomId, user.id);
-    // if (!isManager) {
-    //   throw new WsException('방의 매니저만 마블을 설정할 수 있습니다.');
-    // }
-
     try {
       await this.gameSessionService.setMarbles(roomId, names);
-      const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameSessionService.broadcastGameStateToRoom(roomId);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 마블 설정 변경 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {
@@ -62,8 +56,7 @@ export class GameConfigHandler {
 
     try {
       this.gameSessionService.setWinningRank(roomId, rank);
-      const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameSessionService.broadcastGameStateToRoom(roomId);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 우승 순위 ${rank}로 설정 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {
@@ -83,8 +76,7 @@ export class GameConfigHandler {
 
     try {
       await this.gameSessionService.setMap(roomId, mapIndex);
-      const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameSessionService.broadcastGameStateToRoom(roomId);
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 맵 ${mapIndex}로 설정 by ${user.nickname} (${client.id})`);
       return { success: true };
     } catch (error: unknown) {

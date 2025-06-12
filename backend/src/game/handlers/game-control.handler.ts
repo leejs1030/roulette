@@ -66,9 +66,8 @@ export class GameControlHandler {
       this.gameEngineService.stopGameLoop(roomId);
       this.gameSessionService.resetGame(roomId);
 
-      const gameState = this.gameSessionService.getGameState(roomId);
       server.to(prefixedRoomId).emit('game_reset');
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameSessionService.broadcastGameStateToRoom(roomId);
 
       this.logger.log(`방 ${prefixedRoomId}(${roomId}) 게임 리셋 by ${user.nickname} (${client.id})`);
       return { success: true };

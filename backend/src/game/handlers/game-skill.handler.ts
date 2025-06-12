@@ -45,8 +45,7 @@ export class GameSkillHandler {
       await this.gameEngineService.useSkill(roomId, skillType, skillPosition, extra, user.nickname);
 
       // 스킬 발동 후 게임 상태 업데이트 및 클라이언트에게 전파
-      const gameState = this.gameSessionService.getGameState(roomId);
-      server.to(prefixedRoomId).emit('game_state', gameState);
+      this.gameSessionService.broadcastGameStateToRoom(roomId);
       // skill_used 이벤트는 game_state에 포함되므로 별도로 보낼 필요 없음
 
       this.logger.log(

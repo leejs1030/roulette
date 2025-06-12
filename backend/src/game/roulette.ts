@@ -1,7 +1,5 @@
-import { Marble } from './marble';
 import { IPhysics } from './IPhysics';
 import { Box2dPhysics } from './physics/physics-box2d';
-import { MapEntityState } from './types/MapEntity.type';
 import { SkillEffect } from './types/skill-effect.type';
 import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
