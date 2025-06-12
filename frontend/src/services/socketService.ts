@@ -117,11 +117,9 @@ class SocketService {
         if (typeof data === 'string') {
           // Base64 문자열을 protobuf로 역직렬화
           gameState = deserializeGameStateFromBase64(data);
-          console.log('Game state deserialized from protobuf');
         } else {
           // 기존 JSON 객체 (fallback)
           gameState = data;
-          console.log('Game state received as JSON object');
         }
         
         this.gameStateListeners.forEach((listener) => listener(gameState));

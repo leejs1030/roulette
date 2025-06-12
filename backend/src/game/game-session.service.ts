@@ -321,13 +321,13 @@ export class GameSessionService {
     try {
       // GameStateDto를 protobuf로 직렬화하여 Base64 문자열로 변환
       const serializedGameState = serializeGameStateToBase64(gameState);
-      
+
       const prefixedRoomId = prefixGameRoomId(roomId);
       this.ioServer.to(prefixedRoomId).emit('game_state', serializedGameState);
-      
-      this.logger.debug(`Game state broadcasted to room ${roomId} (serialized size: ${serializedGameState.length} chars)`);
     } catch (error) {
-      this.logger.error(`Failed to serialize game state for room ${roomId}: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to serialize game state for room ${roomId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
       // 실패 시 원래 객체 전송으로 fallback
       const prefixedRoomId = prefixGameRoomId(roomId);
       this.ioServer.to(prefixedRoomId).emit('game_state', gameState);

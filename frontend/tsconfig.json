@@ -7,7 +7,8 @@
     "module": "ESNext", // Parcel might require a specific module system
     "moduleResolution": "node",
     "jsx": "react-jsx", // JSX 처리 옵션 추가
-    "composite": true
+    "composite": true,
+    "types": ["node"] // Buffer와 같은 Node.js 전역 객체에 대한 타입 정의 포함
 
     /* Override base options if necessary */
     // "strict": false, // Example: If frontend needs less strict checks
