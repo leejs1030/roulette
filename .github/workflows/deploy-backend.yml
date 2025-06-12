@@ -60,9 +60,9 @@ jobs:
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }} # SET THIS SECRET
-          username: ${{ secrets.EC2_USERNAME }} # SET THIS SECRET (e.g., ec2-user, ubuntu)
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }} # SET THIS SECRET
+          host: ${{ secrets.EC2_HOST_BACKEND }} # SET THIS SECRET
+          username: ${{ secrets.EC2_USERNAME_BACKEND }} # SET THIS SECRET (e.g., ec2-user, ubuntu)
+          key: ${{ secrets.EC2_SSH_KEY_BACKEND }} # SET THIS SECRET
           port: ${{ secrets.EC2_SSH_PORT || 22 }} # SET THIS SECRET (optional, defaults to 22)
           script: |
             set -e # Exit immediately if a command exits with a non-zero status.
