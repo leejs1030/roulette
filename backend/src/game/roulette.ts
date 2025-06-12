@@ -5,7 +5,7 @@ import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
 import { SkillManager } from './managers/skill.manager';
 import { MapManager } from './managers/map.manager';
-import { GameStateDto } from 'common/src/types/game-state.dto';
+import { GameStateDto } from 'common';
 
 export class Roulette {
   private _lastTime: number = 0;

@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import socketService from '../services/socketService';
-import { Skills, GameState } from '../types/gameTypes';
+import { Skills } from '../types/gameTypes';
 import { Roulette } from '../roulette';
+import { GameStateDto } from 'common';
 
 export const useSkillHandler = (
   rouletteInstance: Roulette | null,
-  gameState: GameState | null,
+  gameState: GameStateDto | null,
 ) => {
   const [selectedSkill, setSelectedSkill] = useState<Skills>(Skills.None);
 

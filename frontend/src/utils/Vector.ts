@@ -1,4 +1,4 @@
-import { VectorLike } from '../types/VectorLike';
+import { VectorLike } from 'common';
 
 export class Vector {
   static sub(v1: VectorLike, v2: VectorLike): VectorLike {

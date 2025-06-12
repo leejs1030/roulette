@@ -1,5 +1,5 @@
 import { rad } from './utils/utils';
-import { VectorLike } from './types/VectorLike';
+import { VectorLike } from 'common';
 import { Vector } from './utils/Vector';
 
 const lifetime = 3000;

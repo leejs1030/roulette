@@ -1,7 +1,7 @@
 import { MapEntityState } from './MapEntity.type';
 import { SkillEffect } from './skill-effect.type';
 
-export class MarbleDto {
+export interface MarbleDto {
   id: number;
   name: string;
   x: number;
@@ -11,9 +11,10 @@ export class MarbleDto {
   hue: number;
   isActive: boolean;
   isDummy: boolean;
+  radius: number;
 }
 
-export class GameStateDto {
+export interface GameStateDto {
   marbles: MarbleDto[];
   winners: MarbleDto[];
   winner: MarbleDto | null;

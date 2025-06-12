@@ -1,7 +1,7 @@
 import { Camera } from '../camera';
 import { initialZoom } from '../data/constants';
 import { Minimap } from '../minimap';
-import { VectorLike } from '../types/VectorLike';
+import { VectorLike } from 'common';
 
 /**
  * 모든 좌표 변환을 중앙에서 관리하는 클래스.

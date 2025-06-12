@@ -7,7 +7,9 @@ import {
   EntityShape,
   MapEntityState,
   GameStatus,
-  UserPublicInfo
+  UserPublicInfo,
+  MarbleDto,
+  GameStateDto,
 } from 'common';
 import { ServerSkillEffect } from './skillTypes';
 
@@ -15,18 +17,6 @@ export enum Skills {
   None = 'None',
   Impact = 'Impact',
   DummyMarble = 'DummyMarble',
-}
-
-export interface MarbleState {
-  id: number;
-  name: string;
-  x: number;
-  y: number;
-  angle: number;
-  color: string;
-  isActive: boolean;
-  skill: Skills | null;
-  radius: number;
 }
 
 export {
@@ -38,20 +28,8 @@ export {
   EntityShape,
   MapEntityState,
   GameStatus,
-  UserPublicInfo
+  UserPublicInfo,
 };
-
-export interface GameState {
-  marbles: MarbleState[];
-  winners: MarbleState[];
-  winner: MarbleState | null;
-  entities: MapEntityState[];
-  isRunning: boolean;
-  winnerRank: number;
-  totalMarbleCount: number;
-  shakeAvailable: boolean;
-  skillEffects?: ServerSkillEffect[];
-}
 
 export interface GameInfo {
   id: number;

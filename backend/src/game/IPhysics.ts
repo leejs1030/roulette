@@ -11,7 +11,14 @@ export interface IPhysics {
 
   createStage(stage: StageDef): void;
 
-  createMarble(id: number, x: number, y: number, isDummy?: boolean, initialVelocity?: { x: number; y: number }): void;
+  createMarble(param: {
+    id: number;
+    x: number;
+    y: number;
+    isDummy?: boolean;
+    initialVelocity?: { x: number; y: number };
+    radius: number;
+  }): void;
 
   shakeMarble(id: number): void;
 

@@ -1,10 +1,10 @@
 import { canvasHeight, canvasWidth, DefaultBloomColor, DefaultEntityColor, initialZoom } from './data/constants';
 import { Camera } from './camera';
-import { StageDef } from 'common';
-import { MarbleState, MapEntityState } from './types/gameTypes'; // Use types from gameTypes
+import { MarbleDto, StageDef } from 'common';
+import { MapEntityState } from './types/gameTypes'; // Use types from gameTypes
 import { ParticleManager } from './particleManager';
 import { UIObject } from './UIObject';
-import { VectorLike } from './types/VectorLike';
+import { VectorLike } from 'common';
 import { ServerSkillType, FrontendSkillEffectWrapper, ImpactSkillEffectFromServer } from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
 import { CoordinateManager } from './utils/coordinate-manager';
 
@@ -12,12 +12,12 @@ export type RenderParameters = {
   camera: Camera;
   stage: StageDef;
   entities: MapEntityState[];
-  marbles: MarbleState[];
-  winners: MarbleState[];
+  marbles: MarbleDto[];
+  winners: MarbleDto[];
   particleManager: ParticleManager;
   skillEffects: FrontendSkillEffectWrapper[];
   winnerRank: number;
-  winner: MarbleState | null;
+  winner: MarbleDto | null;
   size: VectorLike;
 };
 
@@ -88,11 +88,7 @@ export class RouletteRenderer {
     });
   }
 
-  render(
-    renderParameters: RenderParameters,
-    uiObjects: UIObject[],
-    coordinateManager: CoordinateManager
-  ) {
+  render(renderParameters: RenderParameters, uiObjects: UIObject[], coordinateManager: CoordinateManager) {
     this.ctx.fillStyle = 'black';
     this.ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -110,13 +106,7 @@ export class RouletteRenderer {
     this.ctx.restore();
 
     uiObjects.forEach((obj) =>
-      obj.render(
-        this.ctx,
-        renderParameters,
-        coordinateManager,
-        this._canvas.width,
-        this._canvas.height
-      )
+      obj.render(this.ctx, renderParameters, coordinateManager, this._canvas.width, this._canvas.height),
     );
     renderParameters.particleManager.render(this.ctx);
     this.renderWinner(renderParameters);
@@ -216,9 +206,7 @@ export class RouletteRenderer {
     const winnerIndex = winnerRank - winners.length;
 
     marbles.forEach((marbleState, i) => {
-      const radius = marbleState.radius && marbleState.radius > 0 ? marbleState.radius : 0.25;
-      if (!marbleState.radius || marbleState.radius <= 0) {
-      }
+      const radius = marbleState.radius;
 
       this.ctx.save();
       this.ctx.translate(marbleState.x, marbleState.y);

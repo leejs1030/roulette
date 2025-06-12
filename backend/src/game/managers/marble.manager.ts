@@ -1,6 +1,7 @@
 import { Marble } from '../marble';
 import { IPhysics } from '../IPhysics';
 import { MarbleFactory } from '../utils/marble-factory';
+import { marbleRadius } from 'common';
 
 export class MarbleManager {
   private _marbles: Marble[] = [];
@@ -48,7 +49,14 @@ export class MarbleManager {
       const offsetX = (Math.random() - 0.5) * 1;
       const offsetY = (Math.random() - 0.5) * 1;
 
-      this.physics.createMarble(newId, position.x + offsetX, position.y + offsetY, true, { x: 0, y: 10 });
+      this.physics.createMarble({
+        id: newId,
+        x: position.x + offsetX,
+        y: position.y + offsetY,
+        isDummy: true,
+        initialVelocity: { x: 0, y: 10 },
+        radius: marbleRadius,
+      });
       this._dummyMarbles.push(dummyMarble);
     }
   }
@@ -89,7 +97,13 @@ export class MarbleManager {
     yPos: number;
     isWinnerGoal: boolean;
   }> {
-    const rankedMarbles: Array<{ id: number; name: string; finalRank: number | string; yPos: number; isWinnerGoal: boolean }> = [];
+    const rankedMarbles: Array<{
+      id: number;
+      name: string;
+      finalRank: number | string;
+      yPos: number;
+      isWinnerGoal: boolean;
+    }> = [];
 
     this._winners.forEach((marble, index) => {
       rankedMarbles.push({

@@ -1,13 +1,13 @@
 import { initialZoom } from './data/constants';
 import { ParticleManager } from './particleManager';
-import { StageDef, stages } from 'common';
+import { GameStateDto, MarbleDto, StageDef, stages } from 'common';
 import { Camera } from './camera';
 import { RouletteRenderer } from './rouletteRenderer';
 import { UIObject } from './UIObject';
 import { RankRenderer } from './rankRenderer';
 import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
-import { GameState, MarbleState, MapEntityState } from './types/gameTypes'; // Import types from gameTypes
+import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
 import {
   ServerSkillType,
   ServerSkillEffect,
@@ -17,9 +17,9 @@ import {
 import { CoordinateManager } from './utils/coordinate-manager';
 
 export class Roulette extends EventTarget {
-  private _marbles: MarbleState[] = [];
-  private _winners: MarbleState[] = [];
-  private _winner: MarbleState | null = null;
+  private _marbles: MarbleDto[] = [];
+  private _winners: MarbleDto[] = [];
+  private _winner: MarbleDto | null = null;
   private _mapEntitiesState: MapEntityState[] = [];
   private _isRunning: boolean = false;
   private _winnerRank = 0;
@@ -50,7 +50,7 @@ export class Roulette extends EventTarget {
     return this._isReady;
   }
 
-  public updateStateFromServer(gameState: GameState): void {
+  public updateStateFromServer(gameState: GameStateDto): void {
     this._marbles = gameState.marbles;
     this._winners = gameState.winners;
     this._winner = gameState.winner;

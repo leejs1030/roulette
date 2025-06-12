@@ -3,8 +3,8 @@ import { RenderParameters } from './rouletteRenderer';
 import { DefaultEntityColor, initialZoom } from './data/constants';
 import { UIObject } from './UIObject';
 import { Rect } from './types/rect.type';
-import { VectorLike } from './types/VectorLike';
-import { MapEntityState, MarbleState } from './types/gameTypes'; // Import types from gameTypes
+import { MarbleDto, VectorLike } from 'common';
+import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
 
 export class Minimap implements UIObject {
   private ctx!: CanvasRenderingContext2D;
@@ -150,7 +150,7 @@ export class Minimap implements UIObject {
   private drawMarbles(params: RenderParameters) {
     const { marbles } = params;
     this.ctx.save();
-    marbles.forEach((marbleState: MarbleState) => {
+    marbles.forEach((marbleState: MarbleDto) => {
       this.ctx.beginPath();
       const minimapRadius = Math.max(0.5, marbleState.radius * 0.5);
       this.ctx.arc(marbleState.x, marbleState.y, minimapRadius, 0, Math.PI * 2, false);

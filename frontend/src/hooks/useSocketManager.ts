@@ -2,14 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../services/socketService';
 import { getRoomDetails, getRoomGameDetails, getGameRanking } from '../services/api';
-import { GameState, RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from '../types/gameTypes';
+import { RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from '../types/gameTypes';
 import { Roulette } from '../roulette';
+import { GameStateDto } from 'common';
 
 export const useSocketManager = (roomId: string | undefined, rouletteInstance: Roulette | null) => {
   const navigate = useNavigate();
   const [roomDetails, setRoomDetails] = useState<RoomInfo | null>(null);
   const [gameDetails, setGameDetails] = useState<GameInfo | null>(null);
-  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [gameState, setGameState] = useState<GameStateDto | null>(null);
   const [finalRanking, setFinalRanking] = useState<RankingEntry[] | null>(null);
   const [availableMaps, setAvailableMaps] = useState<MapInfo[]>([]);
   const [showPasswordModal, setShowPasswordModal] = useState(false);

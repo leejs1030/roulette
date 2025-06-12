@@ -2,7 +2,8 @@ import { STUCK_DELAY } from './data/constants';
 import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
-import { MarbleDto } from 'common/src/types/game-state.dto';
+import { MarbleDto } from 'common';
+import { marbleRadius } from 'common';
 
 export class Marble {
   type = 'marble' as const;
@@ -13,6 +14,7 @@ export class Marble {
   weight: number = 1;
   isActive: boolean = false;
   isDummy: boolean = false;
+  radius: number = marbleRadius;
 
   private _skillRate = 0.0005;
   private _coolTime = 5000;
@@ -60,6 +62,7 @@ export class Marble {
     this.weight = weight;
     this.physics = physics;
     this.isDummy = isDummy;
+    this.radius = marbleRadius;
 
     this._maxCoolTime = 1000 + (1 - this.weight) * 4000;
     this._coolTime = this._maxCoolTime * Math.random();
@@ -77,7 +80,13 @@ export class Marble {
     this.color = `hsl(${this.hue} 100% 70%)`;
     this.id = order;
 
-    physics.createMarble(order, 10.25 + (order % 10) * 0.6, maxLine - line + lineDelta);
+    physics.createMarble({
+      id: order,
+      x: 10.25 + (order % 10) * 0.6,
+      y: maxLine - line + lineDelta,
+      radius: marbleRadius,
+      isDummy,
+    });
   }
 
   update(deltaTime: number) {
@@ -111,6 +120,7 @@ export class Marble {
       hue: this.hue,
       isActive: this.isActive,
       isDummy: this.isDummy,
+      radius: this.radius,
     };
   }
 }

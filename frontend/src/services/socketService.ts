@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { GameState, MapInfo } from '../types/gameTypes';
+import { MapInfo } from '../types/gameTypes';
+import { GameStateDto } from 'common/dist';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -18,7 +19,7 @@ interface SpeedChangedData {
 interface JoinRoomResponse {
   success: boolean;
   message?: string;
-  gameState?: GameState;
+  gameState?: GameStateDto;
   requiresPassword?: boolean;
 }
 
@@ -29,7 +30,7 @@ class SocketService {
   private isConnecting: boolean = false;
   private latestAvailableMaps: MapInfo[] | null = null;
 
-  private gameStateListeners: Array<(gameState: GameState) => void> = [];
+  private gameStateListeners: Array<(gameState: GameStateDto) => void> = [];
   private availableMapsListeners: Array<(maps: MapInfo[]) => void> = [];
   private playerJoinedListeners: Array<(data: PlayerJoinedData) => void> = [];
   private playerLeftListeners: Array<(data: PlayerLeftData) => void> = [];
@@ -109,7 +110,7 @@ class SocketService {
     }
     console.log('socketService: Setting up event listeners.');
 
-    this.socket.off('game_state').on('game_state', (gameState: GameState) => {
+    this.socket.off('game_state').on('game_state', (gameState: GameStateDto) => {
       this.gameStateListeners.forEach((listener) => listener(gameState));
     });
 
@@ -143,7 +144,7 @@ class SocketService {
     });
   }
 
-  public onGameStateUpdate(listener: (gameState: GameState) => void): () => void {
+  public onGameStateUpdate(listener: (gameState: GameStateDto) => void): () => void {
     this.gameStateListeners.push(listener);
     return () => {
       this.gameStateListeners = this.gameStateListeners.filter((l) => l !== listener);

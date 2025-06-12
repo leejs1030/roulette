@@ -1,7 +1,6 @@
-import { MarbleState } from './types/gameTypes'; // Use MarbleState type from gameTypes
-import { StageDef } from 'common';
+import { MarbleDto, StageDef } from 'common';
 import { initialZoom, zoomThreshold } from './data/constants';
-import { VectorLike } from './types/VectorLike';
+import { VectorLike } from 'common';
 
 export class Camera {
   private _position: VectorLike = { x: 0, y: 0 };
@@ -55,7 +54,7 @@ export class Camera {
     targetIndex,
     deltaTime,
   }: {
-    marbles: MarbleState[];
+    marbles: MarbleDto[];
     stage: StageDef;
     targetIndex: number;
     deltaTime: number;
@@ -75,7 +74,7 @@ export class Camera {
     this._zoom = this._interpolation(this._zoom, this._targetZoom);
   }
 
-  private _calcTargetPositionAndZoom(marbles: MarbleState[], stage: StageDef, targetIndex: number) {
+  private _calcTargetPositionAndZoom(marbles: MarbleDto[], stage: StageDef, targetIndex: number) {
     if (marbles.length > 0) {
       const targetMarble = marbles[targetIndex] ? marbles[targetIndex] : marbles[0];
       this.setPosition({ x: targetMarble.x, y: targetMarble.y });
