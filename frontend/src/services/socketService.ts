@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { MapInfo } from '../types/gameTypes';
-import { GameStateDto } from 'common/dist';
+import { GameStateDto, deserializeGameStateFromBase64 } from 'common/dist';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -110,8 +110,28 @@ class SocketService {
     }
     console.log('socketService: Setting up event listeners.');
 
-    this.socket.off('game_state').on('game_state', (gameState: GameStateDto) => {
-      this.gameStateListeners.forEach((listener) => listener(gameState));
+    this.socket.off('game_state').on('game_state', (data: string | GameStateDto) => {
+      try {
+        // protobuf 직렬화된 데이터인지 확인 (Base64 문자열인 경우)
+        let gameState: GameStateDto;
+        if (typeof data === 'string') {
+          // Base64 문자열을 protobuf로 역직렬화
+          gameState = deserializeGameStateFromBase64(data);
+          console.log('Game state deserialized from protobuf');
+        } else {
+          // 기존 JSON 객체 (fallback)
+          gameState = data;
+          console.log('Game state received as JSON object');
+        }
+        
+        this.gameStateListeners.forEach((listener) => listener(gameState));
+      } catch (error) {
+        console.error('Failed to deserialize game state:', error);
+        // 역직렬화 실패 시 원본 데이터 사용 (fallback)
+        if (typeof data !== 'string') {
+          this.gameStateListeners.forEach((listener) => listener(data));
+        }
+      }
     });
 
     this.socket.off('available_maps').on('available_maps', (maps: MapInfo[]) => {
