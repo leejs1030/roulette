@@ -4,8 +4,8 @@ package gamestate;
 
 // 스킬 타입 enum
 enum SkillType {
-  SKILL_TYPE_IMPACT = 0;
-  SKILL_TYPE_DUMMY_MARBLE = 1;
+  Impact = 0;
+  DummyMarble = 1;
 }
 
 // 벡터 좌표
@@ -16,9 +16,9 @@ message Position {
 
 // Entity Shape 관련 메시지들
 enum EntityShapeType {
-  ENTITY_SHAPE_BOX = 0;
-  ENTITY_SHAPE_CIRCLE = 1;
-  ENTITY_SHAPE_POLYLINE = 2;
+  box = 0;
+  circle = 1;
+  polyline = 2;
 }
 
 message EntityBoxShape {
