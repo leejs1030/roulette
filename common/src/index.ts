@@ -9,3 +9,4 @@ export * from './types/requests.type';
 export * from './types/game.type';
 export * from './types/game-state.dto';
 export * from './constants/game-constant';
+export * from './proto/serializer';
