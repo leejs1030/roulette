@@ -5,7 +5,8 @@ import { MapEntityState } from './types/gameTypes'; // Use types from gameTypes
 import { ParticleManager } from './particleManager';
 import { UIObject } from './UIObject';
 import { VectorLike } from 'common';
-import { ServerSkillType, FrontendSkillEffectWrapper, ImpactSkillEffectFromServer } from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
+import { FrontendSkillEffectWrapper, ImpactSkillEffectFromServer } from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
+import { SkillType } from 'common';
 import { CoordinateManager } from './utils/coordinate-manager';
 
 export type RenderParameters = {
@@ -165,10 +166,10 @@ export class RouletteRenderer {
     context: CanvasRenderingContext2D,
   ) {
     switch (effectWrapper.type) {
-      case ServerSkillType.Impact:
+      case SkillType.Impact:
         this.renderImpactEffect(effectWrapper, camera, context);
         break;
-      case ServerSkillType.DummyMarble:
+      case SkillType.DummyMarble:
         break;
       default:
         break;

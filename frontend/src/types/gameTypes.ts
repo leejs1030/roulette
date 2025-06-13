@@ -8,10 +8,7 @@ import {
   MapEntityState,
   GameStatus,
   UserPublicInfo,
-  MarbleDto,
-  GameStateDto,
 } from 'common';
-import { ServerSkillEffect } from './skillTypes';
 
 export enum Skills {
   None = 'None',
