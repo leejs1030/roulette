@@ -1,6 +1,6 @@
 import { initialZoom } from './data/constants';
 import { ParticleManager } from './particleManager';
-import { GameStateDto, MarbleDto, StageDef, stages } from 'common';
+import { StageDef, gamestate, stages } from 'common';
 import { Camera } from './camera';
 import { RouletteRenderer } from './rouletteRenderer';
 import { UIObject } from './UIObject';
@@ -17,9 +17,9 @@ import {
 import { CoordinateManager } from './utils/coordinate-manager';
 
 export class Roulette extends EventTarget {
-  private _marbles: MarbleDto[] = [];
-  private _winners: MarbleDto[] = [];
-  private _winner: MarbleDto | null = null;
+  private _marbles: gamestate.IMarbleDto[] = [];
+  private _winners: gamestate.IMarbleDto[] = [];
+  private _winner: gamestate.IMarbleDto | null = null;
   private _mapEntitiesState: MapEntityState[] = [];
   private _isRunning: boolean = false;
   private _winnerRank = 0;
@@ -50,15 +50,15 @@ export class Roulette extends EventTarget {
     return this._isReady;
   }
 
-  public updateStateFromServer(gameState: GameStateDto): void {
-    this._marbles = gameState.marbles;
-    this._winners = gameState.winners;
-    this._winner = gameState.winner;
-    this._mapEntitiesState = gameState.entities;
-    this._isRunning = gameState.isRunning;
-    this._winnerRank = gameState.winnerRank;
-    this._totalMarbleCount = gameState.totalMarbleCount;
-    this._shakeAvailable = gameState.shakeAvailable;
+  public updateStateFromServer(gameState: gamestate.IGameStateDto): void {
+    this._marbles = gameState.marbles || [];
+    this._winners = gameState.winners || [];
+    this._winner = gameState.winner || null;
+    this._mapEntitiesState = gameState.entities || [];
+    this._isRunning = gameState.isRunning || false;
+    this._winnerRank = gameState.winnerRank || 0;
+    this._totalMarbleCount = gameState.totalMarbleCount || 0;
+    this._shakeAvailable = gameState.shakeAvailable || false;
   }
 
   public processServerSkillEffects(serverEffects: ServerSkillEffect[]): void {
@@ -70,10 +70,10 @@ export class Roulette extends EventTarget {
       if (!this._activeSkillEffects.some((e) => e.id === serverEffect.id)) {
         let duration = 0;
         switch (serverEffect.type) {
-          case ServerSkillType.Impact:
+          case gamestate.SkillType.Impact:
             duration = 500;
             break;
-          case ServerSkillType.DummyMarble:
+          case gamestate.SkillType.DummyMarble:
             duration = 1000;
             break;
           default:
@@ -138,7 +138,7 @@ export class Roulette extends EventTarget {
     this._uiObjects.forEach((obj) => obj.update(currentTime - this._lastTime));
 
     if (this._marbles.length > 1) {
-      this._marbles.sort((a, b) => b.y - a.y);
+      this._marbles.sort((a, b) => (b.y || 0) - (a.y || 0));
     }
 
     if (this._stage) {
@@ -276,7 +276,7 @@ export class Roulette extends EventTarget {
   }
 
   public getMaps() {
-    return stages.map((stage, index) => {
+    return stages.map((stage: StageDef, index: number) => {
       return {
         index,
         title: stage.title,

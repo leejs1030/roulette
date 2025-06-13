@@ -1,8 +1,8 @@
 import { IPhysics } from '../IPhysics';
-import { StageDef } from 'common';
-import { MapEntity, MapEntityState } from '../types/MapEntity.type';
+import { StageDef, gamestate, MapEntity } from 'common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { MapEntityState } from '../types/MapEntity.type';
 
 // 올바른 Box2D 모듈 경로로 변경
 import Box2DFactory from 'box2d-wasm';
@@ -14,7 +14,7 @@ export class Box2dPhysics implements IPhysics {
   private initialized: boolean = false;
 
   private marbleMap: { [id: number]: Box2D.b2Body } = {};
-  private entities: ({ body: Box2D.b2Body } & MapEntityState)[] = [];
+  private entities: ({ body: Box2D.b2Body } & gamestate.IMapEntityState)[] = [];
 
   private deleteCandidates: Box2D.b2Body[] = [];
 
@@ -89,81 +89,59 @@ export class Box2dPhysics implements IPhysics {
 
     entities.forEach((entity) => {
       const bodyDef = new this.Box2DInstance.b2BodyDef();
-      bodyDef.set_type(bodyTypes[entity.type]);
-      // bodyDef.set_position(new this.Box2D.b2Vec2(entity.position.x, entity.position.y)); // Set position in bodyDef
+      bodyDef.set_type(bodyTypes[entity.type as 'static' | 'kinematic']);
       const body = this.world.CreateBody(bodyDef);
-      this.destroyObject(bodyDef); // Destroy bodyDef after use
+      this.destroyObject(bodyDef);
 
       const fixtureDef = new this.Box2DInstance.b2FixtureDef();
       fixtureDef.set_density(entity.props.density);
       fixtureDef.set_restitution(entity.props.restitution);
 
       let shape: any;
-      switch (entity.shape.type) {
-        case 'box':
-          shape = new this.Box2DInstance.b2PolygonShape();
-          const halfWidth = entity.shape.width / 2;
-          const halfHeight = entity.shape.height / 2;
-          const centerVec = new this.Box2DInstance.b2Vec2(0, 0); // Local center of the box
-          // Assuming entity.shape.rotation is the angle for the box shape itself,
-          // but SetAsBox's angle parameter is often for rotating the box *within* the fixture/body.
-          // If the body itself is rotated later via SetTransform, this angle might be 0.
-          // For simplicity, we'll use entity.shape.rotation here.
-          shape.SetAsBox(
-            halfWidth,
-            halfHeight,
-            centerVec,
-            entity.shape.rotation, // Angle for the box shape
-          );
-          this.destroyObject(centerVec);
-          fixtureDef.set_shape(shape);
-          body.CreateFixture(fixtureDef);
-          this.destroyObject(shape); // Destroy shape after use
-          break;
-        case 'polyline':
-          // For polyline, multiple fixtures (edges) might be created.
-          // Each b2EdgeShape and b2Vec2 should be destroyed.
-          for (let i = 0; i < entity.shape.points.length - 1; i++) {
-            const p1Data = entity.shape.points[i];
-            const p2Data = entity.shape.points[i + 1];
-            const v1 = new this.Box2DInstance.b2Vec2(p1Data[0], p1Data[1]);
-            const v2 = new this.Box2DInstance.b2Vec2(p2Data[0], p2Data[1]);
-            const edgeShape = new this.Box2DInstance.b2EdgeShape();
-            edgeShape.SetTwoSided(v1, v2);
-            body.CreateFixture(edgeShape, 0); // Static bodies typically have 0 density for fixtures
-            this.destroyObject(v1);
-            this.destroyObject(v2);
-            this.destroyObject(edgeShape);
-          }
-          break;
-        case 'circle':
-          shape = new this.Box2DInstance.b2CircleShape();
-          shape.set_m_radius(entity.shape.radius);
-          // shape.set_m_p(new this.Box2D.b2Vec2(0,0)); // Position relative to body, default (0,0)
-          fixtureDef.set_shape(shape);
-          body.CreateFixture(fixtureDef);
-          this.destroyObject(shape); // Destroy shape after use
-          break;
+      if (entity.shape.boxShape) {
+        shape = new this.Box2DInstance.b2PolygonShape();
+        const halfWidth = entity.shape.boxShape.width / 2;
+        const halfHeight = entity.shape.boxShape.height / 2;
+        const centerVec = new this.Box2DInstance.b2Vec2(0, 0);
+        shape.SetAsBox(
+          halfWidth,
+          halfHeight,
+          centerVec,
+          entity.shape.boxShape.rotation,
+        );
+        this.destroyObject(centerVec);
+        fixtureDef.set_shape(shape);
+        body.CreateFixture(fixtureDef);
+        this.destroyObject(shape);
+      } else if (entity.shape.polylineShape) {
+        for (let i = 0; i < entity.shape.polylineShape.points.length - 1; i++) {
+          const p1Data = entity.shape.polylineShape.points[i];
+          const p2Data = entity.shape.polylineShape.points[i + 1];
+          const v1 = new this.Box2DInstance.b2Vec2(p1Data.x, p1Data.y);
+          const v2 = new this.Box2DInstance.b2Vec2(p2Data.x, p2Data.y);
+          const edgeShape = new this.Box2DInstance.b2EdgeShape();
+          edgeShape.SetTwoSided(v1, v2);
+          body.CreateFixture(edgeShape, 0);
+          this.destroyObject(v1);
+          this.destroyObject(v2);
+          this.destroyObject(edgeShape);
+        }
+      } else if (entity.shape.circleShape) {
+        shape = new this.Box2DInstance.b2CircleShape();
+        shape.set_m_radius(entity.shape.circleShape.radius);
+        fixtureDef.set_shape(shape);
+        body.CreateFixture(fixtureDef);
+        this.destroyObject(shape);
       }
-      this.destroyObject(fixtureDef); // Destroy fixtureDef after use
+      this.destroyObject(fixtureDef);
 
       body.SetAngularVelocity(entity.props.angularVelocity);
       const initialPos = new this.Box2DInstance.b2Vec2(entity.position.x, entity.position.y);
-      // The SetTransform angle is for the body. If the shape itself has a rotation (like a box),
-      // that's handled by SetAsBox. If the entity itself (as a whole) needs rotation, it's this one.
-      // For boxes, entity.shape.rotation was used in SetAsBox. If the body also needs rotation,
-      // it might be a different value or 0 if SetAsBox handled it.
-      // Let's assume the SetAsBox rotation is the primary one for the shape, and body's initial angle is 0,
-      // unless the entity definition implies a separate body rotation.
-      // For polyline, entity.shape.rotation is used. For circle, it's 0.
       let bodyInitialAngle = 0;
-      if (entity.shape.type === 'polyline') {
-        bodyInitialAngle = entity.shape.rotation;
-      } else if (entity.shape.type === 'box') {
-        // If entity.shape.rotation was meant for the body, not just the box's local orientation
-        // bodyInitialAngle = entity.shape.rotation; // This might double-rotate if SetAsBox also used it.
-        // For now, assume SetAsBox handles box's local rotation, and body starts at 0 angle.
-        bodyInitialAngle = 0;
+      if (entity.shape.polylineShape) {
+        bodyInitialAngle = entity.shape.polylineShape.rotation;
+      } else if (entity.shape.boxShape) {
+        bodyInitialAngle = entity.shape.boxShape.rotation;
       }
       body.SetTransform(initialPos, bodyInitialAngle);
       this.destroyObject(initialPos);
@@ -172,9 +150,9 @@ export class Box2dPhysics implements IPhysics {
         body,
         x: entity.position.x,
         y: entity.position.y,
-        angle: body.GetAngle(), // Store the actual angle of the body after transform
+        angle: body.GetAngle(),
         shape: entity.shape,
-        life: entity.props.life ?? -1,
+        life: entity.props.life ?? -1, // life가 undefined일 경우 -1로 설정
       });
     });
   }
@@ -272,16 +250,14 @@ export class Box2dPhysics implements IPhysics {
     }
   }
 
-  getEntities(): MapEntityState[] {
+  getEntities(): gamestate.IMapEntityState[] {
     if (!this.world) return [];
     return this.entities.map((entity) => {
       const currentAngle = entity.body.GetAngle();
-      // Update the stored angle if it has changed, though this is mainly for state representation
       entity.angle = currentAngle;
       return {
-        // Return a copy of the state, not the internal entity object directly
-        x: entity.x, // Original x, or use body.GetPosition().x if dynamic
-        y: entity.y, // Original y, or use body.GetPosition().y if dynamic
+        x: entity.x,
+        y: entity.y,
         angle: currentAngle,
         shape: entity.shape,
         life: entity.life,
@@ -349,24 +325,19 @@ export class Box2dPhysics implements IPhysics {
     // Process entities that might expire or be removed due to contact
     for (let i = this.entities.length - 1; i >= 0; i--) {
       const entity = this.entities[i];
-      if (entity.life > 0) {
-        // Assuming life is a countdown or similar mechanism
-        // Example: Check for contacts if entity should be removed on contact
-        let contactEdge = entity.body.GetContactList(); // b2ContactEdge
+      if (entity.life !== undefined && entity.life !== null && entity.life > 0) { // life가 undefined일 수 있으므로 체크 추가
+        let contactEdge = entity.body.GetContactList();
         let shouldRemove = false;
         while (contactEdge) {
           if (contactEdge.get_contact().IsTouching()) {
-            // get_contact() returns b2Contact
             shouldRemove = true;
             break;
           }
           contactEdge = contactEdge.get_next();
         }
-        // Note: Box2D.destroy() should not be called on contactEdge or contact itself,
-        // as these are typically managed internally by Box2D.
 
         if (shouldRemove) {
-          this.deleteCandidates.push(entity.body); // Mark for deletion in next step
+          this.deleteCandidates.push(entity.body);
           this.entities.splice(i, 1);
         }
       }

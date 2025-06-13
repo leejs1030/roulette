@@ -1,4 +1,3 @@
-import { GameStateDto as IGameStateDto, MarbleDto as IMarbleDto } from '../types/game-state.dto';
 import { MapEntityState as IMapEntityState } from '../types/MapEntity.type';
 import { SkillType as ISkillType } from '../types/skill.type';
 import { SkillEffect as ISkillEffect } from '../types/skill-effect.type';
@@ -11,79 +10,87 @@ const MapEntityStateProto = protoRoot.gamestate.MapEntityState;
 const SkillEffectProto = protoRoot.gamestate.SkillEffect;
 const SkillTypeProto = protoRoot.gamestate.SkillType;
 
+type IGameStateDto = protoRoot.gamestate.IGameStateDto;
+type IMarbleDto = protoRoot.gamestate.IMarbleDto;
+
 // Enum 매핑 함수들
 const skillTypeToProto = (skillType: ISkillType): protoRoot.gamestate.SkillType => {
   switch (skillType) {
-    case ISkillType.Impact:
-      return SkillTypeProto.SKILL_TYPE_IMPACT;
-    case ISkillType.DummyMarble:
-      return SkillTypeProto.SKILL_TYPE_DUMMY_MARBLE;
+    case protoRoot.gamestate.SkillType.Impact:
+      return protoRoot.gamestate.SkillType.Impact;
+    case protoRoot.gamestate.SkillType.DummyMarble:
+      return protoRoot.gamestate.SkillType.DummyMarble;
     default:
-      return SkillTypeProto.SKILL_TYPE_IMPACT;
+      return protoRoot.gamestate.SkillType.Impact;
   }
 };
 
 const skillTypeFromProto = (protoSkillType: protoRoot.gamestate.SkillType): ISkillType => {
   switch (protoSkillType) {
-    case SkillTypeProto.SKILL_TYPE_IMPACT:
-      return ISkillType.Impact;
-    case SkillTypeProto.SKILL_TYPE_DUMMY_MARBLE:
-      return ISkillType.DummyMarble;
+    case protoRoot.gamestate.SkillType.Impact:
+      return protoRoot.gamestate.SkillType.Impact;
+    case protoRoot.gamestate.SkillType.DummyMarble:
+      return protoRoot.gamestate.SkillType.DummyMarble;
     default:
-      return ISkillType.Impact;
+      return protoRoot.gamestate.SkillType.Impact;
   }
 };
 
 // EntityShape 변환 함수들
 const entityShapeToProto = (shape: IMapEntityState['shape']): protoRoot.gamestate.IEntityShape => {
-  switch (shape.type) {
-    case 'box':
-      return {
-        boxShape: {
-          type: protoRoot.gamestate.EntityShapeType.ENTITY_SHAPE_BOX,
-          width: shape.width,
-          height: shape.height,
-          rotation: shape.rotation,
-        },
-      };
-    case 'circle':
-      return {
-        circleShape: {
-          type: protoRoot.gamestate.EntityShapeType.ENTITY_SHAPE_CIRCLE,
-          radius: shape.radius,
-        },
-      };
-    case 'polyline':
-      return {
-        polylineShape: {
-          type: protoRoot.gamestate.EntityShapeType.ENTITY_SHAPE_POLYLINE,
-          rotation: shape.rotation,
-          points: shape.points.map((p) => ({ x: p[0], y: p[1] })),
-        },
-      };
-    default:
-      throw new Error(`Unknown entity shape type: ${(shape as any).type}`);
+  if (shape?.boxShape) {
+    return {
+      boxShape: {
+        type: protoRoot.gamestate.EntityShapeType.box,
+        width: shape.boxShape.width,
+        height: shape.boxShape.height,
+        rotation: shape.boxShape.rotation,
+      },
+    };
+  } else if (shape?.circleShape) {
+    return {
+      circleShape: {
+        type: protoRoot.gamestate.EntityShapeType.circle,
+        radius: shape.circleShape.radius,
+      },
+    };
+  } else if (shape?.polylineShape) {
+    return {
+      polylineShape: {
+        type: protoRoot.gamestate.EntityShapeType.polyline,
+        rotation: shape.polylineShape.rotation,
+        points: shape.polylineShape.points?.map((p) => ({ x: p.x, y: p.y })),
+      },
+    };
+  } else {
+    throw new Error(`Unknown entity shape type: ${JSON.stringify(shape)}`);
   }
 };
 
 const entityShapeFromProto = (protoShape: protoRoot.gamestate.IEntityShape): IMapEntityState['shape'] => {
   if (protoShape.boxShape) {
     return {
-      type: 'box',
-      width: protoShape.boxShape.width || 0,
-      height: protoShape.boxShape.height || 0,
-      rotation: protoShape.boxShape.rotation || 0,
+      boxShape: {
+        type: protoRoot.gamestate.EntityShapeType.box,
+        width: protoShape.boxShape.width || 0,
+        height: protoShape.boxShape.height || 0,
+        rotation: protoShape.boxShape.rotation || 0,
+      },
     };
   } else if (protoShape.circleShape) {
     return {
-      type: 'circle',
-      radius: protoShape.circleShape.radius || 0,
+      circleShape: {
+        type: protoRoot.gamestate.EntityShapeType.circle,
+        radius: protoShape.circleShape.radius || 0,
+      },
     };
   } else if (protoShape.polylineShape) {
     return {
-      type: 'polyline',
-      rotation: protoShape.polylineShape.rotation || 0,
-      points: (protoShape.polylineShape.points || []).map((p) => [p.x || 0, p.y || 0] as [number, number]),
+      polylineShape: {
+        type: protoRoot.gamestate.EntityShapeType.polyline,
+        rotation: protoShape.polylineShape.rotation || 0,
+        points: (protoShape.polylineShape.points || []).map((p) => ({ x: p.x || 0, y: p.y || 0 })),
+      },
     };
   } else {
     throw new Error('Unknown protobuf entity shape');
@@ -112,21 +119,6 @@ const mapEntityStateFromProto = (protoEntity: protoRoot.gamestate.IMapEntityStat
 };
 
 // MarbleDto 변환 함수들
-const marbleDtoToProto = (marble: IMarbleDto): protoRoot.gamestate.IMarbleDto => {
-  return {
-    id: marble.id,
-    name: marble.name,
-    x: marble.x,
-    y: marble.y,
-    angle: marble.angle,
-    color: marble.color,
-    hue: marble.hue,
-    isActive: marble.isActive,
-    isDummy: marble.isDummy,
-    radius: marble.radius,
-  };
-};
-
 const marbleDtoFromProto = (protoMarble: protoRoot.gamestate.IMarbleDto): IMarbleDto => {
   return {
     id: protoMarble.id || 0,
@@ -144,33 +136,33 @@ const marbleDtoFromProto = (protoMarble: protoRoot.gamestate.IMarbleDto): IMarbl
 
 // SkillEffect 변환 함수들
 const skillEffectToProto = (skillEffect: ISkillEffect): protoRoot.gamestate.ISkillEffect => {
-  if (skillEffect.type === ISkillType.Impact) {
+  if (skillEffect.impactEffect) {
     return {
       impactEffect: {
         base: {
-          id: skillEffect.id,
-          type: skillTypeToProto(skillEffect.type),
-          timestamp: skillEffect.timestamp,
+          id: skillEffect.impactEffect.base?.id,
+          type: skillTypeToProto(skillEffect.impactEffect.base?.type as ISkillType),
+          timestamp: skillEffect.impactEffect.base?.timestamp,
         },
         position: {
-          x: skillEffect.position.x,
-          y: skillEffect.position.y,
+          x: skillEffect.impactEffect.position?.x,
+          y: skillEffect.impactEffect.position?.y,
         },
-        radius: skillEffect.radius,
+        radius: skillEffect.impactEffect.radius,
       },
     };
-  } else if (skillEffect.type === ISkillType.DummyMarble) {
+  } else if (skillEffect.dummyMarbleEffect) {
     return {
       dummyMarbleEffect: {
         base: {
-          id: skillEffect.id,
-          type: skillTypeToProto(skillEffect.type),
-          timestamp: skillEffect.timestamp,
+          id: skillEffect.dummyMarbleEffect.base?.id,
+          type: skillTypeToProto(skillEffect.dummyMarbleEffect.base?.type as ISkillType),
+          timestamp: skillEffect.dummyMarbleEffect.base?.timestamp,
         },
       },
     };
   } else {
-    throw new Error(`Unknown skill effect type: ${(skillEffect as any).type}`);
+    throw new Error(`Unknown skill effect type: ${JSON.stringify(skillEffect)}`);
   }
 };
 
@@ -178,21 +170,29 @@ const skillEffectFromProto = (protoSkillEffect: protoRoot.gamestate.ISkillEffect
   if (protoSkillEffect.impactEffect) {
     const effect = protoSkillEffect.impactEffect;
     return {
-      id: effect.base?.id || '',
-      type: ISkillType.Impact,
-      timestamp: effect.base?.timestamp || 0,
-      position: {
-        x: effect.position?.x || 0,
-        y: effect.position?.y || 0,
+      impactEffect: {
+        base: {
+          id: effect.base?.id || '',
+          type: skillTypeFromProto(effect.base?.type || 0),
+          timestamp: effect.base?.timestamp || 0,
+        },
+        position: {
+          x: effect.position?.x || 0,
+          y: effect.position?.y || 0,
+        },
+        radius: effect.radius || 0,
       },
-      radius: effect.radius || 0,
     };
   } else if (protoSkillEffect.dummyMarbleEffect) {
     const effect = protoSkillEffect.dummyMarbleEffect;
     return {
-      id: effect.base?.id || '',
-      type: ISkillType.DummyMarble,
-      timestamp: effect.base?.timestamp || 0,
+      dummyMarbleEffect: {
+        base: {
+          id: effect.base?.id || '',
+          type: skillTypeFromProto(effect.base?.type || 0),
+          timestamp: effect.base?.timestamp || 0,
+        },
+      },
     };
   } else {
     throw new Error('Unknown protobuf skill effect');
@@ -200,20 +200,6 @@ const skillEffectFromProto = (protoSkillEffect: protoRoot.gamestate.ISkillEffect
 };
 
 // 메인 GameStateDto 변환 함수들
-const gameStateDtoToProto = (gameState: IGameStateDto): protoRoot.gamestate.IGameStateDto => {
-  return {
-    marbles: gameState.marbles.map(marbleDtoToProto),
-    winners: gameState.winners.map(marbleDtoToProto),
-    winner: gameState.winner ? marbleDtoToProto(gameState.winner) : undefined,
-    entities: gameState.entities.map(mapEntityStateToProto),
-    isRunning: gameState.isRunning,
-    winnerRank: gameState.winnerRank,
-    totalMarbleCount: gameState.totalMarbleCount,
-    shakeAvailable: gameState.shakeAvailable,
-    skillEffects: gameState.skillEffects.map(skillEffectToProto),
-  };
-};
-
 const gameStateDtoFromProto = (protoGameState: protoRoot.gamestate.IGameStateDto): IGameStateDto => {
   return {
     marbles: (protoGameState.marbles || []).map(marbleDtoFromProto),
@@ -230,8 +216,7 @@ const gameStateDtoFromProto = (protoGameState: protoRoot.gamestate.IGameStateDto
 
 // 직렬화/역직렬화 함수들
 export const serializeGameState = (gameState: IGameStateDto): Uint8Array => {
-  const protoGameState = gameStateDtoToProto(gameState);
-  const message = GameStateDtoProto.create(protoGameState);
+  const message = GameStateDtoProto.create(gameState);
   return GameStateDtoProto.encode(message).finish();
 };
 

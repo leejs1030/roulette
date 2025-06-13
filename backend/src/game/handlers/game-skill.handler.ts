@@ -18,7 +18,7 @@ export class GameSkillHandler {
 
   async handleUseSkill(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: UseSkillDto<any>,
+    @MessageBody() data: UseSkillDto,
     user: User,
     server: Server,
   ) {

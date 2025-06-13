@@ -5,7 +5,7 @@ import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
 import { SkillManager } from './managers/skill.manager';
 import { MapManager } from './managers/map.manager';
-import { GameStateDto } from 'common';
+import { gamestate } from 'common';
 
 export class Roulette {
   private _lastTime: number = 0;
@@ -169,7 +169,7 @@ export class Roulette {
     this.setMarbles(names);
   }
 
-  public getGameState(): GameStateDto {
+  public getGameState(): gamestate.IGameStateDto {
     return {
       marbles: this.marbleManager.allMarbles.map((marble) => marble.toJSON()),
       winners: this.marbleManager.winners.map((marble) => marble.toJSON()),

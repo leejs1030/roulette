@@ -1,16 +1,3 @@
-export enum SkillType {
-  Impact = 'Impact',
-  DummyMarble = 'DummyMarble',
-}
+import * as protoRoot from '../proto/generated/game-state';
 
-export interface SkillPosition {
-  x: number;
-  y: number;
-}
-
-interface SkillExtraMapper {
-  [SkillType.Impact]: {};
-  [SkillType.DummyMarble]: {};
-}
-
-export type SkillExtra<T extends SkillType> = SkillExtraMapper[T];
+export type SkillType = protoRoot.gamestate.SkillType;

@@ -2,7 +2,7 @@ import { STUCK_DELAY } from './data/constants';
 import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
-import { MarbleDto } from 'common';
+import { gamestate } from 'common';
 import { marbleRadius } from 'common';
 
 export class Marble {
@@ -109,7 +109,7 @@ export class Marble {
     }
   }
 
-  toJSON(): MarbleDto {
+  toJSON(): gamestate.IMarbleDto {
     return {
       id: this.id,
       name: this.name,

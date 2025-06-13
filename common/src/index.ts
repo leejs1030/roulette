@@ -7,6 +7,6 @@ export * from './types/game-status.type';
 export * from './types/user.type';
 export * from './types/requests.type';
 export * from './types/game.type';
-export * from './types/game-state.dto';
 export * from './constants/game-constant';
 export * from './proto/serializer';
+export { gamestate } from './proto/generated/game-state'; // proto generated namespace export

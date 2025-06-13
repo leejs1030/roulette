@@ -6,7 +6,7 @@ import { prefixGameRoomId } from './utils/roomId.util';
 import { GamePersistenceService } from './game-persistence.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GameRoom } from './game-room';
-import { serializeGameStateToBase64 } from 'common';
+import { serializeGameStateToBase64, gamestate } from 'common';
 
 @Injectable()
 export class GameSessionService {
@@ -132,8 +132,8 @@ export class GameSessionService {
     await this.gamePersistenceService.upsertGame(roomId, {
       status: GameStatus.IN_PROGRESS,
       mapIndex: currentMapIndex !== -1 ? currentMapIndex : null,
-      marbles: currentGameState.marbles.map((m) => m.name),
-      winningRank: currentGameState.winnerRank,
+      marbles: (currentGameState.marbles || []).map((m: gamestate.IMarbleDto) => m.name as string),
+      winningRank: currentGameState.winnerRank!,
       speed: room.game.getSpeed(),
     });
   }

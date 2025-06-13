@@ -1,4 +1,3 @@
-import { SkillEffectBase, ImpactSkillEffect, DummyMarbleSkillEffect, SkillEffect } from 'common';
+import { SkillEffect } from 'common';
 
-// common에서 타입들을 re-export
-export { SkillEffectBase, ImpactSkillEffect, DummyMarbleSkillEffect, SkillEffect };
+export { SkillEffect };

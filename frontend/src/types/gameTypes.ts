@@ -1,15 +1,9 @@
 import {
-  EntityShapeTypes,
-  EntityShapeBase,
-  EntityBoxShape,
-  EntityCircleShape,
-  EntityPolylineShape,
   EntityShape,
   MapEntityState,
   GameStatus,
   UserPublicInfo,
-  MarbleDto,
-  GameStateDto,
+  gamestate,
 } from 'common';
 import { ServerSkillEffect } from './skillTypes';
 
@@ -20,16 +14,14 @@ export enum Skills {
 }
 
 export {
-  EntityShapeTypes,
-  EntityShapeBase,
-  EntityBoxShape,
-  EntityCircleShape,
-  EntityPolylineShape,
   EntityShape,
   MapEntityState,
   GameStatus,
   UserPublicInfo,
 };
+
+type MarbleDto = gamestate.IMarbleDto;
+type GameStateDto = gamestate.IGameStateDto;
 
 export interface GameInfo {
   id: number;

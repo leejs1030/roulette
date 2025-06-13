@@ -1,30 +1,22 @@
-import {
-  SkillType,
-  SkillPosition,
-  SkillEffectBase,
-  ImpactSkillEffect,
-  DummyMarbleSkillEffect
-} from 'common';
+import { gamestate } from 'common';
 
-export { SkillType as ServerSkillType };
+export type ServerSkillType = gamestate.SkillType;
+export type SkillPosition = gamestate.IPosition;
+export type SkillEffectBase = gamestate.ISkillEffectBase;
 
-export { SkillPosition };
-
-export { SkillEffectBase };
-
-export interface ImpactSkillEffectFromServer extends ImpactSkillEffect {
-  type: SkillType.Impact;
+export interface ImpactSkillEffectFromServer extends gamestate.ImpactSkillEffect {
+  type: gamestate.SkillType.Impact;
 }
 
-export interface DummyMarbleSkillEffectFromServer extends DummyMarbleSkillEffect {
-  type: SkillType.DummyMarble;
+export interface DummyMarbleSkillEffectFromServer extends gamestate.DummyMarbleSkillEffect {
+  type: gamestate.SkillType.DummyMarble;
 }
 
 export type ServerSkillEffect = ImpactSkillEffectFromServer | DummyMarbleSkillEffectFromServer;
 
 export interface FrontendSkillEffectWrapper {
   id: string;
-  type: SkillType;
+  type: gamestate.SkillType;
   serverEffectData: ServerSkillEffect;
   startTime: number;
   duration: number;

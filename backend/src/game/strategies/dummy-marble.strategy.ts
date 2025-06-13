@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GameRoom } from '../game-room';
 import { SkillStrategy } from './skill.strategy';
-import { SkillPosition, SkillType } from '../types/skill.type';
+import { gamestate } from 'common';
+import { SkillPosition } from '../types/skill.type';
 
 @Injectable()
-export class DummyMarbleSkillStrategy implements SkillStrategy<SkillType.DummyMarble> {
+export class DummyMarbleSkillStrategy implements SkillStrategy<gamestate.SkillType.DummyMarble> {
   private readonly logger = new Logger(DummyMarbleSkillStrategy.name);
 
   execute(room: GameRoom, skillPosition: SkillPosition, extra: any, userNickname?: string): void {

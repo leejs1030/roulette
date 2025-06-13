@@ -2,9 +2,9 @@ import { Injectable, Logger, OnModuleDestroy, BadRequestException } from '@nestj
 import { Server } from 'socket.io';
 import { GameSessionService } from './game-session.service';
 import { prefixGameRoomId } from './utils/roomId.util';
-import { SkillType, SkillPosition, SkillExtra } from './types/skill.type';
+import { gamestate, SkillEffect } from 'common';
 import { GameRoom } from './game-room';
-import { SkillStrategy, SkillExtraMap } from './strategies/skill.strategy';
+import { SkillStrategy } from './strategies/skill.strategy';
 import { ImpactSkillStrategy } from './strategies/impact.strategy';
 import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
 
@@ -12,7 +12,7 @@ import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
 export class GameEngineService implements OnModuleDestroy {
   private readonly logger = new Logger(GameEngineService.name);
   private gameLoops: Map<number, NodeJS.Timeout> = new Map();
-  private skillStrategies: Map<SkillType, SkillStrategy<any>>;
+  private skillStrategies: Map<gamestate.SkillType, SkillStrategy<any>>;
 
   constructor(
     private readonly gameSessionService: GameSessionService,
@@ -20,15 +20,15 @@ export class GameEngineService implements OnModuleDestroy {
     dummyMarbleSkillStrategy: DummyMarbleSkillStrategy,
   ) {
     this.skillStrategies = new Map();
-    this.skillStrategies.set(SkillType.Impact, impactSkillStrategy);
-    this.skillStrategies.set(SkillType.DummyMarble, dummyMarbleSkillStrategy);
+    this.skillStrategies.set(gamestate.SkillType.Impact, impactSkillStrategy);
+    this.skillStrategies.set(gamestate.SkillType.DummyMarble, dummyMarbleSkillStrategy);
   }
 
-  async useSkill<T extends SkillType>(
+  async useSkill(
     roomId: number,
-    skillType: T,
-    skillPosition: SkillPosition,
-    extra: SkillExtra<T>,
+    skillType: gamestate.SkillType,
+    skillPosition: gamestate.Position,
+    extra: SkillEffect,
     userNickname?: string,
   ): Promise<void> {
     const room = this.gameSessionService.getRoom(roomId);

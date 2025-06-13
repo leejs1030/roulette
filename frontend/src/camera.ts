@@ -1,6 +1,7 @@
-import { MarbleDto, StageDef } from 'common';
+import { StageDef, gamestate } from 'common';
 import { initialZoom, zoomThreshold } from './data/constants';
-import { VectorLike } from 'common';
+
+type VectorLike = gamestate.IPosition;
 
 export class Camera {
   private _position: VectorLike = { x: 0, y: 0 };
@@ -21,13 +22,13 @@ export class Camera {
   }
 
   get x() {
-    return this._position.x;
+    return this._position.x || 0;
   }
   set x(v: number) {
     this._targetPosition.x = v;
   }
   get y() {
-    return this._position.y;
+    return this._position.y || 0;
   }
   set y(v: number) {
     this._targetPosition.y = v;
@@ -54,7 +55,7 @@ export class Camera {
     targetIndex,
     deltaTime,
   }: {
-    marbles: MarbleDto[];
+    marbles: gamestate.IMarbleDto[];
     stage: StageDef;
     targetIndex: number;
     deltaTime: number;
@@ -68,17 +69,17 @@ export class Camera {
       this._position.x += (Math.random() - 0.5) * this._shakeStrength;
       this._position.y += (Math.random() - 0.5) * this._shakeStrength;
     }
-    this._position.x = this._interpolation(this.x, this._targetPosition.x);
-    this._position.y = this._interpolation(this.y, this._targetPosition.y);
+    this._position.x = this._interpolation(this.x, this._targetPosition.x || 0);
+    this._position.y = this._interpolation(this.y, this._targetPosition.y || 0);
 
     this._zoom = this._interpolation(this._zoom, this._targetZoom);
   }
 
-  private _calcTargetPositionAndZoom(marbles: MarbleDto[], stage: StageDef, targetIndex: number) {
+  private _calcTargetPositionAndZoom(marbles: gamestate.IMarbleDto[], stage: StageDef, targetIndex: number) {
     if (marbles.length > 0) {
       const targetMarble = marbles[targetIndex] ? marbles[targetIndex] : marbles[0];
-      this.setPosition({ x: targetMarble.x, y: targetMarble.y });
-      const unpassedMarbles = marbles.filter((m) => m.y < stage.zoomY);
+      this.setPosition({ x: targetMarble.x || 0, y: targetMarble.y || 0 });
+      const unpassedMarbles = marbles.filter((m) => (m.y || 0) < stage.zoomY);
       const numberOfUnpassedMarbles = unpassedMarbles.length;
 
       if (numberOfUnpassedMarbles <= 5) {
@@ -135,16 +136,16 @@ export class Camera {
     const halfHeight = this.height / (2 * this._zoom);
 
     return {
-      left: this._position.x - halfWidth,
-      right: this._position.x + halfWidth,
-      top: this._position.y - halfHeight,
-      bottom: this._position.y + halfHeight,
+      left: (this._position.x || 0) - halfWidth,
+      right: (this._position.x || 0) + halfWidth,
+      top: (this._position.y || 0) - halfHeight,
+      bottom: (this._position.y || 0) + halfHeight,
     };
   }
 
   public getViewportInfo() {
     return {
-      position: { ...this._position },
+      position: { x: this._position.x || 0, y: this._position.y || 0 },
       zoom: this._zoom,
       size: { width: this.width, height: this.height },
       worldBounds: this.getWorldBounds(),

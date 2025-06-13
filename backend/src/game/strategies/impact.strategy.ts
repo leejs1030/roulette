@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GameRoom } from '../game-room';
-import { SkillStrategy, SkillExtraMap } from './skill.strategy';
-import { SkillPosition, SkillType } from '../types/skill.type';
-import { ImpactSkillEffect } from '../types/skill-effect.type';
+import { SkillStrategy } from './skill.strategy';
+import { gamestate, SkillType, SkillEffect } from 'common';
+import { SkillPosition } from '../types/skill.type';
 
 const IMPACT_SKILL_RADIUS = 5;
 const IMPACT_SKILL_FORCE = 10;
 
 @Injectable()
-export class ImpactSkillStrategy implements SkillStrategy<SkillType.Impact> {
+export class ImpactSkillStrategy implements SkillStrategy<gamestate.SkillType.Impact> {
   private readonly logger = new Logger(ImpactSkillStrategy.name);
 
   execute(room: GameRoom, skillPosition: SkillPosition): void {
@@ -16,9 +16,15 @@ export class ImpactSkillStrategy implements SkillStrategy<SkillType.Impact> {
     room.game.applyImpact(skillPosition, IMPACT_SKILL_RADIUS, IMPACT_SKILL_FORCE);
 
     room.game.addSkillEffect({
-      type: SkillType.Impact,
-      position: skillPosition,
-      radius: IMPACT_SKILL_RADIUS,
-    } as Omit<ImpactSkillEffect, 'id' | 'timestamp'>);
+      impactEffect: {
+        base: {
+          type: gamestate.SkillType.Impact,
+          id: '', // id는 serializer에서 생성되므로 빈 문자열로 설정
+          timestamp: Date.now(),
+        },
+        position: skillPosition,
+        radius: IMPACT_SKILL_RADIUS,
+      },
+    } as SkillEffect);
   }
 }

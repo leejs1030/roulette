@@ -1,4 +1,4 @@
-import { SkillEffect } from '../types/skill-effect.type';
+import { SkillEffect, gamestate } from 'common';
 import { v4 as uuidv4 } from 'uuid';
 
 export class SkillManager {
@@ -8,12 +8,12 @@ export class SkillManager {
     return this._skillEffects;
   }
 
-  public addSkillEffect(effectData: Omit<SkillEffect, 'id' | 'timestamp'>): void {
-    const newEffect: SkillEffect = {
+  public addSkillEffect(effectData: Omit<gamestate.ISkillEffect, 'id' | 'timestamp'>): void {
+    const newEffect: gamestate.ISkillEffect = {
       ...effectData,
       id: uuidv4(),
       timestamp: Date.now(),
-    } as SkillEffect;
+    } as gamestate.ISkillEffect;
     this._skillEffects.push(newEffect);
   }
 
