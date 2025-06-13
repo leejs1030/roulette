@@ -1,7 +1,9 @@
 import { Camera } from '../camera';
 import { initialZoom } from '../data/constants';
 import { Minimap } from '../minimap';
-import { VectorLike } from 'common';
+import { gamestate } from 'common';
+
+type VectorLike = gamestate.Position;
 
 /**
  * 모든 좌표 변환을 중앙에서 관리하는 클래스.
@@ -43,12 +45,12 @@ export class CoordinateManager {
   public screenToWorld(screenPos: VectorLike): VectorLike {
     if (!this.camera || !this.canvasRect || !this.canvasScaling) {
       console.warn('CoordinateManager is not updated. Returning zero vector.');
-      return { x: 0, y: 0 };
+      return new gamestate.Position({ x: 0, y: 0 });
     }
 
     // 1. 브라우저 화면 좌표 -> 캔버스 내부 좌표
-    const canvasX = (screenPos.x - this.canvasRect.left) * this.canvasScaling.scaleX;
-    const canvasY = (screenPos.y - this.canvasRect.top) * this.canvasScaling.scaleY;
+    const canvasX = ((screenPos.x || 0) - this.canvasRect.left) * this.canvasScaling.scaleX;
+    const canvasY = ((screenPos.y || 0) - this.canvasRect.top) * this.canvasScaling.scaleY;
 
     // 2. 캔버스 좌표 -> `initialZoom`이 적용된 렌더링 좌표
     const renderX = canvasX / initialZoom;
@@ -69,7 +71,7 @@ export class CoordinateManager {
     const worldX = unscaledX + this.camera.x;
     const worldY = unscaledY + this.camera.y;
 
-    return { x: worldX, y: worldY };
+    return new gamestate.Position({ x: worldX, y: worldY });
   }
 
   /**
@@ -80,7 +82,7 @@ export class CoordinateManager {
   public worldToScreen(worldPos: VectorLike): VectorLike {
     if (!this.camera || !this.canvasRect || !this.canvasScaling) {
       console.warn('CoordinateManager is not updated. Returning zero vector.');
-      return { x: 0, y: 0 };
+      return new gamestate.Position({ x: 0, y: 0 });
     }
 
     // 1. `renderScene` 변환 과정
@@ -89,8 +91,8 @@ export class CoordinateManager {
     const centerOffsetX = this.canvas.width / zoomFactor;
     const centerOffsetY = this.canvas.height / zoomFactor;
 
-    const translatedX = worldPos.x - this.camera.x;
-    const translatedY = worldPos.y - this.camera.y;
+    const translatedX = (worldPos.x || 0) - this.camera.x;
+    const translatedY = (worldPos.y || 0) - this.camera.y;
 
     const scaledX = translatedX * this.camera.zoom;
     const scaledY = translatedY * this.camera.zoom;
@@ -106,7 +108,7 @@ export class CoordinateManager {
     const screenX = canvasX / this.canvasScaling.scaleX + this.canvasRect.left;
     const screenY = canvasY / this.canvasScaling.scaleY + this.canvasRect.top;
 
-    return { x: screenX, y: screenY };
+    return new gamestate.Position({ x: screenX, y: screenY });
   }
 
   /**
@@ -118,10 +120,10 @@ export class CoordinateManager {
     const minimapScale = 4;
     // 미니맵의 스케일만 역으로 적용하여 월드 좌표를 구합니다.
     // 미니맵의 위치 오프셋은 미니맵 내부 좌표계에 포함되지 않습니다.
-    return {
-      x: minimapPos.x / minimapScale,
-      y: minimapPos.y / minimapScale,
-    };
+    return new gamestate.Position({
+      x: (minimapPos.x || 0) / minimapScale,
+      y: (minimapPos.y || 0) / minimapScale,
+    });
   }
 
   /**
@@ -131,9 +133,9 @@ export class CoordinateManager {
    */
   public worldToMinimap(worldPos: VectorLike): VectorLike {
     const minimapScale = 4;
-    return {
-      x: worldPos.x * minimapScale,
-      y: worldPos.y * minimapScale,
-    };
+    return new gamestate.Position({
+      x: (worldPos.x || 0) * minimapScale,
+      y: (worldPos.y || 0) * minimapScale,
+    });
   }
 }

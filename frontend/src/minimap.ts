@@ -3,8 +3,11 @@ import { RenderParameters } from './rouletteRenderer';
 import { DefaultEntityColor, initialZoom } from './data/constants';
 import { UIObject } from './UIObject';
 import { Rect } from './types/rect.type';
-import { MarbleDto, VectorLike } from 'common';
+import { gamestate } from 'common';
 import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
+
+type MarbleDto = gamestate.IMarbleDto;
+type VectorLike = gamestate.Position;
 
 export class Minimap implements UIObject {
   private ctx!: CanvasRenderingContext2D;
@@ -50,7 +53,7 @@ export class Minimap implements UIObject {
     };
     if (this._onViewportChangeHandler && this.coordinateManager) {
       this._onViewportChangeHandler(
-        this.coordinateManager.minimapToWorld(this.mousePosition as VectorLike)
+        this.coordinateManager.minimapToWorld(new gamestate.Position({ x: this.mousePosition?.x || 0, y: this.mousePosition?.y || 0 }))
       );
     }
   }
@@ -111,35 +114,39 @@ export class Minimap implements UIObject {
     this.ctx.save();
     entities.forEach((entity) => {
       this.ctx.save();
-      this.ctx.fillStyle = DefaultEntityColor[entity.shape.type];
-      this.ctx.strokeStyle = DefaultEntityColor[entity.shape.type];
-      this.ctx.translate(entity.x, entity.y);
-      this.ctx.rotate(entity.angle);
+      let shapeType: 'box' | 'circle' | 'polyline' | undefined;
+      if (entity.shape?.boxShape) {
+        shapeType = 'box';
+      } else if (entity.shape?.circleShape) {
+        shapeType = 'circle';
+      } else if (entity.shape?.polylineShape) {
+        shapeType = 'polyline';
+      }
+      this.ctx.fillStyle = DefaultEntityColor[shapeType || 'box']; // 기본값 'box'로 설정
+      this.ctx.strokeStyle = DefaultEntityColor[shapeType || 'box']; // 기본값 'box'로 설정
+      this.ctx.translate(entity.x || 0, entity.y || 0);
+      this.ctx.rotate(entity.angle || 0);
 
       this.ctx.save();
       const shape = entity.shape;
-      switch (shape.type) {
-        case 'box':
-          const w = shape.width;
-          const h = shape.height;
-          this.ctx.rotate(shape.rotation);
-          this.ctx.fillRect(-w / 2, -h / 2, w, h);
-          break;
-        case 'circle':
+      if (shape?.boxShape) {
+        const w = shape.boxShape.width || 0;
+        const h = shape.boxShape.height || 0;
+        this.ctx.rotate(shape.boxShape.rotation || 0);
+        this.ctx.fillRect(-w / 2, -h / 2, w, h);
+      } else if (shape?.circleShape) {
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, shape.circleShape.radius || 0, 0, Math.PI * 2, false);
+        this.ctx.stroke();
+      } else if (shape?.polylineShape) {
+        if (shape.polylineShape.points && shape.polylineShape.points.length > 0) {
           this.ctx.beginPath();
-          this.ctx.arc(0, 0, shape.radius, 0, Math.PI * 2, false);
-          this.ctx.stroke();
-          break;
-        case 'polyline':
-          if (shape.points.length > 0) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(shape.points[0][0], shape.points[0][1]);
-            for(let i = 1; i < shape.points.length; i++) {
-              this.ctx.lineTo(shape.points[i][0], shape.points[i][1]);
-            }
-            this.ctx.stroke();
+          this.ctx.moveTo(shape.polylineShape.points[0].x || 0, shape.polylineShape.points[0].y || 0);
+          for (let i = 1; i < shape.polylineShape.points.length; i++) {
+            this.ctx.lineTo(shape.polylineShape.points[i].x || 0, shape.polylineShape.points[i].y || 0);
           }
-          break;
+          this.ctx.stroke();
+        }
       }
       this.ctx.restore();
       this.ctx.restore();
@@ -152,9 +159,9 @@ export class Minimap implements UIObject {
     this.ctx.save();
     marbles.forEach((marbleState: MarbleDto) => {
       this.ctx.beginPath();
-      const minimapRadius = Math.max(0.5, marbleState.radius * 0.5);
-      this.ctx.arc(marbleState.x, marbleState.y, minimapRadius, 0, Math.PI * 2, false);
-      this.ctx.fillStyle = marbleState.color;
+      const minimapRadius = Math.max(0.5, (marbleState.radius || 0) * 0.5);
+      this.ctx.arc(marbleState.x || 0, marbleState.y || 0, minimapRadius, 0, Math.PI * 2, false);
+      this.ctx.fillStyle = marbleState.color || 'black';
       this.ctx.fill();
     });
     this.ctx.restore();

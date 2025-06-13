@@ -2,7 +2,9 @@ import { useState, useCallback } from 'react';
 import socketService from '../services/socketService';
 import { Skills } from '../types/gameTypes';
 import { Roulette } from '../roulette';
-import { GameStateDto } from 'common';
+import { gamestate } from 'common';
+
+type GameStateDto = gamestate.IGameStateDto;
 
 export const useSkillHandler = (
   rouletteInstance: Roulette | null,
@@ -28,22 +30,25 @@ export const useSkillHandler = (
 
       const skillPosition = rouletteInstance
         .getCoordinateManager()
-        .screenToWorld({ x: event.clientX, y: event.clientY });
+        .screenToWorld(new gamestate.Position({ x: event.clientX, y: event.clientY }));
       let extra: any = {};
+      let skillTypeToSend: gamestate.SkillType;
 
       switch (selectedSkill) {
         case Skills.Impact:
-          extra = { radius: 5 };
+          skillTypeToSend = gamestate.SkillType.Impact;
+          extra = { impactEffect: { base: { type: gamestate.SkillType.Impact }, position: skillPosition, radius: 5 } };
           break;
         case Skills.DummyMarble:
-          extra = { count: 3 };
+          skillTypeToSend = gamestate.SkillType.DummyMarble;
+          extra = { dummyMarbleEffect: { base: { type: gamestate.SkillType.DummyMarble } } };
           break;
         default:
-          break;
+          return; // No skill selected
       }
 
       try {
-        await socketService.useSkill(selectedSkill, skillPosition, extra);
+        await socketService.useSkill(skillTypeToSend, skillPosition, extra);
         setSelectedSkill(Skills.None); // Reset skill after use
       } catch (error) {
         console.error('Failed to use skill:', error);

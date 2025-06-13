@@ -4,7 +4,10 @@ import socketService from '../services/socketService';
 import { getRoomDetails, getRoomGameDetails, getGameRanking } from '../services/api';
 import { RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from '../types/gameTypes';
 import { Roulette } from '../roulette';
-import { GameStateDto } from 'common';
+import { gamestate } from 'common';
+import { ServerSkillEffect, ImpactSkillEffectFromServer, DummyMarbleSkillEffectFromServer } from '../types/skillTypes';
+
+type GameStateDto = gamestate.IGameStateDto;
 
 export const useSocketManager = (roomId: string | undefined, rouletteInstance: Roulette | null) => {
   const navigate = useNavigate();
@@ -117,7 +120,25 @@ export const useSocketManager = (roomId: string | undefined, rouletteInstance: R
       setGameState(newState);
       rouletteInstance.updateStateFromServer(newState);
       if (newState.skillEffects) {
-        rouletteInstance.processServerSkillEffects(newState.skillEffects);
+        // gamestate.ISkillEffect[]를 ServerSkillEffect[]로 변환
+        const serverSkillEffects: ServerSkillEffect[] = newState.skillEffects.map(effect => {
+          if (effect.impactEffect) {
+            const impactEffectInstance = new gamestate.ImpactSkillEffect(effect.impactEffect);
+            return {
+              ...impactEffectInstance,
+              type: gamestate.SkillType.Impact,
+              radius: effect.impactEffect.radius || 0,
+            } as ImpactSkillEffectFromServer;
+          } else if (effect.dummyMarbleEffect) {
+            const dummyMarbleEffectInstance = new gamestate.DummyMarbleSkillEffect(effect.dummyMarbleEffect);
+            return {
+              ...dummyMarbleEffectInstance,
+              type: gamestate.SkillType.DummyMarble,
+            } as DummyMarbleSkillEffectFromServer;
+          }
+          return {} as ServerSkillEffect; // Fallback, should not happen
+        });
+        rouletteInstance.processServerSkillEffects(serverSkillEffects);
       }
       if (newState.isRunning) {
         setGameDetails((prevDetails) => {

@@ -6,6 +6,7 @@ import { prefixGameRoomId } from '../utils/roomId.util';
 import { GameSessionService } from '../game-session.service';
 import { GameEngineService } from '../game-engine.service';
 import { UseSkillDto } from '../dto/use-skill.dto';
+import { gamestate } from 'common';
 
 @Injectable()
 export class GameSkillHandler {
@@ -42,7 +43,7 @@ export class GameSkillHandler {
       );
 
       // gameEngineService에 스킬 발동 로직 위임 (사용자 닉네임 전달)
-      await this.gameEngineService.useSkill(roomId, skillType, skillPosition, extra, user.nickname);
+      await this.gameEngineService.useSkill(roomId, skillType, skillPosition as gamestate.Position, extra, user.nickname);
 
       // 스킬 발동 후 게임 상태 업데이트 및 클라이언트에게 전파
       this.gameSessionService.broadcastGameStateToRoom(roomId);

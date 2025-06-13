@@ -1,11 +1,11 @@
 import { StageDef, gamestate } from 'common';
 import { initialZoom, zoomThreshold } from './data/constants';
 
-type VectorLike = gamestate.IPosition;
+type VectorLike = gamestate.Position;
 
 export class Camera {
-  private _position: VectorLike = { x: 0, y: 0 };
-  private _targetPosition: VectorLike = { x: 0, y: 0 };
+  private _position: VectorLike = new gamestate.Position({ x: 0, y: 0 });
+  private _targetPosition: VectorLike = new gamestate.Position({ x: 0, y: 0 });
   private _zoom: number = 1;
   private _targetZoom: number = 1;
   private _locked = false;
@@ -40,9 +40,9 @@ export class Camera {
 
   setPosition(v: VectorLike, force: boolean = false) {
     if (force) {
-      return (this._position = { x: v.x, y: v.y });
+      return (this._position = new gamestate.Position({ x: v.x, y: v.y }));
     }
-    return (this._targetPosition = { x: v.x, y: v.y });
+    return (this._targetPosition = new gamestate.Position({ x: v.x, y: v.y }));
   }
 
   lock(v: boolean) {
@@ -66,8 +66,8 @@ export class Camera {
 
     if (this._shakeDuration > 0) {
       this._shakeDuration -= deltaTime;
-      this._position.x += (Math.random() - 0.5) * this._shakeStrength;
-      this._position.y += (Math.random() - 0.5) * this._shakeStrength;
+      this._position.x = (this._position.x || 0) + (Math.random() - 0.5) * this._shakeStrength;
+      this._position.y = (this._position.y || 0) + (Math.random() - 0.5) * this._shakeStrength;
     }
     this._position.x = this._interpolation(this.x, this._targetPosition.x || 0);
     this._position.y = this._interpolation(this.y, this._targetPosition.y || 0);
@@ -78,7 +78,7 @@ export class Camera {
   private _calcTargetPositionAndZoom(marbles: gamestate.IMarbleDto[], stage: StageDef, targetIndex: number) {
     if (marbles.length > 0) {
       const targetMarble = marbles[targetIndex] ? marbles[targetIndex] : marbles[0];
-      this.setPosition({ x: targetMarble.x || 0, y: targetMarble.y || 0 });
+      this.setPosition(new gamestate.Position({ x: targetMarble.x || 0, y: targetMarble.y || 0 }));
       const unpassedMarbles = marbles.filter((m) => (m.y || 0) < stage.zoomY);
       const numberOfUnpassedMarbles = unpassedMarbles.length;
 
@@ -89,7 +89,7 @@ export class Camera {
         this.zoom = 1;
       }
     } else {
-      this.setPosition({ x: 0, y: 0 });
+      this.setPosition(new gamestate.Position({ x: 0, y: 0 }));
       this.zoom = 1;
     }
   }
@@ -145,7 +145,7 @@ export class Camera {
 
   public getViewportInfo() {
     return {
-      position: { x: this._position.x || 0, y: this._position.y || 0 },
+      position: new gamestate.Position({ x: this._position.x || 0, y: this._position.y || 0 }),
       zoom: this._zoom,
       size: { width: this.width, height: this.height },
       worldBounds: this.getWorldBounds(),

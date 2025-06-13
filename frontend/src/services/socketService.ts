@@ -1,6 +1,8 @@
 import { io, Socket } from 'socket.io-client';
 import { MapInfo } from '../types/gameTypes';
-import { GameStateDto, deserializeGameStateFromBase64 } from 'common/dist';
+import { gamestate, deserializeGameStateFromBase64 } from 'common';
+
+type GameStateDto = gamestate.IGameStateDto;
 
 interface PlayerJoinedData {
   playerId: string;
@@ -283,9 +285,9 @@ class SocketService {
   }
 
   public async useSkill(
-    skillType: string,
-    skillPosition: { x: number; y: number },
-    extra: any,
+    skillType: gamestate.SkillType,
+    skillPosition: gamestate.IPosition,
+    extra: gamestate.ISkillEffect,
   ): Promise<{ success: boolean; message?: string }> {
     if (!this.socket || !this.currentRoomId) {
       console.warn('socketService: Cannot use skill, socket not connected or not in a room.');

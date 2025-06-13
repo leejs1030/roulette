@@ -8,12 +8,7 @@ import { RankRenderer } from './rankRenderer';
 import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
 import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
-import {
-  ServerSkillType,
-  ServerSkillEffect,
-  FrontendSkillEffectWrapper,
-  ImpactSkillEffectFromServer,
-} from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
+import { ServerSkillEffect, FrontendSkillEffectWrapper } from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
 import { CoordinateManager } from './utils/coordinate-manager';
 
 export class Roulette extends EventTarget {
@@ -67,7 +62,7 @@ export class Roulette extends EventTarget {
     }
     const now = Date.now();
     serverEffects.forEach((serverEffect) => {
-      if (!this._activeSkillEffects.some((e) => e.id === serverEffect.id)) {
+      if (!this._activeSkillEffects.some((e) => e.id === serverEffect.base?.id)) {
         let duration = 0;
         switch (serverEffect.type) {
           case gamestate.SkillType.Impact:
@@ -81,7 +76,7 @@ export class Roulette extends EventTarget {
         }
 
         this._activeSkillEffects.push({
-          id: serverEffect.id,
+          id: serverEffect.base?.id || '',
           type: serverEffect.type,
           serverEffectData: serverEffect,
           startTime: now,
@@ -177,7 +172,7 @@ export class Roulette extends EventTarget {
       skillEffects: this._activeSkillEffects,
       winnerRank: this._winnerRank,
       winner: this._winner,
-      size: { x: this._renderer.width, y: this._renderer.height },
+      size: new gamestate.Position({ x: this._renderer.width, y: this._renderer.height }),
     };
     if (this._marbles.length > 0 || this._mapEntitiesState.length > 0 || this._activeSkillEffects.length > 0) {
     }

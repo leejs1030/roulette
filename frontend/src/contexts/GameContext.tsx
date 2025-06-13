@@ -5,7 +5,9 @@ import { CoordinateManager } from '../utils/coordinate-manager';
 import { useAuth } from './AuthContext';
 import { useSocketManager } from '../hooks/useSocketManager';
 import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
-import { GameStateDto } from 'common';
+import { gamestate } from 'common';
+
+type GameStateDto = gamestate.IGameStateDto;
 
 interface GameContextType {
   roomId: string | undefined;

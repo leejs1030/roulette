@@ -6,10 +6,12 @@ export type SkillEffectBase = gamestate.ISkillEffectBase;
 
 export interface ImpactSkillEffectFromServer extends gamestate.ImpactSkillEffect {
   type: gamestate.SkillType.Impact;
+  toJSON: () => { [k: string]: any }; // toJSON 메서드 필수
 }
 
 export interface DummyMarbleSkillEffectFromServer extends gamestate.DummyMarbleSkillEffect {
   type: gamestate.SkillType.DummyMarble;
+  toJSON: () => { [k: string]: any }; // toJSON 메서드 필수
 }
 
 export type ServerSkillEffect = ImpactSkillEffectFromServer | DummyMarbleSkillEffectFromServer;
