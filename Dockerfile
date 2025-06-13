@@ -55,10 +55,9 @@ COPY --from=build /app/yarn.lock ./yarn.lock
 COPY --from=build /app/backend/package.json ./backend/package.json
 COPY --from=build /app/backend/dist ./backend/dist
 
-# Copy prisma schema if it's needed at runtime by your application
-# (e.g., for migrations status, though migrations are usually run separately)
-# The prisma client itself is within node_modules.
-# COPY --from=build /app/backend/prisma/schema.prisma ./backend/prisma/schema.prisma
+# Copy the entire prisma directory (schema and migrations) from the build stage
+# This is crucial for `prisma migrate deploy` to work in the entrypoint script.
+COPY --from=build /app/backend/prisma ./backend/prisma
 
 # Copy the entrypoint script from the backend directory
 COPY backend/entrypoint.sh /app/backend/entrypoint.sh
