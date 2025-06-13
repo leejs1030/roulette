@@ -20,13 +20,13 @@ export const gamestate = $root.gamestate = (() => {
      * SkillType enum.
      * @name gamestate.SkillType
      * @enum {number}
-     * @property {number} SKILL_TYPE_IMPACT=0 SKILL_TYPE_IMPACT value
-     * @property {number} SKILL_TYPE_DUMMY_MARBLE=1 SKILL_TYPE_DUMMY_MARBLE value
+     * @property {number} Impact=0 Impact value
+     * @property {number} DummyMarble=1 DummyMarble value
      */
     gamestate.SkillType = (function() {
         const valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[0] = "SKILL_TYPE_IMPACT"] = 0;
-        values[valuesById[1] = "SKILL_TYPE_DUMMY_MARBLE"] = 1;
+        values[valuesById[0] = "Impact"] = 0;
+        values[valuesById[1] = "DummyMarble"] = 1;
         return values;
     })();
 
@@ -263,15 +263,15 @@ export const gamestate = $root.gamestate = (() => {
      * EntityShapeType enum.
      * @name gamestate.EntityShapeType
      * @enum {number}
-     * @property {number} ENTITY_SHAPE_BOX=0 ENTITY_SHAPE_BOX value
-     * @property {number} ENTITY_SHAPE_CIRCLE=1 ENTITY_SHAPE_CIRCLE value
-     * @property {number} ENTITY_SHAPE_POLYLINE=2 ENTITY_SHAPE_POLYLINE value
+     * @property {number} box=0 box value
+     * @property {number} circle=1 circle value
+     * @property {number} polyline=2 polyline value
      */
     gamestate.EntityShapeType = (function() {
         const valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[0] = "ENTITY_SHAPE_BOX"] = 0;
-        values[valuesById[1] = "ENTITY_SHAPE_CIRCLE"] = 1;
-        values[valuesById[2] = "ENTITY_SHAPE_POLYLINE"] = 2;
+        values[valuesById[0] = "box"] = 0;
+        values[valuesById[1] = "circle"] = 1;
+        values[valuesById[2] = "polyline"] = 2;
         return values;
     })();
 
@@ -493,15 +493,15 @@ export const gamestate = $root.gamestate = (() => {
                     break;
                 }
                 break;
-            case "ENTITY_SHAPE_BOX":
+            case "box":
             case 0:
                 message.type = 0;
                 break;
-            case "ENTITY_SHAPE_CIRCLE":
+            case "circle":
             case 1:
                 message.type = 1;
                 break;
-            case "ENTITY_SHAPE_POLYLINE":
+            case "polyline":
             case 2:
                 message.type = 2;
                 break;
@@ -529,7 +529,7 @@ export const gamestate = $root.gamestate = (() => {
                 options = {};
             let object = {};
             if (options.defaults) {
-                object.type = options.enums === String ? "ENTITY_SHAPE_BOX" : 0;
+                object.type = options.enums === String ? "box" : 0;
                 object.width = 0;
                 object.height = 0;
                 object.rotation = 0;
@@ -756,15 +756,15 @@ export const gamestate = $root.gamestate = (() => {
                     break;
                 }
                 break;
-            case "ENTITY_SHAPE_BOX":
+            case "box":
             case 0:
                 message.type = 0;
                 break;
-            case "ENTITY_SHAPE_CIRCLE":
+            case "circle":
             case 1:
                 message.type = 1;
                 break;
-            case "ENTITY_SHAPE_POLYLINE":
+            case "polyline":
             case 2:
                 message.type = 2;
                 break;
@@ -788,7 +788,7 @@ export const gamestate = $root.gamestate = (() => {
                 options = {};
             let object = {};
             if (options.defaults) {
-                object.type = options.enums === String ? "ENTITY_SHAPE_BOX" : 0;
+                object.type = options.enums === String ? "box" : 0;
                 object.radius = 0;
             }
             if (message.type != null && message.hasOwnProperty("type"))
@@ -1266,15 +1266,15 @@ export const gamestate = $root.gamestate = (() => {
                     break;
                 }
                 break;
-            case "ENTITY_SHAPE_BOX":
+            case "box":
             case 0:
                 message.type = 0;
                 break;
-            case "ENTITY_SHAPE_CIRCLE":
+            case "circle":
             case 1:
                 message.type = 1;
                 break;
-            case "ENTITY_SHAPE_POLYLINE":
+            case "polyline":
             case 2:
                 message.type = 2;
                 break;
@@ -1310,7 +1310,7 @@ export const gamestate = $root.gamestate = (() => {
             if (options.arrays || options.defaults)
                 object.points = [];
             if (options.defaults) {
-                object.type = options.enums === String ? "ENTITY_SHAPE_BOX" : 0;
+                object.type = options.enums === String ? "box" : 0;
                 object.rotation = 0;
             }
             if (message.type != null && message.hasOwnProperty("type"))
@@ -2157,11 +2157,11 @@ export const gamestate = $root.gamestate = (() => {
                     break;
                 }
                 break;
-            case "SKILL_TYPE_IMPACT":
+            case "Impact":
             case 0:
                 message.type = 0;
                 break;
-            case "SKILL_TYPE_DUMMY_MARBLE":
+            case "DummyMarble":
             case 1:
                 message.type = 1;
                 break;
@@ -2193,7 +2193,7 @@ export const gamestate = $root.gamestate = (() => {
             let object = {};
             if (options.defaults) {
                 object.id = "";
-                object.type = options.enums === String ? "SKILL_TYPE_IMPACT" : 0;
+                object.type = options.enums === String ? "Impact" : 0;
                 if ($util.Long) {
                     let long = new $util.Long(0, 0, false);
                     object.timestamp = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;

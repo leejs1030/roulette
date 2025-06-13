@@ -5,8 +5,8 @@ export namespace gamestate {
 
     /** SkillType enum. */
     enum SkillType {
-        SKILL_TYPE_IMPACT = 0,
-        SKILL_TYPE_DUMMY_MARBLE = 1
+        Impact = 0,
+        DummyMarble = 1
     }
 
     /** Properties of a Position. */
@@ -114,9 +114,9 @@ export namespace gamestate {
 
     /** EntityShapeType enum. */
     enum EntityShapeType {
-        ENTITY_SHAPE_BOX = 0,
-        ENTITY_SHAPE_CIRCLE = 1,
-        ENTITY_SHAPE_POLYLINE = 2
+        box = 0,
+        circle = 1,
+        polyline = 2
     }
 
     /** Properties of an EntityBoxShape. */
