@@ -60,9 +60,18 @@ COPY --from=build /app/backend/dist ./backend/dist
 # The prisma client itself is within node_modules.
 # COPY --from=build /app/backend/prisma/schema.prisma ./backend/prisma/schema.prisma
 
+# Copy the entrypoint script from the backend directory
+COPY backend/entrypoint.sh /app/backend/entrypoint.sh
+# Make the entrypoint script executable
+RUN chmod +x /app/backend/entrypoint.sh
+
 # Expose port (default NestJS port is 3000, update if different)
 EXPOSE 3000
 
-# Command to run the backend application
-# This uses "start:prod": "node dist/main" from backend/package.json
-CMD ["node", "backend/dist/main.js"]
+# Set the entrypoint script
+ENTRYPOINT ["/app/backend/entrypoint.sh"]
+# The CMD is now effectively handled by the exec line in entrypoint.sh
+# If entrypoint.sh didn't have `exec node backend/dist/main.js`, 
+# you would keep CMD ["node", "backend/dist/main.js"] or similar here.
+# For this setup, an empty CMD or omitting it is also fine as entrypoint.sh uses exec.
+CMD []
