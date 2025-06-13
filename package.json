@@ -47,7 +47,6 @@
   },
   "scripts": {
     "dev": "yarn workspace common build && concurrently \"yarn:dev:*\"",
-    "dev:common": "yarn workspace common build --watch",
     "dev:backend": "yarn workspace backend start:dev",
     "dev:frontend": "yarn workspace frontend start",
     "build": "yarn workspace common build && concurrently \"yarn:build:*\"",
