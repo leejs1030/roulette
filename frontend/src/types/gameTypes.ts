@@ -20,9 +20,6 @@ export {
   UserPublicInfo,
 };
 
-type MarbleDto = gamestate.IMarbleDto;
-type GameStateDto = gamestate.IGameStateDto;
-
 export interface GameInfo {
   id: number;
   status: GameStatus;

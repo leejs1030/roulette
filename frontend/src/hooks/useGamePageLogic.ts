@@ -25,9 +25,7 @@ export const useGamePageLogic = () => {
   const [passwordInput, setPasswordInput] = useState('');
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  const { namesInput, handleNamesChange, shuffleNames } = useParticipantManager(
-    gameDetails?.marbles?.join(',') || '',
-  );
+  const { namesInput, handleNamesChange, shuffleNames } = useParticipantManager(gameDetails?.marbles?.join(',') || '');
 
   const marbleCount = gameState?.totalMarbleCount || 0;
   const {
@@ -45,10 +43,7 @@ export const useGamePageLogic = () => {
     startGame,
   } = useGameSettings(gameDetails, rouletteInstance, marbleCount);
 
-  const { selectedSkill, handleSkillSelect, handleCanvasClick } = useSkillHandler(
-    rouletteInstance,
-    gameState,
-  );
+  const { selectedSkill, handleSkillSelect, handleCanvasClick } = useSkillHandler(rouletteInstance, gameState);
 
   useEffect(() => {
     if (finalRanking && finalRanking.length > 0) {
@@ -84,7 +79,8 @@ export const useGamePageLogic = () => {
     onShuffleClick: shuffleNames,
     onStartClick: startGame,
     onSkillChange: (e: React.ChangeEvent<HTMLInputElement>) => handleSkillChange(e.target.checked),
-    onWinningRankChange: (e: React.ChangeEvent<HTMLInputElement>) => handleWinningRankChange(parseInt(e.target.value, 10)),
+    onWinningRankChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+      handleWinningRankChange(parseInt(e.target.value, 10)),
     onFirstWinnerClick: selectFirstWinner,
     onLastWinnerClick: selectLastWinner,
     onMapChange: (e: React.ChangeEvent<HTMLSelectElement>) => handleMapChange(parseInt(e.target.value, 10)),

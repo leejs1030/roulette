@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../services/socketService';
 import { getRoomDetails, getRoomGameDetails, getGameRanking } from '../services/api';
-import { RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from '../types/gameTypes';
+import { RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from 'common';
 import { Roulette } from '../roulette';
 import { gamestate } from 'common';
 import { ServerSkillEffect, ImpactSkillEffectFromServer, DummyMarbleSkillEffectFromServer } from '../types/skillTypes';

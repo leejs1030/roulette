@@ -4,8 +4,7 @@ import { Roulette } from '../roulette';
 import { CoordinateManager } from '../utils/coordinate-manager';
 import { useAuth } from './AuthContext';
 import { useSocketManager } from '../hooks/useSocketManager';
-import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
-import { gamestate } from 'common';
+import { RoomInfo, RankingEntry, GameInfo, MapInfo, gamestate } from 'common';
 
 type GameStateDto = gamestate.IGameStateDto;
 
@@ -52,14 +51,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSocketManagerIsManager(newIsManager);
   }, [user, roomDetails, setSocketManagerIsManager]);
 
-  const initializeGame = useCallback(async (container: HTMLDivElement) => {
-    if (!rouletteInstance) {
-      const coordinateManager = new CoordinateManager();
-      const newRoulette = new Roulette(coordinateManager);
-      await newRoulette.initialize(container);
-      setRouletteInstance(newRoulette);
-    }
-  }, [rouletteInstance]);
+  const initializeGame = useCallback(
+    async (container: HTMLDivElement) => {
+      if (!rouletteInstance) {
+        const coordinateManager = new CoordinateManager();
+        const newRoulette = new Roulette(coordinateManager);
+        await newRoulette.initialize(container);
+        setRouletteInstance(newRoulette);
+      }
+    },
+    [rouletteInstance],
+  );
 
   const contextValue: GameContextType = {
     roomId,

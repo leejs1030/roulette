@@ -10,6 +10,8 @@ export interface GameInfo {
   speed: number | null;
   createdAt: string;
   updatedAt: string;
+  useSkills: boolean;
+  autoRecording: boolean;
 }
 
 export interface RoomInfo {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import socketService from '../services/socketService';
-import { GameInfo } from '../types/gameTypes';
+import { GameInfo } from 'common';
 import { Roulette } from '../roulette';
 
 export const useGameSettings = (
@@ -43,10 +43,13 @@ export const useGameSettings = (
     setUseSkills(enabled);
   }, []);
 
-  const handleAutoRecordingChange = useCallback((enabled: boolean) => {
-    setAutoRecording(!!enabled);
-    rouletteInstance?.setAutoRecording(!!enabled);
-  }, [rouletteInstance]);
+  const handleAutoRecordingChange = useCallback(
+    (enabled: boolean) => {
+      setAutoRecording(!!enabled);
+      rouletteInstance?.setAutoRecording(!!enabled);
+    },
+    [rouletteInstance],
+  );
 
   const handleWinningRankChange = useCallback((rank: number) => {
     const newRank = Math.max(1, rank);

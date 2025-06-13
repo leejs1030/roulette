@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { GameInfo, GameStatus } from '../../../types/gameTypes';
+import { GameInfo, GameStatus } from 'common';
 
 interface GameActionsProps {
   gameDetails: GameInfo | null;
