@@ -15,14 +15,11 @@ COPY tsconfig.base.json ./
 COPY backend/package.json ./backend/package.json
 # Copy frontend package.json for full workspace context if needed by yarn install
 COPY frontend/package.json ./frontend/package.json
-
+# Copy the yarn workspace config
+COPY common/package.json ./common/package.json
 # Copy the Prisma schema for the backend, as it's needed for 'prisma generate' during install
 COPY backend/prisma ./backend/prisma
 
-# Copy common workspace files needed for 'yarn install' and 'common' build
-COPY common/package.json ./common/package.json
-COPY common/tsconfig.json ./common/tsconfig.json
-COPY common/src ./common/src
 
 # Install all dependencies using Yarn workspaces
 # This will also trigger the postinstall script: "yarn workspace backend prisma generate"
@@ -32,17 +29,16 @@ RUN yarn install --frozen-lockfile --network-timeout 100000
 FROM base AS build
 WORKDIR /app
 
-# Copy source code for backend and common first from the build context
-COPY backend ./backend/
-COPY common ./common/ 
-# This common is source, common/dist will come from deps
-COPY package.json yarn.lock tsconfig.base.json ./
-
-# Copy pre-built node_modules from the deps stage
+# Copy necessary artifacts from the build stage
 COPY --from=deps /app/node_modules ./node_modules
-# Crucially, copy the pre-built common/dist from the deps stage
-COPY --from=deps /app/common/dist ./common/dist/
+COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/yarn.lock ./yarn.lock
+COPY --from=deps /app/tsconfig.base.json ./tsconfig.base.json
+COPY --from=deps /app/backend ./backend
+COPY --from=deps /app/frontend ./frontend 
+COPY --from=deps /app/common ./common
 
+COPY . .
 # Build the backend application
 # This uses the script "build:backend": "yarn workspace backend build" from root package.json
 RUN yarn build:backend
