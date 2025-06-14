@@ -43,8 +43,8 @@ COPY --from=deps /app/frontend ./frontend
 COPY . .
 
 # Build the backend application
-# This uses the script "backend:build": "yarn workspace backend build" from root package.json
-RUN yarn backend:build
+# This uses the script "build:backend": "yarn workspace backend build" from root package.json
+RUN yarn build:backend
 
 # 4. Runner
 FROM node:22-alpine AS runner
