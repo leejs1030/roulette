@@ -16,7 +16,7 @@ COPY backend/package.json ./backend/package.json
 # Copy frontend package.json for full workspace context if needed by yarn install
 COPY frontend/package.json ./frontend/package.json
 # Copy the yarn workspace config
-COPY common/package.json ./common/package.json
+COPY common ./common
 # Copy the Prisma schema for the backend, as it's needed for 'prisma generate' during install
 COPY backend/prisma ./backend/prisma
 
