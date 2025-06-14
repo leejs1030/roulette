@@ -40,8 +40,8 @@ COPY --from=deps /app/common ./common
 
 COPY . .
 # Build the backend application
-# This uses the script "build:backend": "yarn workspace backend build" from root package.json
-RUN yarn build
+RUN yarn workspace common build
+RUN yarn workspace backend build
 
 # 4. Runner
 FROM node:22-alpine AS runner
