@@ -35,12 +35,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
 COPY --from=deps /app/yarn.lock ./yarn.lock
 COPY --from=deps /app/tsconfig.base.json ./tsconfig.base.json
-COPY --from=deps /app/backend ./backend
-COPY --from=deps /app/frontend ./frontend 
-# Copy frontend as well for full workspace context
+# COPY --from=deps /app/backend ./backend # Not strictly necessary as COPY . . brings full source
+# COPY --from=deps /app/frontend ./frontend # Not needed for backend build anyway
 
-# Copy the rest of the source code
+# Copy all source code from the build context (your repo)
 COPY . .
+
+# After copying all source, specifically copy the 'common' directory from the 'deps' stage.
+# This ensures that /app/common in this build stage includes the 'common/dist'
+# directory created during the 'yarn install' (and its postinstall script) in the 'deps' stage.
+COPY --from=deps /app/common ./common/
 
 # Build the backend application
 # This uses the script "build:backend": "yarn workspace backend build" from root package.json
