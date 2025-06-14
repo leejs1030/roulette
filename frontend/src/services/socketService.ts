@@ -58,8 +58,9 @@ class SocketService {
 
       this.isConnecting = true;
 
-      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host_port = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+      const apiUrlFromEnv = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+      const protocol = apiUrlFromEnv.startsWith('https://') ? 'wss:' : 'ws:';
+      const host_port = apiUrlFromEnv.replace(/^https?:\/\//, '');
       const socketUrl = `${protocol}//${host_port}/game`;
       console.log(`Connecting to socket server at ${socketUrl} for room ${roomId}...`);
       const token = localStorage.getItem('access_token');
