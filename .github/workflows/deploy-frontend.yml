@@ -37,7 +37,7 @@ jobs:
         working-directory: ./frontend
         run: yarn build
         env:
-          REACT_APP_API_URL: https://${{ secrets.EC2_HOST_BACKEND }}
+          REACT_APP_API_URL: http://team-tak.shop
 
       - name: Deploy to S3
         working-directory: ./frontend
