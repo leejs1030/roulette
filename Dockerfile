@@ -31,20 +31,17 @@ RUN yarn install --frozen-lockfile --network-timeout 100000
 # 3. Build
 FROM base AS build
 WORKDIR /app
+
+# Copy source code for backend and common first from the build context
+COPY backend ./backend/
+COPY common ./common/ 
+# This common is source, common/dist will come from deps
+COPY package.json yarn.lock tsconfig.base.json ./
+
+# Copy pre-built node_modules from the deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package.json ./package.json
-COPY --from=deps /app/yarn.lock ./yarn.lock
-COPY --from=deps /app/tsconfig.base.json ./tsconfig.base.json
-# COPY --from=deps /app/backend ./backend # Not strictly necessary as COPY . . brings full source
-# COPY --from=deps /app/frontend ./frontend # Not needed for backend build anyway
-
-# Copy all source code from the build context (your repo)
-COPY . .
-
-# After copying all source, specifically copy the 'common' directory from the 'deps' stage.
-# This ensures that /app/common in this build stage includes the 'common/dist'
-# directory created during the 'yarn install' (and its postinstall script) in the 'deps' stage.
-COPY --from=deps /app/common ./common/
+# Crucially, copy the pre-built common/dist from the deps stage
+COPY --from=deps /app/common/dist ./common/dist/
 
 # Build the backend application
 # This uses the script "build:backend": "yarn workspace backend build" from root package.json
