@@ -19,6 +19,11 @@ COPY frontend/package.json ./frontend/package.json
 # Copy the Prisma schema for the backend, as it's needed for 'prisma generate' during install
 COPY backend/prisma ./backend/prisma
 
+# Copy common workspace files needed for 'yarn install' and 'common' build
+COPY common/package.json ./common/package.json
+COPY common/tsconfig.json ./common/tsconfig.json
+COPY common/src ./common/src
+
 # Install all dependencies using Yarn workspaces
 # This will also trigger the postinstall script: "yarn workspace backend prisma generate"
 RUN yarn install --frozen-lockfile --network-timeout 100000
