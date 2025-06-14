@@ -4,13 +4,14 @@ import { Roulette } from '../roulette';
 import { CoordinateManager } from '../utils/coordinate-manager';
 import { useAuth } from './AuthContext';
 import { useSocketManager } from '../hooks/useSocketManager';
-import { GameState, RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
+import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
+import { GameStateDto } from 'common';
 
 interface GameContextType {
   roomId: string | undefined;
   roomDetails: RoomInfo | null;
   gameDetails: GameInfo | null;
-  gameState: GameState | null;
+  gameState: GameStateDto | null;
   isManager: boolean;
   finalRanking: RankingEntry[] | null;
   showPasswordModal: boolean;

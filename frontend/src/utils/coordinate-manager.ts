@@ -1,7 +1,7 @@
 import { Camera } from '../camera';
 import { initialZoom } from '../data/constants';
 import { Minimap } from '../minimap';
-import { VectorLike } from '../types/VectorLike';
+import { VectorLike } from 'common';
 
 /**
  * 모든 좌표 변환을 중앙에서 관리하는 클래스.
@@ -50,9 +50,11 @@ export class CoordinateManager {
     const canvasX = (screenPos.x - this.canvasRect.left) * this.canvasScaling.scaleX;
     const canvasY = (screenPos.y - this.canvasRect.top) * this.canvasScaling.scaleY;
 
-    // 2. 캔버스 좌표 -> `initialZoom`이 적용된 렌더링 좌표
-    const renderX = canvasX / initialZoom;
-    const renderY = canvasY / initialZoom;
+    const currentZoom = this.camera.zoom * initialZoom;
+
+    // 2. 캔버스 좌표 -> `currentZoom`이 적용된 렌더링 좌표
+    const renderX = canvasX / currentZoom;
+    const renderY = canvasY / currentZoom;
 
     // 3. `renderScene` 변환의 역과정
     const centerOffsetDivisor = 2;

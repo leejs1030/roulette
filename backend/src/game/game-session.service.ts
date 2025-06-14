@@ -6,6 +6,7 @@ import { prefixGameRoomId } from './utils/roomId.util';
 import { GamePersistenceService } from './game-persistence.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GameRoom } from './game-room';
+import { serializeGameStateToBase64 } from 'common';
 
 @Injectable()
 export class GameSessionService {
@@ -43,7 +44,9 @@ export class GameSessionService {
       this.logger.log(`Room ${roomId} successfully loaded from DB and configured in memory.`);
       return room;
     } catch (error) {
-      this.logger.error(`Error configuring game room ${roomId} from DB data: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Error configuring game room ${roomId} from DB data: ${error instanceof Error ? error.message : String(error)}`,
+      );
       this.removeRoom(roomId);
       throw new InternalServerErrorException(`Failed to configure game room ${roomId} from database.`);
     }
@@ -284,7 +287,9 @@ export class GameSessionService {
         } else if (room.isRunning) {
           this.logger.log(`GC: Room ${prefixedRoomId}(${roomId}) is IN_PROGRESS. Sockets: ${socketsInRoom.length}.`);
         } else {
-          this.logger.log(`GC: Room ${prefixedRoomId}(${roomId}) is WAITING but has ${socketsInRoom.length} connected sockets. Keeping.`);
+          this.logger.log(
+            `GC: Room ${prefixedRoomId}(${roomId}) is WAITING but has ${socketsInRoom.length} connected sockets. Keeping.`,
+          );
         }
       }
     } catch (error) {
@@ -292,6 +297,40 @@ export class GameSessionService {
     } finally {
       this.isGCRunning = false;
       this.logger.log(`Periodic room cleanup (GC) finished. Cleaned up ${cleanedRoomsCount} rooms.`);
+    }
+  }
+
+  broadcastGameStateToRoom(room: GameRoom): void;
+  broadcastGameStateToRoom(roomId: number): void;
+  broadcastGameStateToRoom(roomIdOrRoom: number | GameRoom): void {
+    const room = typeof roomIdOrRoom === 'number' ? this.getRoom(roomIdOrRoom) : roomIdOrRoom;
+
+    if (!room) {
+      this.logger.warn(`Attempted to send game state to non-existent room: ${roomIdOrRoom}`);
+      return;
+    }
+
+    const { id: roomId } = room;
+    const gameState = room.game.getGameState();
+
+    if (!gameState) {
+      this.logger.warn(`Game state for room ${roomId} is not available.`);
+      return;
+    }
+
+    try {
+      // GameStateDto를 protobuf로 직렬화하여 Base64 문자열로 변환
+      const serializedGameState = serializeGameStateToBase64(gameState);
+
+      const prefixedRoomId = prefixGameRoomId(roomId);
+      this.ioServer.to(prefixedRoomId).emit('game_state', serializedGameState);
+    } catch (error) {
+      this.logger.error(
+        `Failed to serialize game state for room ${roomId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      // 실패 시 원래 객체 전송으로 fallback
+      const prefixedRoomId = prefixGameRoomId(roomId);
+      this.ioServer.to(prefixedRoomId).emit('game_state', gameState);
     }
   }
 }

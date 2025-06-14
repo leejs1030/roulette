@@ -187,16 +187,24 @@ export class Box2dPhysics implements IPhysics {
     this.entities = [];
   }
 
-  createMarble(
-    id: number,
-    x: number,
-    y: number,
-    isDummy: boolean = false,
-    initialVelocity?: { x: number; y: number },
-  ): void {
+  createMarble({
+    id,
+    x,
+    y,
+    isDummy = false,
+    initialVelocity = { x: 0, y: 0 },
+    radius,
+  }: {
+    id: number;
+    x: number;
+    y: number;
+    isDummy: boolean;
+    initialVelocity?: { x: number; y: number };
+    radius: number;
+  }) {
     if (!this.world) return;
     const circleShape = new this.Box2DInstance.b2CircleShape();
-    circleShape.set_m_radius(0.25);
+    circleShape.set_m_radius(radius);
 
     const bodyDef = new this.Box2DInstance.b2BodyDef();
     bodyDef.set_type(this.Box2DInstance.b2_dynamicBody);

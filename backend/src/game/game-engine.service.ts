@@ -65,7 +65,7 @@ export class GameEngineService implements OnModuleDestroy {
         return;
       }
 
-      this._updateAndBroadcastState(room, prefixedRoomId, server);
+      this._updateAndBroadcastState(room);
       await this._checkAndHandleGameEnd(room, prefixedRoomId, server);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -75,12 +75,11 @@ export class GameEngineService implements OnModuleDestroy {
     }
   }
 
-  private _updateAndBroadcastState(room: GameRoom, prefixedRoomId: string, server: Server) {
+  private _updateAndBroadcastState(room: GameRoom) {
     if (room.isRunning) {
       room.game.update();
     }
-    const gameState = room.game.getGameState();
-    server.to(prefixedRoomId).emit('game_state', gameState);
+    this.gameSessionService.broadcastGameStateToRoom(room);
   }
 
   private async _checkAndHandleGameEnd(room: GameRoom, prefixedRoomId: string, server: Server) {

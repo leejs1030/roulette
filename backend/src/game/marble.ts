@@ -1,7 +1,9 @@
-import { Skills, STUCK_DELAY } from './data/constants';
+import { STUCK_DELAY } from './data/constants';
 import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
+import { MarbleDto } from 'common';
+import { marbleRadius } from 'common';
 
 export class Marble {
   type = 'marble' as const;
@@ -10,9 +12,9 @@ export class Marble {
   color: string = 'red';
   hue: number = 0;
   weight: number = 1;
-  skill: Skills = Skills.None;
   isActive: boolean = false;
   isDummy: boolean = false;
+  radius: number = marbleRadius;
 
   private _skillRate = 0.0005;
   private _coolTime = 5000;
@@ -60,6 +62,7 @@ export class Marble {
     this.weight = weight;
     this.physics = physics;
     this.isDummy = isDummy;
+    this.radius = marbleRadius;
 
     this._maxCoolTime = 1000 + (1 - this.weight) * 4000;
     this._coolTime = this._maxCoolTime * Math.random();
@@ -77,27 +80,24 @@ export class Marble {
     this.color = `hsl(${this.hue} 100% 70%)`;
     this.id = order;
 
-    physics.createMarble(
-      order,
-      10.25 + (order % 10) * 0.6,
-      maxLine - line + lineDelta,
-    );
+    physics.createMarble({
+      id: order,
+      x: 10.25 + (order % 10) * 0.6,
+      y: maxLine - line + lineDelta,
+      radius: marbleRadius,
+      isDummy,
+    });
   }
 
   update(deltaTime: number) {
     this._updateStuckState(deltaTime);
     this.lastPosition = { x: this.position.x, y: this.position.y };
 
-    this.skill = Skills.None;
     if (!this.isActive) return;
-    // this._updateSkillInformation(deltaTime);
   }
 
   private _updateStuckState(deltaTime: number) {
-    if (
-      this.isActive &&
-      Vector.lenSq(Vector.sub(this.lastPosition, this.position)) < 0.00001
-    ) {
+    if (this.isActive && Vector.lenSq(Vector.sub(this.lastPosition, this.position)) < 0.00001) {
       this._stuckTime += deltaTime;
 
       if (this._stuckTime > STUCK_DELAY) {
@@ -109,19 +109,7 @@ export class Marble {
     }
   }
 
-  private _updateSkillInformation(deltaTime: number) {
-    if (this._coolTime > 0) {
-      this._coolTime -= deltaTime;
-    }
-
-    if (this._coolTime <= 0) {
-      this.skill =
-        Math.random() < this._skillRate ? Skills.Impact : Skills.None;
-      this._coolTime = this._maxCoolTime;
-    }
-  }
-
-  toJSON() {
+  toJSON(): MarbleDto {
     return {
       id: this.id,
       name: this.name,
@@ -131,8 +119,8 @@ export class Marble {
       color: this.color,
       hue: this.hue,
       isActive: this.isActive,
-      skill: this.skill,
       isDummy: this.isDummy,
+      radius: this.radius,
     };
   }
 }

@@ -1,12 +1,11 @@
-import { Marble } from './marble';
 import { IPhysics } from './IPhysics';
 import { Box2dPhysics } from './physics/physics-box2d';
-import { MapEntityState } from './types/MapEntity.type';
 import { SkillEffect } from './types/skill-effect.type';
 import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
 import { SkillManager } from './managers/skill.manager';
 import { MapManager } from './managers/map.manager';
+import { GameStateDto } from 'common';
 
 export class Roulette {
   private _lastTime: number = 0;
@@ -170,7 +169,7 @@ export class Roulette {
     this.setMarbles(names);
   }
 
-  public getGameState() {
+  public getGameState(): GameStateDto {
     return {
       marbles: this.marbleManager.allMarbles.map((marble) => marble.toJSON()),
       winners: this.marbleManager.winners.map((marble) => marble.toJSON()),
@@ -189,7 +188,7 @@ export class Roulette {
   }
 
   public destroy(): void {
-    this.activeTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.activeTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
     this.activeTimeouts = [];
 
     if (this.physics) {

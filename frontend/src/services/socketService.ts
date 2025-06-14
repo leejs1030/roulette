@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { GameState, MapInfo } from '../types/gameTypes';
+import { MapInfo } from '../types/gameTypes';
+import { GameStateDto, deserializeGameStateFromBase64 } from 'common/dist';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -18,7 +19,7 @@ interface SpeedChangedData {
 interface JoinRoomResponse {
   success: boolean;
   message?: string;
-  gameState?: GameState;
+  gameState?: GameStateDto;
   requiresPassword?: boolean;
 }
 
@@ -29,7 +30,7 @@ class SocketService {
   private isConnecting: boolean = false;
   private latestAvailableMaps: MapInfo[] | null = null;
 
-  private gameStateListeners: Array<(gameState: GameState) => void> = [];
+  private gameStateListeners: Array<(gameState: GameStateDto) => void> = [];
   private availableMapsListeners: Array<(maps: MapInfo[]) => void> = [];
   private playerJoinedListeners: Array<(data: PlayerJoinedData) => void> = [];
   private playerLeftListeners: Array<(data: PlayerLeftData) => void> = [];
@@ -108,8 +109,26 @@ class SocketService {
     }
     console.log('socketService: Setting up event listeners.');
 
-    this.socket.off('game_state').on('game_state', (gameState: GameState) => {
-      this.gameStateListeners.forEach((listener) => listener(gameState));
+    this.socket.off('game_state').on('game_state', (data: string | GameStateDto) => {
+      try {
+        // protobuf 직렬화된 데이터인지 확인 (Base64 문자열인 경우)
+        let gameState: GameStateDto;
+        if (typeof data === 'string') {
+          // Base64 문자열을 protobuf로 역직렬화
+          gameState = deserializeGameStateFromBase64(data);
+        } else {
+          // 기존 JSON 객체 (fallback)
+          gameState = data;
+        }
+        
+        this.gameStateListeners.forEach((listener) => listener(gameState));
+      } catch (error) {
+        console.error('Failed to deserialize game state:', error);
+        // 역직렬화 실패 시 원본 데이터 사용 (fallback)
+        if (typeof data !== 'string') {
+          this.gameStateListeners.forEach((listener) => listener(data));
+        }
+      }
     });
 
     this.socket.off('available_maps').on('available_maps', (maps: MapInfo[]) => {
@@ -142,7 +161,7 @@ class SocketService {
     });
   }
 
-  public onGameStateUpdate(listener: (gameState: GameState) => void): () => void {
+  public onGameStateUpdate(listener: (gameState: GameStateDto) => void): () => void {
     this.gameStateListeners.push(listener);
     return () => {
       this.gameStateListeners = this.gameStateListeners.filter((l) => l !== listener);

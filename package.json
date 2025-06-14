@@ -46,8 +46,7 @@
     "typescript": "^5.8.3"
   },
   "scripts": {
-    "dev": "concurrently \"yarn:dev:*\"",
-    "dev:common": "yarn workspace common build --watch",
+    "dev": "yarn workspace common build && concurrently \"yarn:dev:*\"",
     "dev:backend": "yarn workspace backend start:dev",
     "dev:frontend": "yarn workspace frontend start",
     "build": "yarn workspace common build && concurrently \"yarn:build:*\"",
