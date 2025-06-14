@@ -1,7 +1,7 @@
+import { CoordinateManager } from './utils/coordinate-manager';
 import { RenderParameters } from './rouletteRenderer';
 import { DefaultEntityColor, initialZoom } from './data/constants';
 import { UIObject } from './UIObject';
-import { bound } from './utils/bound.decorator';
 import { Rect } from './types/rect.type';
 import { VectorLike } from './types/VectorLike';
 import { MapEntityState, MarbleState } from './types/gameTypes'; // Import types from gameTypes
@@ -9,6 +9,7 @@ import { MapEntityState, MarbleState } from './types/gameTypes'; // Import types
 export class Minimap implements UIObject {
   private ctx!: CanvasRenderingContext2D;
   private lastParams: RenderParameters | null = null;
+  private coordinateManager: CoordinateManager | null = null;
 
   private _onViewportChangeHandler: ((pos?: VectorLike) => void) | null = null;
   private boundingBox: Rect;
@@ -32,10 +33,8 @@ export class Minimap implements UIObject {
   }
 
   update(): void {
-    // nothing to do
   }
 
-  @bound
   onMouseMove(e?: { x: number; y: number }) {
     if (!e) {
       this.mousePosition = null;
@@ -49,15 +48,21 @@ export class Minimap implements UIObject {
       x: e.x,
       y: e.y,
     };
-    if (this._onViewportChangeHandler) {
-      this._onViewportChangeHandler({
-        x: this.mousePosition.x / 4,
-        y: this.mousePosition.y / 4,
-      });
+    if (this._onViewportChangeHandler && this.coordinateManager) {
+      this._onViewportChangeHandler(
+        this.coordinateManager.minimapToWorld(this.mousePosition as VectorLike)
+      );
     }
   }
 
-  render(ctx: CanvasRenderingContext2D, params: RenderParameters) {
+  render(
+    ctx: CanvasRenderingContext2D,
+    params: RenderParameters,
+    coordinateManager: CoordinateManager,
+    _width: number,
+    _height: number
+  ) {
+    this.coordinateManager = coordinateManager;
     if (!ctx) return;
     const { stage } = params;
     if (!stage) return;
@@ -93,12 +98,12 @@ export class Minimap implements UIObject {
   private drawViewport(params: RenderParameters) {
     this.ctx.save();
     const { camera, size } = params;
-    const zoom = camera.zoom * initialZoom;
-    const w = size.x / zoom;
-    const h = size.y / zoom;
+    const zoom = camera.zoom;
+    const w = size.x / (zoom * initialZoom * 2);
+    const h = size.y / (zoom * initialZoom * 2);
     this.ctx.strokeStyle = 'white';
     this.ctx.lineWidth = 1 / zoom;
-    this.ctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h);
+    this.ctx.strokeRect(camera.x - w, camera.y - h, w * 2, h * 2);
     this.ctx.restore();
   }
 
@@ -143,23 +148,14 @@ export class Minimap implements UIObject {
   }
 
   private drawMarbles(params: RenderParameters) {
-    const { marbles } = params; // marbles is now MarbleState[]
+    const { marbles } = params;
     this.ctx.save();
-    marbles.forEach((marbleState: MarbleState) => { // Use MarbleState type
-      // Draw marble based on state for minimap
+    marbles.forEach((marbleState: MarbleState) => {
       this.ctx.beginPath();
-      // Use a smaller radius for the minimap representation
-      const minimapRadius = Math.max(0.5, marbleState.radius * 0.5); // Adjust multiplier as needed
+      const minimapRadius = Math.max(0.5, marbleState.radius * 0.5);
       this.ctx.arc(marbleState.x, marbleState.y, minimapRadius, 0, Math.PI * 2, false);
       this.ctx.fillStyle = marbleState.color;
       this.ctx.fill();
-      // Optionally add a border or different style for minimap
-      // this.ctx.strokeStyle = 'white';
-      // this.ctx.lineWidth = 0.1;
-      // this.ctx.stroke();
-
-      // Original call removed:
-      // marble.render(this.ctx, 1, false, true);
     });
     this.ctx.restore();
   }

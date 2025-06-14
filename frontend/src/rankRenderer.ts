@@ -1,6 +1,5 @@
 import { RenderParameters } from './rouletteRenderer';
 import { UIObject } from './UIObject';
-import { bound } from './utils/bound.decorator';
 import { Rect } from './types/rect.type';
 
 export class RankRenderer implements UIObject {
@@ -12,7 +11,7 @@ export class RankRenderer implements UIObject {
   private maxY = 0;
   constructor() {}
 
-  @bound
+  // @bound
   onWheel(e: WheelEvent) {
     this._targetY += e.deltaY;
     if (this._targetY > this.maxY) {
@@ -24,15 +23,13 @@ export class RankRenderer implements UIObject {
   render(
     ctx: CanvasRenderingContext2D,
     { winners, marbles, winnerRank }: RenderParameters,
+    _coordinateManager: any,
     width: number,
-    height: number
+    height: number,
   ) {
     const startX = width - 5;
     const startY = Math.max(0, this._currentY - height / 2);
-    this.maxY = Math.max(
-      0,
-      (marbles.length + winners.length) * this.fontHeight
-    );
+    this.maxY = Math.max(0, (marbles.length + winners.length) * this.fontHeight);
     this._currentWinner = winners.length;
 
     ctx.save();
@@ -43,11 +40,7 @@ export class RankRenderer implements UIObject {
       const y = rank * this.fontHeight;
       if (y >= startY && y <= startY + ctx.canvas.height) {
         ctx.fillStyle = marble.color;
-        ctx.fillText(
-          `${rank === winnerRank ? '☆' : '\u2714'} ${marble.name} #${rank + 1}`,
-          startX,
-          20 + y
-        );
+        ctx.fillText(`${rank === winnerRank ? '☆' : '\u2714'} ${marble.name} #${rank + 1}`, startX, 20 + y);
       }
     });
     ctx.font = '10pt sans-serif';
@@ -55,11 +48,7 @@ export class RankRenderer implements UIObject {
       const y = (rank + winners.length) * this.fontHeight;
       if (y >= startY && y <= startY + ctx.canvas.height) {
         ctx.fillStyle = marble.color;
-        ctx.fillText(
-          `${marble.name} #${rank + 1 + winners.length}`,
-          startX,
-          20 + y
-        );
+        ctx.fillText(`${marble.name} #${rank + 1 + winners.length}`, startX, 20 + y);
       }
     });
     ctx.restore();
