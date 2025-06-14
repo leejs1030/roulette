@@ -41,7 +41,7 @@ COPY --from=deps /app/common ./common
 COPY . .
 # Build the backend application
 # This uses the script "build:backend": "yarn workspace backend build" from root package.json
-RUN yarn build:backend
+RUN yarn build
 
 # 4. Runner
 FROM node:22-alpine AS runner
@@ -56,6 +56,9 @@ COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/yarn.lock ./yarn.lock
 COPY --from=build /app/backend/package.json ./backend/package.json
 COPY --from=build /app/backend/dist ./backend/dist
+
+COPY --from=build /app/common/package.json ./common/package.json
+COPY --from=build /app/common/dist ./common/dist
 
 # Copy the entire prisma directory (schema and migrations) from the build stage
 # This is crucial for `prisma migrate deploy` to work in the entrypoint script.
