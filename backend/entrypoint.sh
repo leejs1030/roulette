@@ -12,4 +12,4 @@ npx prisma migrate deploy --schema=/app/backend/prisma/schema.prisma
 
 # Start the application
 echo "Starting the application..."
-exec node backend/dist/main.js
+exec node backend/dist/src/main.js
