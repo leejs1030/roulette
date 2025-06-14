@@ -29,6 +29,9 @@ export class Roulette extends EventTarget {
   private _lastTime: number = 0;
   private _elapsed: number = 0;
 
+  private _stateBuffer: { timestamp: number; gameState: GameStateDto }[] = [];
+  private readonly _interpolationDelay = 100; // ms
+
   private _particleManager = new ParticleManager();
   private _stage: StageDef | null = null;
 
@@ -51,14 +54,32 @@ export class Roulette extends EventTarget {
   }
 
   public updateStateFromServer(gameState: GameStateDto): void {
-    this._marbles = gameState.marbles;
-    this._winners = gameState.winners;
-    this._winner = gameState.winner;
-    this._mapEntitiesState = gameState.entities;
-    this._isRunning = gameState.isRunning;
-    this._winnerRank = gameState.winnerRank;
-    this._totalMarbleCount = gameState.totalMarbleCount;
-    this._shakeAvailable = gameState.shakeAvailable;
+    const now = Date.now();
+    this._stateBuffer.push({ timestamp: now, gameState });
+  }
+
+  private _interpolateState(fromState: GameStateDto, toState: GameStateDto, alpha: number): void {
+    const toMarbles = toState.marbles ?? [];
+    const fromMarbles = fromState.marbles ?? [];
+
+    const interpolatedMarbles = toMarbles.map((toMarble) => {
+      const fromMarble = fromMarbles.find((m) => m.id === toMarble.id);
+      if (fromMarble && fromMarble.x != null && fromMarble.y != null && toMarble.x != null && toMarble.y != null) {
+        const interpolatedX = fromMarble.x + (toMarble.x - fromMarble.x) * alpha;
+        const interpolatedY = fromMarble.y + (toMarble.y - fromMarble.y) * alpha;
+        return { ...toMarble, x: interpolatedX, y: interpolatedY };
+      }
+      return toMarble;
+    });
+
+    this._marbles = interpolatedMarbles;
+    this._winners = toState.winners ?? [];
+    this._winner = toState.winner ?? null;
+    this._mapEntitiesState = toState.entities ?? [];
+    this._isRunning = toState.isRunning ?? false;
+    this._winnerRank = toState.winnerRank ?? 0;
+    this._totalMarbleCount = toState.totalMarbleCount ?? 0;
+    this._shakeAvailable = toState.shakeAvailable ?? false;
   }
 
   public processServerSkillEffects(serverEffects: ServerSkillEffect[]): void {
@@ -132,6 +153,30 @@ export class Roulette extends EventTarget {
       this._elapsed %= 100;
     }
     this._lastTime = currentTime;
+
+    const renderTime = currentTime - this._interpolationDelay;
+
+    // 버퍼에서 오래된 상태 제거
+    while (this._stateBuffer.length >= 2 && this._stateBuffer[1].timestamp <= renderTime) {
+      this._stateBuffer.shift();
+    }
+
+    if (this._stateBuffer.length >= 2) {
+      const from = this._stateBuffer[0];
+      const to = this._stateBuffer[1];
+      const alpha = (renderTime - from.timestamp) / (to.timestamp - from.timestamp);
+      this._interpolateState(from.gameState, to.gameState, alpha);
+    } else if (this._stateBuffer.length === 1) {
+      const latestState = this._stateBuffer[0].gameState;
+      this._marbles = latestState.marbles || [];
+      this._winners = latestState.winners || [];
+      this._winner = latestState.winner || null;
+      this._mapEntitiesState = latestState.entities || [];
+      this._isRunning = latestState.isRunning || false;
+      this._winnerRank = latestState.winnerRank || 0;
+      this._totalMarbleCount = latestState.totalMarbleCount || 0;
+      this._shakeAvailable = latestState.shakeAvailable || false;
+    }
 
     this._particleManager.update(currentTime - this._lastTime);
     this._updateEffects(currentTime - this._lastTime);
