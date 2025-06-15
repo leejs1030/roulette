@@ -24,7 +24,8 @@ export class GameConnectionHandler {
     private readonly gamePersistenceService: GamePersistenceService,
   ) {}
 
-  private async _verifyRoomAccess(roomId: number, password?: string): Promise<any> { // 'any' 대신 실제 Room 타입을 사용해야 합니다. Prisma Client의 Room 타입으로 가정합니다.
+  private async _verifyRoomAccess(roomId: number, password?: string): Promise<any> {
+    // 'any' 대신 실제 Room 타입을 사용해야 합니다. Prisma Client의 Room 타입으로 가정합니다.
     let roomDetailsFromDb;
     try {
       roomDetailsFromDb = await this.roomsService.getRoom(roomId);
@@ -91,9 +92,7 @@ export class GameConnectionHandler {
     // 하지만 일관성을 위해 또는 다른 클라이언트에게도 즉시 전파해야 한다면 여기서 emit('game_state', gameState)를 호출할 수 있습니다.
     // 현재는 join_room의 반환값으로 gameState를 전달하고 있으므로, 여기서는 available_maps만 emit합니다.
 
-    this.logger.log(
-      `새로운 플레이어 참여 알림: ${userInfo.nickname} (${client.id}) - 방 ${prefixedRoomId}(${roomId})`,
-    );
+    this.logger.log(`새로운 플레이어 참여 알림: ${userInfo.nickname} (${client.id}) - 방 ${prefixedRoomId}(${roomId})`);
   }
 
   private _determineUserInfo(client: Socket): { id: string | number; nickname: string; isAnonymous: boolean } {
@@ -121,13 +120,20 @@ export class GameConnectionHandler {
     };
   }
 
-  private async _handlePlayerDepartureInternal(prefixedRoomId: string, client: Socket, server: Server, isDisconnect: boolean) {
+  private async _handlePlayerDepartureInternal(
+    prefixedRoomId: string,
+    client: Socket,
+    server: Server,
+    isDisconnect: boolean,
+  ) {
     let roomId: number;
     try {
       roomId = unprefixGameRoomId(prefixedRoomId);
     } catch (error) {
       // unprefixGameRoomId 실패 시 로그만 남기고 함수 종료 (prefixedRoomId가 유효하지 않은 경우)
-      this.logger.error(`_handlePlayerDepartureInternal: Invalid prefixedRoomId ${prefixedRoomId}. Error: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `_handlePlayerDepartureInternal: Invalid prefixedRoomId ${prefixedRoomId}. Error: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return;
     }
 
@@ -142,7 +148,8 @@ export class GameConnectionHandler {
       `방 ${prefixedRoomId}(${roomId})에서 플레이어 ${nickname} (${client.id}) ${isDisconnect ? '연결 종료로 퇴장' : '자발적 퇴장'}`,
     );
 
-    if (!isDisconnect) { // 자발적 퇴장 시에만 소켓 룸에서 명시적으로 나감
+    if (!isDisconnect) {
+      // 자발적 퇴장 시에만 소켓 룸에서 명시적으로 나감
       client.leave(prefixedRoomId);
     }
 
@@ -169,17 +176,17 @@ export class GameConnectionHandler {
           client.user = user; // 소켓에 사용자 정보 저장
           this.logger.log(`클라이언트 ${user.nickname}(${client.id}) 인증 성공`);
         } else {
-          // this.logger.warn(`클라이언트 ${client.id} 인증 실패: 유효하지 않은 토큰 또는 사용자 없음`); // 필터에서 로깅
-          client.emit('auth_error', { message: '인증에 실패했습니다. 유효하지 않은 토큰입니다.' }); // 특정 에러 이벤트 유지
+          this.logger.warn(`클라이언트 ${client.id} 인증 실패: 유효하지 않은 토큰 또는 사용자 없음`);
+          client.emit('auth_error', { message: '인증에 실패했습니다. 유효하지 않은 토큰입니다.' });
           client.disconnect();
-          throw new WsException('유효하지 않은 토큰 또는 사용자 없음'); // 필터가 처리하도록 WsException 발생
+          return; // 예외를 던지지 않고 함수를 종료
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        // this.logger.error(`클라이언트 ${client.id} 인증 중 오류 발생: ${message}`); // 필터에서 로깅
-        client.emit('auth_error', { message: `인증 중 오류 발생: ${message}` }); // 특정 에러 이벤트 유지
+        this.logger.error(`클라이언트 ${client.id} 인증 중 오류 발생: ${message}`);
+        client.emit('auth_error', { message: `인증 중 오류 발생: ${message}` });
         client.disconnect();
-        throw new WsException(message || '인증 중 오류 발생'); // 필터가 처리하도록 WsException 발생
+        return; // 예외를 던지지 않고 함수를 종료
       }
     } else {
       // 토큰이 없는 경우, 익명 사용자로 처리
@@ -201,16 +208,14 @@ export class GameConnectionHandler {
         // _handlePlayerDepartureInternal 내부에서 unprefix 에러는 이미 처리됨.
         // 여기서는 _handlePlayerDepartureInternal 자체에서 발생할 수 있는 다른 예외를 로깅 (예: DB 작업 실패)
         const message = error instanceof Error ? error.message : String(error);
-        this.logger.error(`클라이언트 ${client.id}의 연결 종료 처리 중 방 ${prefixedRoomId}에서 예기치 않은 오류: ${message}`);
+        this.logger.error(
+          `클라이언트 ${client.id}의 연결 종료 처리 중 방 ${prefixedRoomId}에서 예기치 않은 오류: ${message}`,
+        );
       }
     }
   }
 
-  async handleJoinRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: JoinRoomDto,
-    server: Server,
-  ) {
+  async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: JoinRoomDto, server: Server) {
     const { roomId, password } = data;
     // const currentUser = client.user; // _determineUserInfo 내부에서 client.user 사용
 
@@ -235,7 +240,7 @@ export class GameConnectionHandler {
     await this._ensureRoomIsLoaded(roomId);
 
     this._notifyPlayerJoinedAndSendInitialState(client, roomId, finalUserInfo, server);
-    
+
     const gameState = this.gameSessionService.getGameState(roomId); // gameState는 여전히 반환값에 필요
     this.logger.log(
       `플레이어 ${finalUserInfo.nickname} (${client.id}) 방 ${roomId} 참여 완료 (${new Date().toLocaleString()})`,
@@ -243,11 +248,7 @@ export class GameConnectionHandler {
     return { success: true, message: `방 ${roomId}에 참여했습니다.`, gameState };
   }
 
-  async handleLeaveRoom(
-    @ConnectedSocket() client: Socket, 
-    @MessageBody() data: LeaveRoomDto,
-    server: Server
-  ) {
+  async handleLeaveRoom(@ConnectedSocket() client: Socket, @MessageBody() data: LeaveRoomDto, server: Server) {
     const { roomId } = data; // roomId는 DTO에서 오므로 유효하다고 가정
     const prefixedRoomId = prefixGameRoomId(roomId);
     try {
