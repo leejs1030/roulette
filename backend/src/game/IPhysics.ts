@@ -1,4 +1,3 @@
-// import { MapEntityState } from './types/MapEntity.type';
 import { StageDef, MapEntityState } from 'common';
 
 export interface IPhysics {
