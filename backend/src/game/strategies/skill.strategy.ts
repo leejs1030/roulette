@@ -1,5 +1,6 @@
+import { SkillExtra, SkillType } from 'common';
 import { GameRoom } from '../game-room';
-import { SkillPosition, SkillExtra, SkillType } from '../types/skill.type';
+import { SkillPosition } from '../types/skill.type';
 
 export interface SkillStrategy<T extends keyof SkillExtraMap> {
   execute(room: GameRoom, skillPosition: SkillPosition, extra: SkillExtraMap[T], userNickname?: string): void;

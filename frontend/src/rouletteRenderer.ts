@@ -1,7 +1,6 @@
 import { canvasHeight, canvasWidth, DefaultBloomColor, DefaultEntityColor, initialZoom } from './data/constants';
 import { Camera } from './camera';
-import { MarbleDto, StageDef } from 'common';
-import { MapEntityState } from './types/gameTypes'; // Use types from gameTypes
+import { MapEntityState, MarbleDto, StageDef } from 'common';
 import { ParticleManager } from './particleManager';
 import { UIObject } from './UIObject';
 import { VectorLike } from 'common';

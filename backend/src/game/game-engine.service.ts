@@ -2,11 +2,12 @@ import { Injectable, Logger, OnModuleDestroy, BadRequestException } from '@nestj
 import { Server } from 'socket.io';
 import { GameSessionService } from './game-session.service';
 import { prefixGameRoomId } from './utils/roomId.util';
-import { SkillType, SkillPosition, SkillExtra } from './types/skill.type';
+import { SkillPosition } from './types/skill.type';
 import { GameRoom } from './game-room';
-import { SkillStrategy, SkillExtraMap } from './strategies/skill.strategy';
+import { SkillStrategy } from './strategies/skill.strategy';
 import { ImpactSkillStrategy } from './strategies/impact.strategy';
 import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
+import { SkillExtra, SkillType } from 'common';
 
 @Injectable()
 export class GameEngineService implements OnModuleDestroy {

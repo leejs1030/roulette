@@ -3,8 +3,7 @@ import { RenderParameters } from './rouletteRenderer';
 import { DefaultEntityColor, initialZoom } from './data/constants';
 import { UIObject } from './UIObject';
 import { Rect } from './types/rect.type';
-import { MarbleDto, VectorLike } from 'common';
-import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
+import { MarbleDto, VectorLike, MapEntityState } from 'common';
 
 export class Minimap implements UIObject {
   private ctx!: CanvasRenderingContext2D;
@@ -32,8 +31,7 @@ export class Minimap implements UIObject {
     this._onViewportChangeHandler = callback;
   }
 
-  update(): void {
-  }
+  update(): void {}
 
   onMouseMove(e?: { x: number; y: number }) {
     if (!e) {
@@ -49,9 +47,7 @@ export class Minimap implements UIObject {
       y: e.y,
     };
     if (this._onViewportChangeHandler && this.coordinateManager) {
-      this._onViewportChangeHandler(
-        this.coordinateManager.minimapToWorld(this.mousePosition as VectorLike)
-      );
+      this._onViewportChangeHandler(this.coordinateManager.minimapToWorld(this.mousePosition as VectorLike));
     }
   }
 
@@ -60,7 +56,7 @@ export class Minimap implements UIObject {
     params: RenderParameters,
     coordinateManager: CoordinateManager,
     _width: number,
-    _height: number
+    _height: number,
   ) {
     this.coordinateManager = coordinateManager;
     if (!ctx) return;
@@ -86,12 +82,7 @@ export class Minimap implements UIObject {
     ctx.save();
     ctx.strokeStyle = 'green';
     ctx.lineWidth = 1;
-    ctx.strokeRect(
-      this.boundingBox.x,
-      this.boundingBox.y,
-      this.boundingBox.w,
-      this.boundingBox.h,
-    );
+    ctx.strokeRect(this.boundingBox.x, this.boundingBox.y, this.boundingBox.w, this.boundingBox.h);
     ctx.restore();
   }
 
@@ -134,7 +125,7 @@ export class Minimap implements UIObject {
           if (shape.points.length > 0) {
             this.ctx.beginPath();
             this.ctx.moveTo(shape.points[0][0], shape.points[0][1]);
-            for(let i = 1; i < shape.points.length; i++) {
+            for (let i = 1; i < shape.points.length; i++) {
               this.ctx.lineTo(shape.points[i][0], shape.points[i][1]);
             }
             this.ctx.stroke();

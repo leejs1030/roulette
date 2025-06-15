@@ -2,7 +2,7 @@ import React from 'react';
 import { useGame } from '../contexts/GameContext';
 import { useParticipantManager } from '../hooks/useParticipantManager';
 import { useGameSettings } from '../hooks/useGameSettings';
-import { GameStatus } from '../types/gameTypes';
+import { GameStatus } from 'common';
 import MapSetting from './game/settings/MapSetting';
 import RecordingSetting from './game/settings/RecordingSetting';
 import WinnerSetting from './game/settings/WinnerSetting';

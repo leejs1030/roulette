@@ -1,9 +1,7 @@
 import { STUCK_DELAY } from './data/constants';
-import { VectorLike } from './types/VectorLike';
 import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
-import { MarbleDto } from 'common';
-import { marbleRadius } from 'common';
+import { MarbleDto, VectorLike, marbleRadius } from 'common';
 
 export class Marble {
   type = 'marble' as const;

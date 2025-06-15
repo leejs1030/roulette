@@ -1,11 +1,10 @@
 import { IPhysics } from './IPhysics';
 import { Box2dPhysics } from './physics/physics-box2d';
-import { SkillEffect } from './types/skill-effect.type';
 import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
 import { SkillManager } from './managers/skill.manager';
 import { MapManager } from './managers/map.manager';
-import { GameStateDto } from 'common';
+import { GameStateDto, SkillEffect } from 'common';
 
 export class Roulette {
   private _lastTime: number = 0;
