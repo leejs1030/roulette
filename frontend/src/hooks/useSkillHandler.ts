@@ -44,7 +44,7 @@ export const useSkillHandler = (
 
       try {
         await socketService.useSkill(selectedSkill, skillPosition, extra);
-        setSelectedSkill(Skills.None); // Reset skill after use
+        // setSelectedSkill(Skills.None); // Reset skill after use
       } catch (error) {
         console.error('Failed to use skill:', error);
         alert('Failed to use skill.');
