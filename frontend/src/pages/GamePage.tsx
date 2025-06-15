@@ -11,6 +11,8 @@ import GameFooter from '../components/game/GameFooter';
 import { Skills, skillsToSkillType } from '../types/gameTypes';
 import { SkillButton } from '../components/SkillCooldownIndicator';
 import { SkillType } from 'common';
+import { ToastContainer } from '../components/ToastNotification';
+import { useGame } from '../contexts/GameContext';
 
 const GamePageContent: FC = () => {
   const {
@@ -32,6 +34,8 @@ const GamePageContent: FC = () => {
     useSkills,
     passwordInputRef,
   } = useGamePageLogic();
+
+  const { toastMethods } = useGame();
 
   return (
     <>
@@ -80,7 +84,7 @@ const GamePageContent: FC = () => {
               onClick={() => handleSkillSelect(Skills.Impact)}
               className="game-skill-button"
             >
-              Impact (3초)
+              충격파 (3초)
             </SkillButton>
             <SkillButton
               skillType={SkillType.DummyMarble}
@@ -88,7 +92,7 @@ const GamePageContent: FC = () => {
               onClick={() => handleSkillSelect(Skills.DummyMarble)}
               className="game-skill-button"
             >
-              DummyMarble (5초)
+              더미 구슬 (5초)
             </SkillButton>
           </div>
         </div>
@@ -107,6 +111,12 @@ const GamePageContent: FC = () => {
         joinError={joinError}
         passwordInputRef={passwordInputRef}
       />
+      <div className={gameState?.isRunning ? 'game-running' : ''}>
+        <ToastContainer 
+          messages={toastMethods.messages} 
+          onClose={toastMethods.removeToast} 
+        />
+      </div>
     </>
   );
 };

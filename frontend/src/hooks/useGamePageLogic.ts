@@ -19,6 +19,7 @@ export const useGamePageLogic = () => {
     availableMaps,
     handlePasswordJoin,
     initializeGame,
+    toastMethods,
   } = useGame();
 
   const [showRankingModal, setShowRankingModal] = useState(false);
@@ -48,6 +49,10 @@ export const useGamePageLogic = () => {
   const { selectedSkill, handleSkillSelect, handleCanvasClick } = useSkillHandler(
     rouletteInstance,
     gameState,
+    {
+      showCooldownWarning: toastMethods.showCooldownWarning,
+      showError: toastMethods.showError,
+    },
   );
 
   useEffect(() => {

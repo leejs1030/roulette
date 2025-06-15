@@ -7,6 +7,7 @@ import { useSocketManager } from '../hooks/useSocketManager';
 import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
 import { GameStateDto } from 'common';
 import { skillCooldownManager } from '../utils/skillCooldownManager';
+import { useToast } from '../hooks/useToast';
 
 interface GameContextType {
   roomId: string | undefined;
@@ -22,6 +23,8 @@ interface GameContextType {
   availableMaps: MapInfo[];
   handlePasswordJoin: (password: string) => Promise<void>;
   initializeGame: (container: HTMLDivElement) => void;
+  // 토스트 관련
+  toastMethods: ReturnType<typeof useToast>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -31,6 +34,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { user } = useAuth();
   const [rouletteInstance, setRouletteInstance] = useState<Roulette | null>(null);
   const [isManager, setIsManager] = useState(false);
+  const toastMethods = useToast();
 
   const {
     roomDetails,
@@ -89,6 +93,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     availableMaps,
     handlePasswordJoin,
     initializeGame,
+    toastMethods,
   };
 
   return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
