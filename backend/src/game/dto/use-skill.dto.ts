@@ -1,6 +1,7 @@
 import { IsEnum, IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SkillType, SkillPosition, SkillExtra } from '../types/skill.type';
+import { SkillPosition } from '../types/skill.type';
+import { SkillExtra, SkillType } from 'common';
 
 export class UseSkillDto<T extends SkillType = SkillType> {
   @IsNumber()

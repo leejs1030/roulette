@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { RoomInfo, GameInfo, RankingEntry } from '../types/gameTypes';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
@@ -35,11 +36,13 @@ export const login = async (username: string, password_hash: string): Promise<Lo
 };
 
 export const register = async (username: string, password_hash: string, nickname: string): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>('/auth/register', { username, password: password_hash, nickname });
+  const response = await apiClient.post<LoginResponse>('/auth/register', {
+    username,
+    password: password_hash,
+    nickname,
+  });
   return response.data;
 };
-
-import { RoomInfo, GameInfo, RankingEntry } from '../types/gameTypes';
 
 export const getRoomDetails = async (roomId: number): Promise<RoomInfo> => {
   const response = await apiClient.get<RoomInfo>(`/rooms/${roomId}`);
@@ -58,11 +61,9 @@ export const getGameRanking = async (roomId: number, password?: string): Promise
   return response.data;
 };
 
-
 interface CreateRoomResponse extends Omit<RoomInfo, 'game' | 'manager'> {
   managerId: number;
 }
-
 
 export const createRoom = async (name: string, password?: string): Promise<CreateRoomResponse> => {
   const response = await apiClient.post<CreateRoomResponse>('/rooms', { name, password });

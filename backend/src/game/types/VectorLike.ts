@@ -1,1 +1,0 @@
-export { VectorLike } from 'common';

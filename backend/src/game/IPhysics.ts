@@ -1,5 +1,4 @@
-import { MapEntityState } from './types/MapEntity.type';
-import type { StageDef } from 'common';
+import { StageDef, MapEntityState } from 'common';
 
 export interface IPhysics {
   init(): Promise<void>;

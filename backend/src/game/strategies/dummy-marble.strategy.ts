@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GameRoom } from '../game-room';
 import { SkillStrategy } from './skill.strategy';
-import { SkillPosition, SkillType } from '../types/skill.type';
+import { SkillPosition } from '../types/skill.type';
+import { SkillType } from 'common';
 
 @Injectable()
 export class DummyMarbleSkillStrategy implements SkillStrategy<SkillType.DummyMarble> {

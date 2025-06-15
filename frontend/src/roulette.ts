@@ -7,14 +7,9 @@ import { UIObject } from './UIObject';
 import { RankRenderer } from './rankRenderer';
 import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
-import { MapEntityState } from './types/gameTypes'; // Import types from gameTypes
-import {
-  ServerSkillType,
-  ServerSkillEffect,
-  FrontendSkillEffectWrapper,
-  ImpactSkillEffectFromServer,
-} from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
+import { ServerSkillEffect, FrontendSkillEffectWrapper } from './types/skillTypes'; // 스킬 이펙트 관련 타입 임포트
 import { CoordinateManager } from './utils/coordinate-manager';
+import { MapEntityState, SkillType } from 'common';
 
 export class Roulette extends EventTarget {
   private _marbles: MarbleDto[] = [];
@@ -91,10 +86,10 @@ export class Roulette extends EventTarget {
       if (!this._activeSkillEffects.some((e) => e.id === serverEffect.id)) {
         let duration = 0;
         switch (serverEffect.type) {
-          case ServerSkillType.Impact:
+          case SkillType.Impact:
             duration = 500;
             break;
-          case ServerSkillType.DummyMarble:
+          case SkillType.DummyMarble:
             duration = 1000;
             break;
           default:

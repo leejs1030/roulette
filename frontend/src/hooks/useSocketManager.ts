@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socketService from '../services/socketService';
 import { getRoomDetails, getRoomGameDetails, getGameRanking } from '../services/api';
-import { RoomInfo, GameInfo, RankingEntry, GameStatus, MapInfo } from '../types/gameTypes';
+import { RoomInfo, GameInfo, RankingEntry, MapInfo } from '../types/gameTypes';
 import { Roulette } from '../roulette';
-import { GameStateDto } from 'common';
+import { GameStateDto, GameStatus } from 'common';
 
 export const useSocketManager = (roomId: string | undefined, rouletteInstance: Roulette | null) => {
   const navigate = useNavigate();
