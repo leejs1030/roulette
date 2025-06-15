@@ -44,18 +44,20 @@ export class MarbleManager {
     for (let i = 0; i < count; i++) {
       const newId = currentMaxId + 1 + i;
       const dummyName = `${userNickname}-${i + 1}`;
-      const dummyMarble = new Marble(this.physics, newId, 0, dummyName, 1, true);
-
       const offsetX = (Math.random() - 0.5) * 1;
       const offsetY = (Math.random() - 0.5) * 1;
+      const dummyPosition = { x: position.x + offsetX, y: position.y + offsetY };
+      const initialVelocity = { x: 0, y: 10 };
 
-      this.physics.createMarble({
+      const dummyMarble = new Marble({
+        physics: this.physics,
         id: newId,
-        x: position.x + offsetX,
-        y: position.y + offsetY,
+        name: dummyName,
+        weight: 1,
         isDummy: true,
-        initialVelocity: { x: 0, y: 10 },
-        radius: marbleRadius,
+        position: dummyPosition,
+        initialVelocity: initialVelocity,
+        maxForHue: 0, // maxForHue is not relevant for dummy marbles
       });
       this._dummyMarbles.push(dummyMarble);
     }

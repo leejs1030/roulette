@@ -20,10 +20,30 @@ export class MarbleFactory {
       .map((_, i) => i)
       .sort(() => Math.random() - 0.5);
 
+    const maxLine = Math.ceil(totalMarbleCount / 10);
+    const lineDelta = -Math.max(0, Math.ceil(maxLine - 5));
+
     normalizedMembers.forEach((member) => {
       for (let j = 0; j < member.count; j++) {
         const order = orders.pop() || 0;
-        marbles.push(new Marble(physics, order, totalMarbleCount, member.name, member.weight, false));
+        const line = Math.floor(order / 10);
+        const position = {
+          x: 10.25 + (order % 10) * 0.6,
+          y: maxLine - line + lineDelta,
+        };
+        marbles.push(
+          new Marble({
+            physics,
+            id: order,
+            name: member.name,
+            weight: member.weight,
+            isDummy: false,
+            position,
+            initialVelocity: undefined,
+            order, // Pass order for hue calculation fallback
+            maxForHue: totalMarbleCount,
+          }),
+        );
       }
     });
 

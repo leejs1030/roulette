@@ -3,6 +3,18 @@ import { Vector } from './utils/Vector';
 import { IPhysics } from './IPhysics';
 import { MarbleDto, VectorLike, marbleRadius } from 'common';
 
+interface MarbleConstructorParams {
+  physics: IPhysics;
+  id: number;
+  name?: string;
+  weight?: number;
+  isDummy?: boolean;
+  position?: { x: number; y: number };
+  initialVelocity?: { x: number; y: number };
+  order?: number; // Used for default position calculation if 'position' is not provided
+  maxForHue?: number; // Used for hue calculation if 'isDummy' is false
+}
+
 export class Marble {
   type = 'marble' as const;
   name: string = '';
@@ -48,42 +60,58 @@ export class Marble {
     return this.position.angle;
   }
 
-  constructor(
-    physics: IPhysics,
-    order: number,
-    max: number,
-    name?: string,
-    weight: number = 1,
-    isDummy: boolean = false,
-  ) {
-    this.name = name || `M${order}`;
+  constructor({
+    physics,
+    id,
+    name,
+    weight = 1,
+    isDummy = false,
+    position,
+    initialVelocity,
+    order,
+    maxForHue,
+  }: MarbleConstructorParams) {
+    this.name = name || `M${id}`;
     this.weight = weight;
     this.physics = physics;
     this.isDummy = isDummy;
     this.radius = marbleRadius;
+    this.id = id;
 
     this._maxCoolTime = 1000 + (1 - this.weight) * 4000;
     this._coolTime = this._maxCoolTime * Math.random();
     this._skillRate = 0.2 * this.weight;
 
-    const maxLine = Math.ceil(max / 10);
-    const line = Math.floor(order / 10);
-    const lineDelta = -Math.max(0, Math.ceil(maxLine - 5));
+    let finalPosition = position;
+    if (!finalPosition && order !== undefined && maxForHue !== undefined) {
+      const maxLine = Math.ceil(maxForHue / 10);
+      const line = Math.floor(order / 10);
+      const lineDelta = -Math.max(0, Math.ceil(maxLine - 5));
+      finalPosition = {
+        x: 10.25 + (order % 10) * 0.6,
+        y: maxLine - line + lineDelta,
+      };
+    } else if (!finalPosition) {
+      // Fallback if no position and no order/maxForHue for default calculation
+      finalPosition = { x: 0, y: 0 };
+    }
 
     if (this.isDummy) {
       this.hue = Math.random() * 360;
+    } else if (maxForHue !== undefined) {
+      this.hue = (360 / maxForHue) * id;
     } else {
-      this.hue = (360 / max) * order;
+      this.hue = 0; // Default hue if maxForHue is not provided
     }
     this.color = `hsl(${this.hue} 100% 70%)`;
-    this.id = order;
 
     physics.createMarble({
-      id: order,
-      x: 10.25 + (order % 10) * 0.6,
-      y: maxLine - line + lineDelta,
+      id: this.id,
+      x: finalPosition.x,
+      y: finalPosition.y,
       radius: marbleRadius,
-      isDummy,
+      isDummy: this.isDummy,
+      initialVelocity: initialVelocity,
     });
   }
 
