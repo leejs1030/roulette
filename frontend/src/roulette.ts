@@ -25,7 +25,7 @@ export class Roulette extends EventTarget {
   private _elapsed: number = 0;
 
   private _stateBuffer: { timestamp: number; gameState: GameStateDto }[] = [];
-  private readonly _interpolationDelay = 100; // ms
+  private readonly _interpolationDelay = 33; // ms
 
   private _particleManager = new ParticleManager();
   private _stage: StageDef | null = null;
