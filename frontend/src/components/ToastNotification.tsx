@@ -20,7 +20,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({ message, o
   useEffect(() => {
     // 마운트 시 애니메이션 시작
     const timer = setTimeout(() => setIsVisible(true), 10);
-    
+
     // 자동 종료 타이머
     const duration = message.duration || 3000;
     const autoCloseTimer = setTimeout(() => {
@@ -41,7 +41,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({ message, o
   };
 
   return (
-    <div 
+    <div
       className={`toast-notification toast-${message.type} ${isVisible ? 'visible' : ''} ${isLeaving ? 'leaving' : ''}`}
       onClick={handleClose}
     >
@@ -53,7 +53,9 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({ message, o
           {message.type === 'success' && '✅'}
         </div>
         <div className="toast-message">{message.message}</div>
-        <button className="toast-close" onClick={handleClose}>×</button>
+        <button className="toast-close" onClick={handleClose}>
+          ×
+        </button>
       </div>
     </div>
   );
@@ -67,12 +69,8 @@ interface ToastContainerProps {
 export const ToastContainer: React.FC<ToastContainerProps> = ({ messages, onClose }) => {
   return (
     <div className="toast-container">
-      {messages.map(message => (
-        <ToastNotification 
-          key={message.id} 
-          message={message} 
-          onClose={onClose} 
-        />
+      {messages.map((message) => (
+        <ToastNotification key={message.id} message={message} onClose={onClose} />
       ))}
     </div>
   );
