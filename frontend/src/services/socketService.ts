@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
-import { MapInfo, skillsToSkillType } from '../types/gameTypes';
-import { GameStateDto, deserializeGameStateFromBase64, SkillCooldownResponse } from 'common/dist';
+import { MapInfo } from '../types/gameTypes';
+import { GameStateDto, deserializeGameStateFromBase64, SkillCooldownResponse, SkillType } from 'common';
 import { skillCooldownManager } from '../utils/skillCooldownManager';
 
 interface PlayerJoinedData {
@@ -121,7 +121,7 @@ class SocketService {
           // 기존 JSON 객체 (fallback)
           gameState = data;
         }
-        
+
         this.gameStateListeners.forEach((listener) => listener(gameState));
       } catch (error) {
         console.error('Failed to deserialize game state:', error);
@@ -283,7 +283,7 @@ class SocketService {
   }
 
   public async useSkill(
-    skillType: string,
+    skillType: SkillType,
     skillPosition: { x: number; y: number },
     extra: any,
   ): Promise<{ success: boolean; message?: string }> {
@@ -293,16 +293,15 @@ class SocketService {
     }
 
     // Skills를 SkillType으로 매핑
-    const mappedSkillType = skillsToSkillType(skillType as any);
-    
+
     // 클라이언트 측 쿨타임 체크
-    if (mappedSkillType && !skillCooldownManager.canUseSkill(mappedSkillType)) {
-      const remainingTime = skillCooldownManager.getRemainingCooldown(mappedSkillType);
+    if (skillType && !skillCooldownManager.canUseSkill(skillType)) {
+      const remainingTime = skillCooldownManager.getRemainingCooldown(skillType);
       const remainingSeconds = Math.ceil(remainingTime / 1000);
       console.log(`스킬이 쿨타임 중입니다. 남은 시간: ${remainingSeconds}초`);
-      return { 
-        success: false, 
-        message: `스킬이 쿨타임 중입니다. 남은 시간: ${remainingSeconds}초` 
+      return {
+        success: false,
+        message: `스킬이 쿨타임 중입니다. 남은 시간: ${remainingSeconds}초`,
       };
     }
 
@@ -316,10 +315,10 @@ class SocketService {
 
       if (response.success) {
         // 스킬 사용 성공 시 클라이언트 쿨타임 시작
-        if (mappedSkillType) {
-          skillCooldownManager.useSkill(mappedSkillType);
+        if (skillType) {
+          skillCooldownManager.useSkill(skillType);
         }
-        
+
         // 서버 쿨타임 정보와 동기화
         if (response.cooldowns) {
           skillCooldownManager.syncWithServer(response.cooldowns);

@@ -12,6 +12,7 @@ export interface UserSkillCooldowns {
 }
 
 export const SKILL_COOLDOWN_TIMES: Record<SkillType, number> = {
+  [SkillType.None]: 0, // 없음 스킬은 쿨타임 없음
   [SkillType.Impact]: 3000, // 3초
   [SkillType.DummyMarble]: 5000, // 5초
 };

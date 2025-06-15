@@ -19,6 +19,16 @@ export const useSkillCooldown = (skillType?: SkillType) => {
   });
 
   useEffect(() => {
+    if (skillType === SkillType.None) {
+      setSkillInfo({
+        canUse: true,
+        remainingTime: 0,
+        totalTime: 0,
+        progress: 0,
+      });
+      return;
+    }
+
     const handleCooldownUpdate = (updatedCooldowns: SkillCooldown[]) => {
       setCooldowns(updatedCooldowns);
 
