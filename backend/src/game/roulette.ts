@@ -4,7 +4,7 @@ import { MarbleManager } from './managers/marble.manager';
 import { GameStateManager } from './managers/game-state.manager';
 import { SkillManager } from './managers/skill.manager';
 import { MapManager } from './managers/map.manager';
-import { GameStateDto, SkillEffect } from 'common';
+import { GameStateDto, SkillEffect, SkillType, SkillCooldown } from 'common';
 
 export class Roulette {
   private _lastTime: number = 0;
@@ -16,7 +16,7 @@ export class Roulette {
   private physics!: IPhysics;
   private marbleManager!: MarbleManager;
   private gameStateManager!: GameStateManager;
-  private skillManager!: SkillManager;
+  public skillManager!: SkillManager;
   private mapManager!: MapManager;
 
   get isReady() {
@@ -184,6 +184,23 @@ export class Roulette {
 
   public getFinalRankingForAllMarbles() {
     return this.gameStateManager.finalizeWinner();
+  }
+
+  // 쿨타임 관련 public 메소드들
+  public canUseSkill(userId: number, skillType: SkillType): boolean {
+    return this.skillManager.skillCooldownManager.canUseSkill(userId, skillType);
+  }
+
+  public useSkillCooldown(userId: number, skillType: SkillType): void {
+    this.skillManager.skillCooldownManager.useSkill(userId, skillType);
+  }
+
+  public getUserCooldowns(userId: number): SkillCooldown[] {
+    return this.skillManager.skillCooldownManager.getUserCooldowns(userId);
+  }
+
+  public getRemainingCooldown(userId: number, skillType: SkillType): number {
+    return this.skillManager.skillCooldownManager.getRemainingCooldown(userId, skillType);
   }
 
   public destroy(): void {

@@ -8,7 +8,9 @@ import { GameProvider } from '../contexts/GameContext';
 import { useGamePageLogic } from '../hooks/useGamePageLogic';
 import RouletteCanvas from '../components/game/RouletteCanvas';
 import GameFooter from '../components/game/GameFooter';
-import { Skills } from '../types/gameTypes';
+import { Skills, skillsToSkillType } from '../types/gameTypes';
+import { SkillButton } from '../components/SkillCooldownIndicator';
+import { SkillType } from 'common';
 
 const GamePageContent: FC = () => {
   const {
@@ -43,31 +45,52 @@ const GamePageContent: FC = () => {
             top: '10px',
             right: '10px',
             zIndex: 1000,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
+            padding: '15px',
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            minWidth: '200px',
           }}
         >
-          <label htmlFor="skill-select" style={{ marginRight: '10px' }}>
+          <div style={{ marginBottom: '5px', fontSize: '14px', fontWeight: 'bold' }}>
             스킬 선택:
-          </label>
-          <select
-            id="skill-select"
-            value={selectedSkill}
-            onChange={(e) => handleSkillSelect(e.target.value as Skills)}
-            style={{
-              padding: '5px',
-              borderRadius: '3px',
-              border: '1px solid #ccc',
-              backgroundColor: '#333',
-              color: 'white',
-            }}
-          >
-            <option value={Skills.None}>없음</option>
-            <option value={Skills.Impact}>Impact</option>
-            <option value={Skills.DummyMarble}>DummyMarble</option>
-          </select>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              className={`skill-button ${selectedSkill === Skills.None ? 'selected' : ''}`}
+              onClick={() => handleSkillSelect(Skills.None)}
+              style={{
+                padding: '8px 16px',
+                border: selectedSkill === Skills.None ? '2px solid #28a745' : '2px solid #6c757d',
+                background: selectedSkill === Skills.None ? '#28a745' : '#6c757d',
+                color: 'white',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '12px',
+              }}
+            >
+              없음
+            </button>
+            <SkillButton
+              skillType={SkillType.Impact}
+              selected={selectedSkill === Skills.Impact}
+              onClick={() => handleSkillSelect(Skills.Impact)}
+              className="game-skill-button"
+            >
+              Impact (3초)
+            </SkillButton>
+            <SkillButton
+              skillType={SkillType.DummyMarble}
+              selected={selectedSkill === Skills.DummyMarble}
+              onClick={() => handleSkillSelect(Skills.DummyMarble)}
+              className="game-skill-button"
+            >
+              DummyMarble (5초)
+            </SkillButton>
+          </div>
         </div>
       )}
       <div onClick={handleCanvasClick} style={{ cursor: selectedSkill !== Skills.None ? 'crosshair' : 'default' }}>

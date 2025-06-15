@@ -6,6 +6,7 @@ import { useAuth } from './AuthContext';
 import { useSocketManager } from '../hooks/useSocketManager';
 import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
 import { GameStateDto } from 'common';
+import { skillCooldownManager } from '../utils/skillCooldownManager';
 
 interface GameContextType {
   roomId: string | undefined;
@@ -49,6 +50,21 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsManager(newIsManager);
     setSocketManagerIsManager(newIsManager);
   }, [user, roomDetails, setSocketManagerIsManager]);
+
+  // 게임 상태 변화에 따른 쿨타임 매니저 관리
+  useEffect(() => {
+    if (gameState?.isRunning === false) {
+      // 게임이 종료되면 쿨타임 초기화
+      skillCooldownManager.reset();
+    }
+  }, [gameState?.isRunning]);
+
+  // 컴포넌트 언마운트 시 쿨타임 정리
+  useEffect(() => {
+    return () => {
+      skillCooldownManager.reset();
+    };
+  }, []);
 
   const initializeGame = useCallback(async (container: HTMLDivElement) => {
     if (!rouletteInstance) {
