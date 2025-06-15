@@ -8,7 +8,10 @@ import { GameProvider } from '../contexts/GameContext';
 import { useGamePageLogic } from '../hooks/useGamePageLogic';
 import RouletteCanvas from '../components/game/RouletteCanvas';
 import GameFooter from '../components/game/GameFooter';
-import { Skills } from '../types/gameTypes';
+import { SkillButton } from '../components/SkillCooldownIndicator';
+import { SkillType } from 'common';
+import { ToastContainer } from '../components/ToastNotification';
+import { useGame } from '../contexts/GameContext';
 
 const GamePageContent: FC = () => {
   const {
@@ -31,6 +34,8 @@ const GamePageContent: FC = () => {
     passwordInputRef,
   } = useGamePageLogic();
 
+  const { toastMethods } = useGame();
+
   return (
     <>
       <GameBar roomName={roomName || ''} isManager={isManager} />
@@ -43,34 +48,46 @@ const GamePageContent: FC = () => {
             top: '10px',
             right: '10px',
             zIndex: 1000,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
+            padding: '15px',
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            minWidth: '200px',
           }}
         >
-          <label htmlFor="skill-select" style={{ marginRight: '10px' }}>
-            스킬 선택:
-          </label>
-          <select
-            id="skill-select"
-            value={selectedSkill}
-            onChange={(e) => handleSkillSelect(e.target.value as Skills)}
-            style={{
-              padding: '5px',
-              borderRadius: '3px',
-              border: '1px solid #ccc',
-              backgroundColor: '#333',
-              color: 'white',
-            }}
-          >
-            <option value={Skills.None}>없음</option>
-            <option value={Skills.Impact}>Impact</option>
-            <option value={Skills.DummyMarble}>DummyMarble</option>
-          </select>
+          <div style={{ marginBottom: '5px', fontSize: '14px', fontWeight: 'bold' }}>스킬 선택:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <SkillButton
+              skillType={SkillType.None}
+              selected={selectedSkill === SkillType.None}
+              onClick={() => handleSkillSelect(SkillType.None)}
+              className="game-skill-button"
+            >
+              없음
+            </SkillButton>
+            <SkillButton
+              skillType={SkillType.Impact}
+              selected={selectedSkill === SkillType.Impact}
+              onClick={() => handleSkillSelect(SkillType.Impact)}
+              className="game-skill-button"
+            >
+              충격파 (3초)
+            </SkillButton>
+            <SkillButton
+              skillType={SkillType.DummyMarble}
+              selected={selectedSkill === SkillType.DummyMarble}
+              onClick={() => handleSkillSelect(SkillType.DummyMarble)}
+              className="game-skill-button"
+            >
+              더미 구슬 (5초)
+            </SkillButton>
+          </div>
         </div>
       )}
-      <div onClick={handleCanvasClick} style={{ cursor: selectedSkill !== Skills.None ? 'crosshair' : 'default' }}>
+      <div onClick={handleCanvasClick} style={{ cursor: selectedSkill !== SkillType.None ? 'crosshair' : 'default' }}>
         <RouletteCanvas initializeGame={initializeGame} />
       </div>
       {showRankingModal && finalRanking && (
@@ -84,6 +101,9 @@ const GamePageContent: FC = () => {
         joinError={joinError}
         passwordInputRef={passwordInputRef}
       />
+      <div className={gameState?.isRunning ? 'game-running' : ''}>
+        <ToastContainer messages={toastMethods.messages} onClose={toastMethods.removeToast} />
+      </div>
     </>
   );
 };

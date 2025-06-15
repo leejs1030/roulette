@@ -3,6 +3,7 @@ export * from './types/MapEntity.type';
 export * from './types/VectorLike';
 export * from './types/skill.type';
 export * from './types/skill-effect.type';
+export * from './types/skill-cooldown.type';
 export * from './types/game-status.type';
 export * from './types/user.type';
 export * from './types/requests.type';

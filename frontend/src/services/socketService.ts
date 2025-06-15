@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { MapInfo } from '../types/gameTypes';
-import { GameStateDto, deserializeGameStateFromBase64 } from 'common/dist';
+import { GameStateDto, deserializeGameStateFromBase64, SkillCooldownResponse, SkillType } from 'common';
+import { skillCooldownManager } from '../utils/skillCooldownManager';
 
 interface PlayerJoinedData {
   playerId: string;
@@ -120,7 +121,7 @@ class SocketService {
           // 기존 JSON 객체 (fallback)
           gameState = data;
         }
-        
+
         this.gameStateListeners.forEach((listener) => listener(gameState));
       } catch (error) {
         console.error('Failed to deserialize game state:', error);
@@ -282,7 +283,7 @@ class SocketService {
   }
 
   public async useSkill(
-    skillType: string,
+    skillType: SkillType,
     skillPosition: { x: number; y: number },
     extra: any,
   ): Promise<{ success: boolean; message?: string }> {
@@ -290,12 +291,48 @@ class SocketService {
       console.warn('socketService: Cannot use skill, socket not connected or not in a room.');
       return { success: false, message: 'Socket not connected or not in a room.' };
     }
-    return await this.socket.emitWithAck('use_skill', {
-      roomId: this.currentRoomId,
-      skillType,
-      skillPosition,
-      extra,
-    });
+
+    // Skills를 SkillType으로 매핑
+
+    // 클라이언트 측 쿨타임 체크
+    if (skillType && !skillCooldownManager.canUseSkill(skillType)) {
+      const remainingTime = skillCooldownManager.getRemainingCooldown(skillType);
+      const remainingSeconds = Math.ceil(remainingTime / 1000);
+      console.log(`스킬이 쿨타임 중입니다. 남은 시간: ${remainingSeconds}초`);
+      return {
+        success: false,
+        message: `스킬이 쿨타임 중입니다. 남은 시간: ${remainingSeconds}초`,
+      };
+    }
+
+    try {
+      const response: SkillCooldownResponse = await this.socket.emitWithAck('use_skill', {
+        roomId: this.currentRoomId,
+        skillType,
+        skillPosition,
+        extra,
+      });
+
+      if (response.success) {
+        // 스킬 사용 성공 시 클라이언트 쿨타임 시작
+        if (skillType) {
+          skillCooldownManager.useSkill(skillType);
+        }
+
+        // 서버 쿨타임 정보와 동기화
+        if (response.cooldowns) {
+          skillCooldownManager.syncWithServer(response.cooldowns);
+        }
+      } else if (response.cooldowns) {
+        // 실패했지만 쿨타임 정보가 있으면 동기화
+        skillCooldownManager.syncWithServer(response.cooldowns);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('스킬 사용 중 오류 발생:', error);
+      return { success: false, message: '스킬 사용 중 오류가 발생했습니다.' };
+    }
   }
 
   public disconnect(): void {

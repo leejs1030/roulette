@@ -1,10 +1,4 @@
-import { GameStatus, UserPublicInfo } from 'common';
-
-export enum Skills {
-  None = 'None',
-  Impact = 'Impact',
-  DummyMarble = 'DummyMarble',
-}
+import { GameStatus, UserPublicInfo, SkillType } from 'common';
 
 export interface GameInfo {
   id: number;

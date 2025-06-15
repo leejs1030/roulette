@@ -427,5 +427,50 @@ div.copyright a {
   margin-left: 5px;
 }
 
-.game-top-bar .user-nickname {
+/* 게임 스킬 버튼 스타일 */
+.game-skill-button .skill-button {
+  font-size: 12px;
+  padding: 8px 16px;
+  min-width: 160px;
+  min-height: 36px;
+  text-align: center;
 }
+
+.game-skill-button .skill-button.disabled {
+  position: relative;
+  overflow: hidden;
+}
+
+.game-skill-button .button-cooldown-overlay .cooldown-text {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* 쿨타임 중 스킬 버튼 애니메이션 */
+.game-skill-button .skill-button.disabled::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.1) 2px,
+    rgba(255, 255, 255, 0.1) 4px
+  );
+  animation: move-stripes 0.5s linear infinite;
+}
+
+@keyframes move-stripes {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8px);
+  }
+}
+
+/* 기존 스타일... */

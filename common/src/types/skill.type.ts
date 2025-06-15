@@ -1,4 +1,5 @@
 export enum SkillType {
+  None = 'None',
   Impact = 'Impact',
   DummyMarble = 'DummyMarble',
 }
@@ -9,6 +10,7 @@ export interface SkillPosition {
 }
 
 interface SkillExtraMapper {
+  [SkillType.None]: {};
   [SkillType.Impact]: {};
   [SkillType.DummyMarble]: {};
 }

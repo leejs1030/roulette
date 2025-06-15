@@ -1,11 +1,17 @@
 import { SkillEffect } from 'common';
 import { v4 as uuidv4 } from 'uuid';
+import { SkillCooldownManager } from './skill-cooldown.manager';
 
 export class SkillManager {
   private _skillEffects: SkillEffect[] = [];
+  private cooldownManager = new SkillCooldownManager();
 
   get skillEffects(): SkillEffect[] {
     return this._skillEffects;
+  }
+
+  get skillCooldownManager(): SkillCooldownManager {
+    return this.cooldownManager;
   }
 
   public addSkillEffect(effectData: Omit<SkillEffect, 'id' | 'timestamp'>): void {

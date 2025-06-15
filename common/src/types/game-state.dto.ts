@@ -1,5 +1,6 @@
 import { MapEntityState } from './MapEntity.type';
 import { SkillEffect } from './skill-effect.type';
+import { SkillCooldown } from './skill-cooldown.type';
 
 export interface MarbleDto {
   id: number;
@@ -24,4 +25,5 @@ export interface GameStateDto {
   totalMarbleCount: number;
   shakeAvailable: boolean;
   skillEffects: SkillEffect[];
+  userSkillCooldowns?: SkillCooldown[]; // 현재 유저의 스킬 쿨타임 정보
 }

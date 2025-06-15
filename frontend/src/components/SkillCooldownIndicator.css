@@ -1,0 +1,88 @@
+.skill-cooldown-indicator {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.cooldown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.cooldown-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.3);
+  z-index: 1;
+}
+
+.cooldown-text {
+  position: relative;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  z-index: 2;
+}
+
+.skill-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.skill-button {
+  position: relative;
+  padding: 10px 20px;
+  border: 2px solid #007bff;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: bold;
+  width: 100%;
+  min-height: 40px;
+}
+
+.skill-button:hover:not(.disabled) {
+  background: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.skill-button.selected {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+.skill-button.disabled {
+  background: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.button-cooldown-overlay {
+  border-radius: 3px;
+}
+
+.button-cooldown-overlay .cooldown-overlay {
+  background: rgba(255, 0, 0, 0.7);
+  border-radius: 3px;
+}
+
+.button-cooldown-overlay .cooldown-progress {
+  background: rgba(0, 255, 0, 0.4);
+  border-radius: 3px 0 0 3px;
+}

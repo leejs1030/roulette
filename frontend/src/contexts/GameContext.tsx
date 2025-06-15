@@ -6,6 +6,8 @@ import { useAuth } from './AuthContext';
 import { useSocketManager } from '../hooks/useSocketManager';
 import { RoomInfo, RankingEntry, GameInfo, MapInfo } from '../types/gameTypes';
 import { GameStateDto } from 'common';
+import { skillCooldownManager } from '../utils/skillCooldownManager';
+import { useToast } from '../hooks/useToast';
 
 interface GameContextType {
   roomId: string | undefined;
@@ -21,6 +23,8 @@ interface GameContextType {
   availableMaps: MapInfo[];
   handlePasswordJoin: (password: string) => Promise<void>;
   initializeGame: (container: HTMLDivElement) => void;
+  // 토스트 관련
+  toastMethods: ReturnType<typeof useToast>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -30,6 +34,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { user } = useAuth();
   const [rouletteInstance, setRouletteInstance] = useState<Roulette | null>(null);
   const [isManager, setIsManager] = useState(false);
+  const toastMethods = useToast();
 
   const {
     roomDetails,
@@ -49,6 +54,21 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsManager(newIsManager);
     setSocketManagerIsManager(newIsManager);
   }, [user, roomDetails, setSocketManagerIsManager]);
+
+  // 게임 상태 변화에 따른 쿨타임 매니저 관리
+  useEffect(() => {
+    if (gameState?.isRunning === false) {
+      // 게임이 종료되면 쿨타임 초기화
+      skillCooldownManager.reset();
+    }
+  }, [gameState?.isRunning]);
+
+  // 컴포넌트 언마운트 시 쿨타임 정리
+  useEffect(() => {
+    return () => {
+      skillCooldownManager.reset();
+    };
+  }, []);
 
   const initializeGame = useCallback(async (container: HTMLDivElement) => {
     if (!rouletteInstance) {
@@ -73,6 +93,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     availableMaps,
     handlePasswordJoin,
     initializeGame,
+    toastMethods,
   };
 
   return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;

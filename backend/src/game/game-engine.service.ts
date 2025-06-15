@@ -7,7 +7,7 @@ import { GameRoom } from './game-room';
 import { SkillStrategy } from './strategies/skill.strategy';
 import { ImpactSkillStrategy } from './strategies/impact.strategy';
 import { DummyMarbleSkillStrategy } from './strategies/dummy-marble.strategy';
-import { SkillExtra, SkillType } from 'common';
+import { SkillExtra, SkillType, SkillCooldownResponse, SkillCooldown } from 'common';
 
 @Injectable()
 export class GameEngineService implements OnModuleDestroy {
@@ -30,6 +30,7 @@ export class GameEngineService implements OnModuleDestroy {
     skillType: T,
     skillPosition: SkillPosition,
     extra: SkillExtra<T>,
+    userId: number,
     userNickname?: string,
   ): Promise<void> {
     const room = this.gameSessionService.getRoom(roomId);
@@ -37,12 +38,57 @@ export class GameEngineService implements OnModuleDestroy {
       throw new BadRequestException(`Room ${roomId} not found or game not started.`);
     }
 
+    // 쿨타임 검증 (이중 검증)
+    const cooldownManager = room.game.skillManager.skillCooldownManager;
+    if (!cooldownManager.canUseSkill(userId, skillType)) {
+      const remainingTime = cooldownManager.getRemainingCooldown(userId, skillType);
+      throw new BadRequestException(`스킬이 쿨타임 중입니다. 남은 시간: ${Math.ceil(remainingTime / 1000)}초`);
+    }
+
     const strategy = this.skillStrategies.get(skillType);
     if (!strategy) {
       throw new BadRequestException(`Unknown skill type: ${skillType}`);
     }
 
+    // 스킬 사용 처리
+    cooldownManager.useSkill(userId, skillType);
     strategy.execute(room, skillPosition, extra, userNickname);
+  }
+
+  async canUseSkill(roomId: number, userId: number, skillType: SkillType): Promise<SkillCooldownResponse> {
+    const room = this.gameSessionService.getRoom(roomId);
+    if (!room || !room.game) {
+      return {
+        success: false,
+        message: `Room ${roomId} not found or game not started.`,
+      };
+    }
+
+    const cooldownManager = room.game.skillManager.skillCooldownManager;
+    const canUse = cooldownManager.canUseSkill(userId, skillType);
+    
+    if (!canUse) {
+      const remainingTime = cooldownManager.getRemainingCooldown(userId, skillType);
+      return {
+        success: false,
+        message: `스킬이 쿨타임 중입니다. 남은 시간: ${Math.ceil(remainingTime / 1000)}초`,
+        cooldowns: cooldownManager.getUserCooldowns(userId),
+      };
+    }
+
+    return {
+      success: true,
+      cooldowns: cooldownManager.getUserCooldowns(userId),
+    };
+  }
+
+  async getUserCooldowns(roomId: number, userId: number): Promise<SkillCooldown[]> {
+    const room = this.gameSessionService.getRoom(roomId);
+    if (!room || !room.game) {
+      return [];
+    }
+
+    return room.game.skillManager.skillCooldownManager.getUserCooldowns(userId);
   }
 
   startGameLoop(roomId: number, server: Server) {
