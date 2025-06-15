@@ -351,6 +351,37 @@ class SocketService {
   public getJoinedStatus(roomId: string): boolean {
     return this.joinedRooms.has(roomId);
   }
+
+  private getPasswordStorageKey(roomId: string): string {
+    return `room-${roomId}-password`;
+  }
+
+  public saveRoomPassword(roomId: string, password: string): void {
+    try {
+      localStorage.setItem(this.getPasswordStorageKey(roomId), password);
+      console.log(`Password for room ${roomId} saved.`);
+    } catch (e) {
+      console.error('Failed to save password to localStorage:', e);
+    }
+  }
+
+  public loadRoomPassword(roomId: string): string | null {
+    try {
+      return localStorage.getItem(this.getPasswordStorageKey(roomId));
+    } catch (e) {
+      console.error('Failed to load password from localStorage:', e);
+      return null;
+    }
+  }
+
+  public removeRoomPassword(roomId: string): void {
+    try {
+      localStorage.removeItem(this.getPasswordStorageKey(roomId));
+      console.log(`Password for room ${roomId} removed.`);
+    } catch (e) {
+      console.error('Failed to remove password from localStorage:', e);
+    }
+  }
 }
 
 const socketService = new SocketService();
