@@ -14,7 +14,7 @@ import { WsUserAttachedGuard } from './guards/ws-user-attached.guard'; // WsUser
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1d' },
+      signOptions: { expiresIn: '2w' },
     }),
   ],
   controllers: [AuthController],
