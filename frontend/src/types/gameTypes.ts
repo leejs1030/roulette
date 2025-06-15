@@ -1,32 +1,10 @@
-import {
-  EntityShapeTypes,
-  EntityShapeBase,
-  EntityBoxShape,
-  EntityCircleShape,
-  EntityPolylineShape,
-  EntityShape,
-  MapEntityState,
-  GameStatus,
-  UserPublicInfo,
-} from 'common';
+import { GameStatus, UserPublicInfo } from 'common';
 
 export enum Skills {
   None = 'None',
   Impact = 'Impact',
   DummyMarble = 'DummyMarble',
 }
-
-export {
-  EntityShapeTypes,
-  EntityShapeBase,
-  EntityBoxShape,
-  EntityCircleShape,
-  EntityPolylineShape,
-  EntityShape,
-  MapEntityState,
-  GameStatus,
-  UserPublicInfo,
-};
 
 export interface GameInfo {
   id: number;
