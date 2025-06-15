@@ -140,7 +140,7 @@ export class Roulette extends EventTarget {
       this._camera.update({
         marbles: this._marbles,
         stage: this._stage,
-        targetIndex: this._winnerRank - this._winners.length,
+        winningRank: this._winnerRank,
         deltaTime: currentTime - this._lastTime,
       });
     }
