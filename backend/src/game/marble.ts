@@ -56,9 +56,9 @@ export class Marble {
     this.position.y = v;
   }
 
-  get angle() {
-    return this.position.angle;
-  }
+  // get angle() {
+  //   return this.position.angle;
+  // }
 
   constructor({
     physics,
@@ -141,7 +141,7 @@ export class Marble {
       name: this.name,
       x: this.x,
       y: this.y,
-      angle: this.angle,
+      // angle: this.angle,
       color: this.color,
       hue: this.hue,
       isActive: this.isActive,

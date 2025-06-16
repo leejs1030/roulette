@@ -256,18 +256,18 @@ export class Box2dPhysics implements IPhysics {
     }
   }
 
-  getMarblePosition(id: number): { x: number; y: number; angle: number } {
+  getMarblePosition(id: number): { x: number; y: number /*; angle: number*/ } {
     const marbleBody = this.marbleMap[id];
     if (marbleBody) {
       const pos = marbleBody.GetPosition();
-      const angle = marbleBody.GetAngle();
+      // const angle = marbleBody.GetAngle();
       // Do not destroy pos here as it's a reference from GetPosition(), not newly created by `new`.
       // Box2D's GetPosition typically returns a pointer or a copy that JS GC handles if it's a JS object.
       // If it returns a direct C++ pointer via Embind/WebIDL, its lifetime is tied to the body or needs specific handling.
       // Assuming it's safe not to destroy `pos` based on typical Box2D JS wrapper behavior.
-      return { x: pos.x, y: pos.y, angle: angle };
+      return { x: pos.x, y: pos.y /*, angle: angle*/ };
     } else {
-      return { x: 0, y: 0, angle: 0 };
+      return { x: 0, y: 0 /*, angle: 0*/ };
     }
   }
 

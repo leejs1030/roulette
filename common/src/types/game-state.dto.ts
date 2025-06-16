@@ -7,7 +7,7 @@ export interface MarbleDto {
   name: string;
   x: number;
   y: number;
-  angle: number;
+  // angle: number;
   color: string;
   hue: number;
   isActive: boolean;

@@ -2987,7 +2987,6 @@ export const gamestate = $root.gamestate = (() => {
          * @property {string|null} [name] MarbleDto name
          * @property {number|null} [x] MarbleDto x
          * @property {number|null} [y] MarbleDto y
-         * @property {number|null} [angle] MarbleDto angle
          * @property {string|null} [color] MarbleDto color
          * @property {number|null} [hue] MarbleDto hue
          * @property {boolean|null} [isActive] MarbleDto isActive
@@ -3041,14 +3040,6 @@ export const gamestate = $root.gamestate = (() => {
          * @instance
          */
         MarbleDto.prototype.y = 0;
-
-        /**
-         * MarbleDto angle.
-         * @member {number} angle
-         * @memberof gamestate.MarbleDto
-         * @instance
-         */
-        MarbleDto.prototype.angle = 0;
 
         /**
          * MarbleDto color.
@@ -3122,8 +3113,6 @@ export const gamestate = $root.gamestate = (() => {
                 writer.uint32(/* id 3, wireType 1 =*/25).double(message.x);
             if (message.y != null && Object.hasOwnProperty.call(message, "y"))
                 writer.uint32(/* id 4, wireType 1 =*/33).double(message.y);
-            if (message.angle != null && Object.hasOwnProperty.call(message, "angle"))
-                writer.uint32(/* id 5, wireType 1 =*/41).double(message.angle);
             if (message.color != null && Object.hasOwnProperty.call(message, "color"))
                 writer.uint32(/* id 6, wireType 2 =*/50).string(message.color);
             if (message.hue != null && Object.hasOwnProperty.call(message, "hue"))
@@ -3184,10 +3173,6 @@ export const gamestate = $root.gamestate = (() => {
                     }
                 case 4: {
                         message.y = reader.double();
-                        break;
-                    }
-                case 5: {
-                        message.angle = reader.double();
                         break;
                     }
                 case 6: {
@@ -3257,9 +3242,6 @@ export const gamestate = $root.gamestate = (() => {
             if (message.y != null && message.hasOwnProperty("y"))
                 if (typeof message.y !== "number")
                     return "y: number expected";
-            if (message.angle != null && message.hasOwnProperty("angle"))
-                if (typeof message.angle !== "number")
-                    return "angle: number expected";
             if (message.color != null && message.hasOwnProperty("color"))
                 if (!$util.isString(message.color))
                     return "color: string expected";
@@ -3298,8 +3280,6 @@ export const gamestate = $root.gamestate = (() => {
                 message.x = Number(object.x);
             if (object.y != null)
                 message.y = Number(object.y);
-            if (object.angle != null)
-                message.angle = Number(object.angle);
             if (object.color != null)
                 message.color = String(object.color);
             if (object.hue != null)
@@ -3331,7 +3311,6 @@ export const gamestate = $root.gamestate = (() => {
                 object.name = "";
                 object.x = 0;
                 object.y = 0;
-                object.angle = 0;
                 object.color = "";
                 object.hue = 0;
                 object.isActive = false;
@@ -3346,8 +3325,6 @@ export const gamestate = $root.gamestate = (() => {
                 object.x = options.json && !isFinite(message.x) ? String(message.x) : message.x;
             if (message.y != null && message.hasOwnProperty("y"))
                 object.y = options.json && !isFinite(message.y) ? String(message.y) : message.y;
-            if (message.angle != null && message.hasOwnProperty("angle"))
-                object.angle = options.json && !isFinite(message.angle) ? String(message.angle) : message.angle;
             if (message.color != null && message.hasOwnProperty("color"))
                 object.color = message.color;
             if (message.hue != null && message.hasOwnProperty("hue"))

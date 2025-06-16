@@ -1218,9 +1218,6 @@ export namespace gamestate {
         /** MarbleDto y */
         y?: (number|null);
 
-        /** MarbleDto angle */
-        angle?: (number|null);
-
         /** MarbleDto color */
         color?: (string|null);
 
@@ -1257,9 +1254,6 @@ export namespace gamestate {
 
         /** MarbleDto y. */
         public y: number;
-
-        /** MarbleDto angle. */
-        public angle: number;
 
         /** MarbleDto color. */
         public color: string;
